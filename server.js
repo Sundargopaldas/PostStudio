@@ -1,4 +1,15 @@
 
+const express = require('express');
+const path = require('path');
+const mysql = require('mysql2/promise');
+const bcrypt = require('bcryptjs');
+const session = require('express-session');
+const fs = require('fs').promises;
+const multer = require('multer');
+// Google OAuth removido - usando sistema de login original
+
+const app = express();
+
 // Middleware de acesso premium temporário
 app.use((req, res, next) => {
     const premiumConfig = require('./premium-config.json');
@@ -13,17 +24,6 @@ app.use((req, res, next) => {
     
     next();
 });
-
-const express = require('express');
-const path = require('path');
-const mysql = require('mysql2/promise');
-const bcrypt = require('bcryptjs');
-const session = require('express-session');
-const fs = require('fs').promises;
-const multer = require('multer');
-// Google OAuth removido - usando sistema de login original
-
-const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Configuração do banco de dados
