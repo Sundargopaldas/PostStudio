@@ -28,11 +28,6 @@
 - **Preço:** R$ 59,90/mês (recorrente)
 - **Moeda:** BRL (Real Brasileiro)
 
-#### **Produto: PostStudio I.A - Pro**
-- **Nome:** PostStudio I.A - Plano Pro
-- **Descrição:** Posts ilimitados, API personalizada
-- **Preço:** R$ 99,90/mês (recorrente)
-- **Moeda:** BRL (Real Brasileiro)
 
 ### 2. **Obter IDs dos Produtos**
 
@@ -46,8 +41,7 @@ Após criar os produtos, copie os IDs:
 ```javascript
 const STRIPE_PRODUCTS = {
     basic: 'price_xxxxxxxxxxxxx', // ID do preço do plano básico
-    premium: 'price_xxxxxxxxxxxxx', // ID do preço do plano premium
-    pro: 'price_xxxxxxxxxxxxx' // ID do preço do plano pro
+    premium: 'price_xxxxxxxxxxxxx' // ID do preço do plano premium
 };
 ```
 

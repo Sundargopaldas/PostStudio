@@ -15,11 +15,6 @@ const PLANS = {
         name: 'Premium',
         price: 59.90,
         features: ['50 posts por mês', 'Todos os templates', 'Text-to-Speech', 'Vídeos com narração', 'Suporte prioritário']
-    },
-    pro: {
-        name: 'Pro',
-        price: 99.90,
-        features: ['Posts ilimitados', 'Todos os recursos', 'API personalizada', 'Suporte 24/7', 'Gerente de conta']
     }
 };
 
@@ -38,8 +33,7 @@ router.post('/create-subscription', async (req, res) => {
         // IDs dos produtos no Stripe (obtenha no dashboard do Stripe)
         const STRIPE_PRODUCTS = {
             basic: process.env.STRIPE_BASIC_PRICE_ID || 'price_basic_poststudio', // Substitua pelo ID real
-            premium: process.env.STRIPE_PREMIUM_PRICE_ID || 'price_premium_poststudio', // Substitua pelo ID real
-            pro: process.env.STRIPE_PRO_PRICE_ID || 'price_pro_poststudio' // Substitua pelo ID real
+            premium: process.env.STRIPE_PREMIUM_PRICE_ID || 'price_premium_poststudio' // Substitua pelo ID real
         };
         
         // Criar Customer no Stripe

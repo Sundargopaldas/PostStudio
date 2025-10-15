@@ -33,23 +33,6 @@ const PLANS = {
       teamMembers: 3
     }
   },
-  pro: {
-    name: 'Pro',
-    price: 79,
-    stripePriceId: process.env.STRIPE_PRO_PRICE_ID,
-    features: [
-      'Unlimited posts',
-      'AI content generation',
-      'Advanced analytics',
-      'Team collaboration',
-      'API access'
-    ],
-    limits: {
-      posts: -1, // unlimited
-      templates: -1,
-      teamMembers: 10
-    }
-  },
   enterprise: {
     name: 'Enterprise',
     price: 199,

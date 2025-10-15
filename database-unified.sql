@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS users (
     avatar VARCHAR(255) NULL,
     role ENUM('admin', 'user') DEFAULT 'user',
     status ENUM('active', 'inactive', 'suspended') DEFAULT 'active',
-    subscription_plan ENUM('free', 'premium', 'pro') DEFAULT 'free',
+    subscription_plan ENUM('free', 'basic', 'premium') DEFAULT 'free',
     subscription_expires_at TIMESTAMP NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
