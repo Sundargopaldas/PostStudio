@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug 404 - PostStudio I.A</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <div class="max-w-4xl mx-auto p-6">
+        <div class="glass-effect rounded-2xl p-8">
+            <h1 class="text-3xl font-bold text-white mb-6">
+                <i class="fas fa-bug mr-3 text-yellow-400"></i>Debug 404
+            </h1>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Teste de Recursos -->
+                <div class="bg-white/10 rounded-xl p-6">
+                    <h2 class="text-xl font-bold text-white mb-4">Teste de Recursos</h2>
+                    <div id="resourceTests" class="space-y-2">
+                        <!-- Resultados serão inseridos aqui -->
+                    </div>
+                </div>
+                
+                <!-- Teste de APIs -->
+                <div class="bg-white/10 rounded-xl p-6">
+                    <h2 class="text-xl font-bold text-white mb-4">Teste de APIs</h2>
+                    <div id="apiTests" class="space-y-2">
+                        <!-- Resultados serão inseridos aqui -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Logs -->
+            <div class="mt-6 bg-black/20 rounded-xl p-6">
+                <h2 class="text-xl font-bold text-white mb-4">Logs de Debug</h2>
+                <div id="debugLogs" class="text-green-400 font-mono text-sm max-h-64 overflow-y-auto">
+                    <!-- Logs serão inseridos aqui -->
+                </div>
+            </div>
+            
+            <!-- Botões de Ação -->
+            <div class="mt-6 flex space-x-4">
+                <button onclick="runAllTests()" class="bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors">
+                    <i class="fas fa-play mr-2"></i>Executar Todos os Testes
+                </button>
+                <button onclick="clearLogs()" class="bg-gray-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-600 transition-colors">
+                    <i class="fas fa-trash mr-2"></i>Limpar Logs
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const logs = document.getElementById('debugLogs');
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? 'text-red-400' : type === 'success' ? 'text-green-400' : 'text-blue-400';
+            logs.innerHTML += `<div class="${color}">[${timestamp}] ${message}</div>`;
+            logs.scrollTop = logs.scrollHeight;
+        }
+
+        function clearLogs() {
+            document.getElementById('debugLogs').innerHTML = '';
+        }
+
+        async function testResource(url, name) {
+            try {
+                log(`Testando recurso: ${name} (${url})`);
+                const response = await fetch(url);
+                const status = response.status;
+                const statusText = response.statusText;
+                
+                if (status === 200) {
+                    log(`✅ ${name}: OK (${status})`, 'success');
+                    return { name, status, success: true };
+                } else {
+                    log(`❌ ${name}: ${status} ${statusText}`, 'error');
+                    return { name, status, success: false };
+                }
+            } catch (error) {
+                log(`❌ ${name}: Erro de conexão - ${error.message}`, 'error');
+                return { name, status: 'ERROR', success: false };
+            }
+        }
+
+        async function testAPI(endpoint, name) {
+            try {
+                log(`Testando API: ${name} (${endpoint})`);
+                const response = await fetch(endpoint);
+                const status = response.status;
+                const statusText = response.statusText;
+                
+                if (status === 200 || status === 401) {
+                    log(`✅ ${name}: OK (${status})`, 'success');
+                    return { name, status, success: true };
+                } else {
+                    log(`❌ ${name}: ${status} ${statusText}`, 'error');
+                    return { name, status, success: false };
+                }
+            } catch (error) {
+                log(`❌ ${name}: Erro de conexão - ${error.message}`, 'error');
+                return { name, status: 'ERROR', success: false };
+            }
+        }
+
+        async function runAllTests() {
+            log('🚀 Iniciando testes de diagnóstico...');
+            
+            // Teste de recursos estáticos
+            const resourceTests = [
+                { url: '/', name: 'Página Principal' },
+                { url: '/posts', name: 'Página de Posts' },
+                { url: '/create-post', name: 'Criar Post' },
+                { url: '/dashboard', name: 'Dashboard' }
+            ];
+            
+            // Teste de APIs
+            const apiTests = [
+                { endpoint: '/api/user', name: 'API User' },
+                { endpoint: '/api/posts', name: 'API Posts' }
+            ];
+            
+            // Executar testes de recursos
+            log('📁 Testando recursos estáticos...');
+            const resourceResults = [];
+            for (const test of resourceTests) {
+                const result = await testResource(test.url, test.name);
+                resourceResults.push(result);
+            }
+            
+            // Executar testes de APIs
+            log('🔌 Testando APIs...');
+            const apiResults = [];
+            for (const test of apiTests) {
+                const result = await testAPI(test.endpoint, test.name);
+                apiResults.push(result);
+            }
+            
+            // Exibir resultados
+            displayResults('resourceTests', resourceResults);
+            displayResults('apiTests', apiResults);
+            
+            // Resumo
+            const totalTests = resourceResults.length + apiResults.length;
+            const successfulTests = resourceResults.filter(r => r.success).length + apiResults.filter(r => r.success).length;
+            
+            log(`📊 Resumo: ${successfulTests}/${totalTests} testes passaram`, successfulTests === totalTests ? 'success' : 'error');
+        }
+
+        function displayResults(containerId, results) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            results.forEach(result => {
+                const statusColor = result.success ? 'text-green-400' : 'text-red-400';
+                const statusIcon = result.success ? '✅' : '❌';
+                const div = document.createElement('div');
+                div.className = `flex items-center justify-between p-2 rounded ${result.success ? 'bg-green-500/20' : 'bg-red-500/20'}`;
+                div.innerHTML = `
+                    <span class="text-white">${statusIcon} ${result.name}</span>
+                    <span class="${statusColor} font-mono">${result.status}</span>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Executar testes automaticamente ao carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🔍 Página de debug carregada');
+            log('💡 Clique em "Executar Todos os Testes" para diagnosticar problemas 404');
+        });
+    </script>
+</body>
+</html>

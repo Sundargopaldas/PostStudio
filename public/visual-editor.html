@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PostStudio I.A - Editor Visual</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Fontes personalizadas */
+        .font-inter { font-family: 'Inter', sans-serif; }
+        .font-poppins { font-family: 'Poppins', sans-serif; }
+        .font-playfair { font-family: 'Playfair Display', serif; }
+        .font-montserrat { font-family: 'Montserrat', sans-serif; }
+        
+        /* Efeitos de texto modernos */
+        .text-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .text-shadow-glow {
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+        
+        /* Animações suaves */
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        
+        .animate-slide-up {
+            animation: slideUp 0.8s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { 
+                opacity: 0; 
+                transform: translateY(30px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+        
+        /* Efeitos de hover aprimorados */
+        .hover-lift {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+        }
+        
+        /* Editor Visual */
+        .editor-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .preview-panel {
+            background: rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Backgrounds dinâmicos para templates */
+        .template-bg-motivacional {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+        }
+        
+        .template-bg-negocios {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .template-bg-engajamento {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .template-bg-promocao {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        }
+        
+        .template-bg-tecnico {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .template-bg-pessoal {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        
+        /* Preview do post */
+        .post-preview {
+            min-height: 400px;
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .post-preview-content {
+            position: relative;
+            z-index: 10;
+            padding: 2rem;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        /* Controles do editor */
+        .editor-control {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .editor-control:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .editor-control.active {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <!-- Header -->
+    <header class="glass-effect">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center">
+                    <a href="/dashboard" class="flex items-center">
+                        <i class="fas fa-arrow-left text-2xl text-white mr-3 hover:text-white/80 transition-colors"></i>
+                        <i class="fas fa-brain text-3xl text-white mr-3"></i>
+                        <h1 class="text-2xl font-bold text-white">PostStudio I.A</h1>
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span id="userWelcome" class="text-white/80">Carregando...</span>
+                    <button onclick="logout()" class="bg-white/20 text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-colors">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Sair
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Title -->
+        <div class="glass-effect rounded-2xl p-8 mb-8 animate-fade-in">
+            <div class="text-center">
+                <h2 class="text-4xl font-bold text-white mb-4 font-playfair text-shadow-glow">Editor Visual</h2>
+                <p class="text-white/90 text-lg font-inter">Crie posts incríveis com preview em tempo real</p>
+                <div class="mt-4 flex justify-center">
+                    <div class="w-24 h-1 bg-gradient-to-r from-pink-400 to-purple-400 rounded-full"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Editor Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Editor Panel -->
+            <div class="editor-panel rounded-2xl p-6 animate-slide-up">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6 font-montserrat">
+                    <i class="fas fa-edit mr-3 text-blue-500"></i>Editor
+                </h3>
+                
+                <!-- Template Selection -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-3">Template</label>
+                    <select id="templateSelect" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Selecione um template</option>
+                        <option value="Post Motivacional">Post Motivacional</option>
+                        <option value="Dica de Negócio">Dica de Negócio</option>
+                        <option value="Pergunta Engajamento">Pergunta Engajamento</option>
+                        <option value="Promoção de Produto">Promoção de Produto</option>
+                        <option value="Dica Técnica">Dica Técnica</option>
+                        <option value="Post Pessoal">Post Pessoal</option>
+                    </select>
+                </div>
+
+                <!-- Title Input -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-3">Título</label>
+                    <input 
+                        type="text" 
+                        id="postTitle" 
+                        class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Digite o título do seu post"
+                    >
+                </div>
+
+                <!-- Content Input -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-3">Conteúdo</label>
+                    <textarea 
+                        id="postContent" 
+                        rows="6" 
+                        class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                        placeholder="Escreva o conteúdo do seu post aqui..."
+                    ></textarea>
+                </div>
+
+                <!-- Font Controls -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-3">Fonte</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button class="editor-control rounded-lg p-3 text-center" data-font="font-inter">
+                            <div class="font-inter text-sm font-medium">Inter</div>
+                        </button>
+                        <button class="editor-control rounded-lg p-3 text-center" data-font="font-poppins">
+                            <div class="font-poppins text-sm font-medium">Poppins</div>
+                        </button>
+                        <button class="editor-control rounded-lg p-3 text-center" data-font="font-playfair">
+                            <div class="font-playfair text-sm font-medium">Playfair</div>
+                        </button>
+                        <button class="editor-control rounded-lg p-3 text-center" data-font="font-montserrat">
+                            <div class="font-montserrat text-sm font-medium">Montserrat</div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Color Controls -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-3">Cor do Texto</label>
+                    <div class="grid grid-cols-4 gap-3">
+                        <button class="editor-control rounded-lg p-3 text-center" data-color="text-white">
+                            <div class="w-6 h-6 bg-white rounded-full mx-auto border border-gray-300"></div>
+                        </button>
+                        <button class="editor-control rounded-lg p-3 text-center" data-color="text-gray-800">
+                            <div class="w-6 h-6 bg-gray-800 rounded-full mx-auto"></div>
+                        </button>
+                        <button class="editor-control rounded-lg p-3 text-center" data-color="text-blue-600">
+                            <div class="w-6 h-6 bg-blue-600 rounded-full mx-auto"></div>
+                        </button>
+                        <button class="editor-control rounded-lg p-3 text-center" data-color="text-purple-600">
+                            <div class="w-6 h-6 bg-purple-600 rounded-full mx-auto"></div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex space-x-4">
+                    <button onclick="savePost()" class="flex-1 bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors">
+                        <i class="fas fa-save mr-2"></i>Salvar
+                    </button>
+                    <button onclick="publishPost()" class="flex-1 bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition-colors">
+                        <i class="fas fa-paper-plane mr-2"></i>Publicar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Preview Panel -->
+            <div class="preview-panel rounded-2xl p-6 animate-slide-up">
+                <h3 class="text-2xl font-bold text-white mb-6 font-montserrat">
+                    <i class="fas fa-eye mr-3 text-green-400"></i>Preview
+                </h3>
+                
+                <div id="postPreview" class="post-preview template-bg-default">
+                    <div class="post-preview-content">
+                        <h2 id="previewTitle" class="text-3xl font-bold text-white mb-4 font-inter">Seu título aparecerá aqui</h2>
+                        <p id="previewContent" class="text-white/90 text-lg leading-relaxed font-inter">Seu conteúdo aparecerá aqui...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let currentTemplate = '';
+        let currentFont = 'font-inter';
+        let currentColor = 'text-white';
+
+        // Carregar dados do usuário
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                const response = await fetch('/api/user');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const user = data.user;
+                    document.getElementById('userWelcome').textContent = `Bem-vindo, ${user.name}`;
+                } else if (response.status === 401) {
+                    window.location.href = '/';
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+            }
+            
+            // Verificar se é modo de edição
+            const urlParams = new URLSearchParams(window.location.search);
+            const editMode = urlParams.get('edit');
+            const title = urlParams.get('title');
+            const content = urlParams.get('content');
+            
+            if (editMode && title && content) {
+                // Modo de edição
+                document.getElementById('postTitle').value = decodeURIComponent(title);
+                document.getElementById('postContent').value = decodeURIComponent(content);
+                updatePreview();
+                
+                // Atualizar título da página
+                document.querySelector('h2').textContent = 'Editar Post';
+                document.querySelector('p').textContent = 'Edite seu post com preview em tempo real';
+            }
+            
+            // Inicializar controles
+            initializeControls();
+        });
+
+        // Inicializar controles
+        function initializeControls() {
+            // Template selection
+            document.getElementById('templateSelect').addEventListener('change', function() {
+                currentTemplate = this.value;
+                updatePreview();
+            });
+
+            // Title input
+            document.getElementById('postTitle').addEventListener('input', function() {
+                updatePreview();
+            });
+
+            // Content input
+            document.getElementById('postContent').addEventListener('input', function() {
+                updatePreview();
+            });
+
+            // Font controls
+            document.querySelectorAll('[data-font]').forEach(button => {
+                button.addEventListener('click', function() {
+                    document.querySelectorAll('[data-font]').forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFont = this.dataset.font;
+                    updatePreview();
+                });
+            });
+
+            // Color controls
+            document.querySelectorAll('[data-color]').forEach(button => {
+                button.addEventListener('click', function() {
+                    document.querySelectorAll('[data-color]').forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    currentColor = this.dataset.color;
+                    updatePreview();
+                });
+            });
+
+            // Selecionar primeiro controle ativo
+            document.querySelector('[data-font]').classList.add('active');
+            document.querySelector('[data-color]').classList.add('active');
+        }
+
+        // Atualizar preview
+        function updatePreview() {
+            const title = document.getElementById('postTitle').value || 'Seu título aparecerá aqui';
+            const content = document.getElementById('postContent').value || 'Seu conteúdo aparecerá aqui...';
+            
+            // Atualizar título
+            document.getElementById('previewTitle').textContent = title;
+            document.getElementById('previewTitle').className = `text-3xl font-bold ${currentColor} mb-4 ${currentFont}`;
+            
+            // Atualizar conteúdo
+            document.getElementById('previewContent').textContent = content;
+            document.getElementById('previewContent').className = `${currentColor}/90 text-lg leading-relaxed ${currentFont}`;
+            
+            // Atualizar background baseado no template
+            const preview = document.getElementById('postPreview');
+            preview.className = `post-preview ${getTemplateClass(currentTemplate)}`;
+        }
+
+        // Obter classe do template
+        function getTemplateClass(template) {
+            const templateClasses = {
+                'Post Motivacional': 'template-bg-motivacional',
+                'Dica de Negócio': 'template-bg-negocios',
+                'Pergunta Engajamento': 'template-bg-engajamento',
+                'Promoção de Produto': 'template-bg-promocao',
+                'Dica Técnica': 'template-bg-tecnico',
+                'Post Pessoal': 'template-bg-pessoal'
+            };
+            
+            return templateClasses[template] || 'template-bg-default';
+        }
+
+        // Salvar post
+        async function savePost() {
+            const title = document.getElementById('postTitle').value;
+            const content = document.getElementById('postContent').value;
+            
+            if (!title || !content) {
+                alert('Por favor, preencha o título e o conteúdo!');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/posts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title: title,
+                        content: content,
+                        template: currentTemplate,
+                        hashtags: '',
+                        platforms: []
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert('Post salvo com sucesso!');
+                    window.location.href = '/posts';
+                } else {
+                    alert(data.message || 'Erro ao salvar post');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro de conexão. Tente novamente.');
+            }
+        }
+
+        // Publicar post
+        async function publishPost() {
+            const title = document.getElementById('postTitle').value;
+            const content = document.getElementById('postContent').value;
+            
+            if (!title || !content) {
+                alert('Por favor, preencha o título e o conteúdo!');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/posts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title: title,
+                        content: content,
+                        template: currentTemplate,
+                        hashtags: '',
+                        platforms: [],
+                        status: 'published'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert('Post publicado com sucesso!');
+                    window.location.href = '/posts';
+                } else {
+                    alert(data.message || 'Erro ao publicar post');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro de conexão. Tente novamente.');
+            }
+        }
+
+        // Logout
+        async function logout() {
+            if (confirm('Tem certeza que deseja sair?')) {
+                try {
+                    const response = await fetch('/api/logout', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        window.location.href = '/';
+                    } else {
+                        window.location.href = '/';
+                    }
+                } catch (error) {
+                    console.error('Erro:', error);
+                    window.location.href = '/';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

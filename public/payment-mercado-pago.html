@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagamento - PostStudio I.A</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://sdk.mercadopago.com/js/v2"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .payment-method {
+            transition: all 0.3s ease;
+        }
+        .payment-method:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .payment-method.selected {
+            border-color: #00a650;
+            background: rgba(0, 166, 80, 0.1);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-2xl">
+        <div class="glass-effect rounded-2xl p-8 shadow-2xl">
+            <h1 class="text-3xl font-bold text-white mb-6 text-center">💳 Pagamento - PostStudio I.A</h1>
+            
+            <!-- Plano Selecionado -->
+            <div class="bg-white/10 rounded-xl p-6 mb-8">
+                <h3 class="text-2xl font-bold text-white mb-2">Plano Premium</h3>
+                <p class="text-white/70 text-lg mb-4">50 posts por mês, Text-to-Speech, Vídeos com Narração</p>
+                <p class="text-4xl font-bold text-white">R$ 59,90<span class="text-xl text-white/70">/mês</span></p>
+            </div>
+
+            <!-- Dados do Cliente -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                <div>
+                    <label class="block text-sm font-medium text-white mb-2">
+                        <i class="fas fa-user mr-2"></i>Nome Completo
+                    </label>
+                    <input type="text" id="billing-name" required
+                           class="w-full p-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50"
+                           placeholder="Seu nome completo">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-white mb-2">
+                        <i class="fas fa-envelope mr-2"></i>Email
+                    </label>
+                    <input type="email" id="billing-email" required
+                           class="w-full p-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50"
+                           placeholder="seu@email.com">
+                </div>
+            </div>
+
+            <!-- Métodos de Pagamento -->
+            <div class="mb-8">
+                <h3 class="text-xl font-bold text-white mb-4">Escolha a forma de pagamento:</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- PIX -->
+                    <div class="payment-method bg-white/10 rounded-xl p-6 border border-white/20 cursor-pointer" data-method="pix">
+                        <div class="text-center">
+                            <i class="fas fa-qrcode text-4xl text-green-400 mb-4"></i>
+                            <h4 class="text-lg font-bold text-white mb-2">PIX</h4>
+                            <p class="text-white/70 text-sm">Pagamento instantâneo</p>
+                            <p class="text-green-400 font-semibold mt-2">5% de desconto</p>
+                        </div>
+                    </div>
+
+                    <!-- Cartão de Crédito -->
+                    <div class="payment-method bg-white/10 rounded-xl p-6 border border-white/20 cursor-pointer" data-method="credit">
+                        <div class="text-center">
+                            <i class="fas fa-credit-card text-4xl text-blue-400 mb-4"></i>
+                            <h4 class="text-lg font-bold text-white mb-2">Cartão</h4>
+                            <p class="text-white/70 text-sm">Crédito ou débito</p>
+                            <p class="text-blue-400 font-semibold mt-2">Até 12x sem juros</p>
+                        </div>
+                    </div>
+
+                    <!-- Boleto -->
+                    <div class="payment-method bg-white/10 rounded-xl p-6 border border-white/20 cursor-pointer" data-method="boleto">
+                        <div class="text-center">
+                            <i class="fas fa-barcode text-4xl text-yellow-400 mb-4"></i>
+                            <h4 class="text-lg font-bold text-white mb-2">Boleto</h4>
+                            <p class="text-white/70 text-sm">Pagamento à vista</p>
+                            <p class="text-yellow-400 font-semibold mt-2">Vencimento em 3 dias</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulário de Cartão (oculto inicialmente) -->
+            <div id="card-form" class="hidden mb-8">
+                <h3 class="text-xl font-bold text-white mb-4">Dados do Cartão:</h3>
+                <div id="card-container" class="p-4 rounded-lg bg-white/10 border border-white/20">
+                    <!-- Mercado Pago Card Form será inserido aqui -->
+                </div>
+                <div id="card-errors" class="text-red-400 text-sm mt-2"></div>
+            </div>
+
+            <!-- Botão de Pagamento -->
+            <button id="pay-button" class="w-full bg-green-500 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-green-600 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed">
+                <i class="fas fa-lock mr-2"></i>Processar Pagamento
+            </button>
+
+            <!-- Informações de Teste -->
+            <div class="mt-8 p-4 bg-blue-500/20 rounded-lg">
+                <h4 class="text-white font-semibold mb-3">🧪 Cartões de Teste (Mercado Pago):</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-white/80 text-sm">
+                    <div>
+                        <p><strong>✅ Aprovado:</strong> 4009 1755 0000 0004</p>
+                        <p><strong>❌ Recusado:</strong> 4000 0000 0000 0002</p>
+                        <p><strong>🔐 3D Secure:</strong> 4000 0025 0000 3155</p>
+                    </div>
+                    <div>
+                        <p><strong>Data:</strong> Qualquer data futura</p>
+                        <p><strong>CVV:</strong> Qualquer 3 dígitos</p>
+                        <p><strong>CPF:</strong> 123.456.789-00</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuração do Mercado Pago
+        const mp = new MercadoPago('SUA_CHAVE_PUBLICA_AQUI', {
+            locale: 'pt-BR'
+        });
+
+        let selectedPaymentMethod = null;
+        let cardForm = null;
+
+        // Seleção de método de pagamento
+        document.querySelectorAll('.payment-method').forEach(method => {
+            method.addEventListener('click', function() {
+                // Remover seleção anterior
+                document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
+                
+                // Selecionar método atual
+                this.classList.add('selected');
+                selectedPaymentMethod = this.dataset.method;
+                
+                // Mostrar/ocultar formulário de cartão
+                const cardFormElement = document.getElementById('card-form');
+                if (selectedPaymentMethod === 'credit') {
+                    cardFormElement.classList.remove('hidden');
+                    initializeCardForm();
+                } else {
+                    cardFormElement.classList.add('hidden');
+                }
+                
+                updatePayButton();
+            });
+        });
+
+        // Inicializar formulário de cartão
+        function initializeCardForm() {
+            if (cardForm) return; // Já inicializado
+            
+            cardForm = mp.cardForm({
+                amount: "59.90",
+                iframe: true,
+                form: {
+                    id: "card-container",
+                    cardholderName: {
+                        id: "form-checkout__cardholderName",
+                        placeholder: "Nome no cartão"
+                    },
+                    cardholderEmail: {
+                        id: "form-checkout__cardholderEmail",
+                        placeholder: "Email"
+                    },
+                    cardNumber: {
+                        id: "form-checkout__cardNumber",
+                        placeholder: "Número do cartão"
+                    },
+                    expirationDate: {
+                        id: "form-checkout__expirationDate",
+                        placeholder: "MM/AA"
+                    },
+                    securityCode: {
+                        id: "form-checkout__securityCode",
+                        placeholder: "CVV"
+                    },
+                    installments: {
+                        id: "form-checkout__installments",
+                        placeholder: "Parcelas"
+                    },
+                    identificationType: {
+                        id: "form-checkout__identificationType",
+                        placeholder: "Tipo de documento"
+                    },
+                    identificationNumber: {
+                        id: "form-checkout__identificationNumber",
+                        placeholder: "Número do documento"
+                    },
+                    issuer: {
+                        id: "form-checkout__issuer",
+                        placeholder: "Banco emissor"
+                    }
+                },
+                callbacks: {
+                    onFormMounted: error => {
+                        if (error) {
+                            console.error('Erro ao montar formulário:', error);
+                        }
+                    },
+                    onSubmit: event => {
+                        event.preventDefault();
+                        processPayment();
+                    },
+                    onFetching: (resource) => {
+                        console.log('Buscando:', resource);
+                    }
+                }
+            });
+        }
+
+        // Atualizar botão de pagamento
+        function updatePayButton() {
+            const payButton = document.getElementById('pay-button');
+            if (selectedPaymentMethod === 'pix') {
+                payButton.innerHTML = '<i class="fas fa-qrcode mr-2"></i>Gerar PIX';
+            } else if (selectedPaymentMethod === 'credit') {
+                payButton.innerHTML = '<i class="fas fa-credit-card mr-2"></i>Pagar com Cartão';
+            } else if (selectedPaymentMethod === 'boleto') {
+                payButton.innerHTML = '<i class="fas fa-barcode mr-2"></i>Gerar Boleto';
+            } else {
+                payButton.innerHTML = '<i class="fas fa-lock mr-2"></i>Processar Pagamento';
+            }
+        }
+
+        // Processar pagamento
+        async function processPayment() {
+            const payButton = document.getElementById('pay-button');
+            const billingName = document.getElementById('billing-name').value;
+            const billingEmail = document.getElementById('billing-email').value;
+            
+            // Validações
+            if (!billingName || !billingEmail) {
+                alert('Por favor, preencha todos os campos');
+                return;
+            }
+            
+            if (!selectedPaymentMethod) {
+                alert('Por favor, selecione uma forma de pagamento');
+                return;
+            }
+            
+            payButton.disabled = true;
+            payButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processando...';
+            
+            try {
+                if (selectedPaymentMethod === 'pix') {
+                    await processPixPayment(billingName, billingEmail);
+                } else if (selectedPaymentMethod === 'credit') {
+                    await processCardPayment();
+                } else if (selectedPaymentMethod === 'boleto') {
+                    await processBoletoPayment(billingName, billingEmail);
+                }
+            } catch (error) {
+                console.error('Erro no pagamento:', error);
+                alert('Erro ao processar pagamento. Tente novamente.');
+            } finally {
+                payButton.disabled = false;
+                updatePayButton();
+            }
+        }
+
+        // Processar PIX
+        async function processPixPayment(name, email) {
+            // Simular criação de PIX
+            console.log('🔗 Processando PIX para:', name, email);
+            
+            // Simular geração de QR Code
+            alert('✅ PIX gerado com sucesso!\n\nQR Code: PIX123456789\n\nValor: R$ 59,90\n\nPague com seu app do banco!');
+            
+            // Redirecionar para sucesso
+            setTimeout(() => {
+                window.location.href = '/payment-success?plan=premium&price=59.90&method=pix';
+            }, 2000);
+        }
+
+        // Processar Cartão
+        async function processCardPayment() {
+            if (!cardForm) {
+                alert('Formulário de cartão não inicializado');
+                return;
+            }
+            
+            const result = await cardForm.createCardToken();
+            
+            if (result.error) {
+                alert('Erro no cartão: ' + result.error.message);
+                return;
+            }
+            
+            console.log('💳 Token do cartão:', result.id);
+            alert('✅ Pagamento com cartão processado!\n\nToken: ' + result.id);
+            
+            // Redirecionar para sucesso
+            setTimeout(() => {
+                window.location.href = '/payment-success?plan=premium&price=59.90&method=card';
+            }, 2000);
+        }
+
+        // Processar Boleto
+        async function processBoletoPayment(name, email) {
+            // Simular criação de boleto
+            console.log('📄 Processando boleto para:', name, email);
+            
+            // Simular geração de boleto
+            alert('✅ Boleto gerado com sucesso!\n\nCódigo: 12345678901234567890\n\nVencimento: ' + new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString('pt-BR') + '\n\nValor: R$ 59,90');
+            
+            // Redirecionar para sucesso
+            setTimeout(() => {
+                window.location.href = '/payment-success?plan=premium&price=59.90&method=boleto';
+            }, 2000);
+        }
+
+        // Event listener para o botão de pagamento
+        document.getElementById('pay-button').addEventListener('click', processPayment);
+    </script>
+</body>
+</html>

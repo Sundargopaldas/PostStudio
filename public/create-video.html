@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PostStudio I.A - Editar Vídeo</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Cursor branco para todos os inputs */
+        input, textarea, select {
+            caret-color: white !important;
+            color: white !important;
+            background-color: rgba(255, 255, 255, 0.1) !important;
+        }
+        
+        /* Forçar cursor branco em todos os navegadores */
+        input:focus, textarea:focus, select:focus {
+            caret-color: white !important;
+            color: white !important;
+            background-color: rgba(255, 255, 255, 0.2) !important;
+        }
+        
+        /* Garantir que o texto seja branco e visível */
+        input, textarea, select {
+            color: white !important;
+            text-shadow: 0 0 2px rgba(0, 0, 0, 0.5) !important;
+        }
+        
+        /* Placeholder branco com sombra */
+        input::placeholder, textarea::placeholder {
+            color: rgba(255, 255, 255, 0.8) !important;
+            text-shadow: 0 0 2px rgba(0, 0, 0, 0.5) !important;
+        }
+        
+        /* Garantir que o texto digitado seja sempre visível */
+        input:not(:placeholder-shown), textarea:not(:placeholder-shown) {
+            color: white !important;
+            text-shadow: 0 0 3px rgba(0, 0, 0, 0.8) !important;
+            font-weight: 500 !important;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-8">
+                <div class="flex items-center space-x-4">
+                <button onclick="window.location.href='/create-post'" class="text-white hover:text-white/80 transition-colors">
+                    <i class="fas fa-arrow-left text-xl"></i>
+                    </button>
+                <h1 class="text-3xl font-bold text-white">
+                    <i class="fas fa-video mr-3"></i>Editar Vídeo
+                </h1>
+            </div>
+        </div>
+
+        <!-- Video Upload Section -->
+        <div class="glass-effect rounded-2xl p-8 mb-8">
+            <h2 class="text-2xl font-bold text-white mb-6">
+                <i class="fas fa-upload mr-3"></i>Upload de Vídeo
+            </h2>
+            
+            <div class="border-2 border-dashed border-white/30 rounded-lg p-8 text-center hover:border-white/50 transition-colors">
+                <input 
+                    type="file" 
+                    id="videoUpload" 
+                    accept="video/*" 
+                    class="hidden"
+                    onchange="handleVideoUpload(event)"
+                >
+                <label for="videoUpload" class="cursor-pointer">
+                    <i class="fas fa-video text-6xl text-white/60 mb-4"></i>
+                    <p class="text-white/80 text-xl mb-2">Clique para selecionar vídeo</p>
+                    <p class="text-white/60">MP4, AVI, MOV até 100MB</p>
+                </label>
+            </div>
+            
+            <div id="videoPreview" class="mt-6">
+                <!-- Preview do vídeo será inserido aqui -->
+            </div>
+        </div>
+
+        <!-- Pexels Videos Section -->
+        <div class="glass-effect rounded-2xl p-8 mb-8">
+            <h2 class="text-2xl font-bold text-white mb-6">
+                <i class="fas fa-video mr-3"></i>Vídeos Profissionais
+            </h2>
+            
+            <!-- Search and Categories -->
+                <div class="mb-6">
+                <div class="flex space-x-2 mb-4">
+                    <input type="text" id="pexelsVideoSearch" placeholder="Buscar vídeos..." 
+                           class="flex-1 px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-400/50">
+                    <button onclick="searchPexelsVideos()" class="bg-orange-500/20 text-orange-300 px-4 py-2 rounded-lg hover:bg-orange-500/30 transition-colors">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="loadModernVideoCategory('technology modern digital')" class="category-btn px-3 py-1 rounded-full bg-white/10 text-white text-sm hover:bg-white/20 transition-colors">
+                        💻 Tecnologia
+                    </button>
+                    <button onclick="loadModernVideoCategory('modern city urban architecture')" class="category-btn px-3 py-1 rounded-full bg-white/10 text-white text-sm hover:bg-white/20 transition-colors">
+                        🏙️ Cidade
+                    </button>
+                    <button onclick="loadModernVideoCategory('business corporate office modern')" class="category-btn px-3 py-1 rounded-full bg-white/10 text-white text-sm hover:bg-white/20 transition-colors">
+                        💼 Negócios
+                    </button>
+                    <button onclick="loadModernVideoCategory('lifestyle modern fashion')" class="category-btn px-3 py-1 rounded-full bg-white/10 text-white text-sm hover:bg-white/20 transition-colors">
+                        👔 Lifestyle
+                    </button>
+                    <button onclick="loadModernVideoCategory('sports fitness modern gym')" class="category-btn px-3 py-1 rounded-full bg-white/10 text-white text-sm hover:bg-white/20 transition-colors">
+                        🏃 Esportes
+                    </button>
+                    <button onclick="loadModernVideoCategory('food modern restaurant cuisine')" class="category-btn px-3 py-1 rounded-full bg-white/10 text-white text-sm hover:bg-white/20 transition-colors">
+                        🍽️ Comida
+                    </button>
+                </div>
+                    </div>
+                    
+            <!-- Videos Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-96 overflow-y-auto" id="pexelsVideosList">
+                <div class="col-span-full text-center text-white/60 py-8">
+                    <i class="fas fa-video text-4xl mb-2"></i>
+                    <p>Digite algo para buscar ou escolha uma categoria</p>
+                </div>
+            </div>
+                    </div>
+                    
+        <!-- Video Editing Tools -->
+        <div class="glass-effect rounded-2xl p-8 mb-8">
+            <h2 class="text-2xl font-bold text-white mb-6">
+                <i class="fas fa-edit mr-3"></i>Ferramentas de Edição
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Video Caption -->
+                <div class="bg-white/5 rounded-lg p-6">
+                    <h3 class="text-lg font-semibold text-white mb-4">
+                        <i class="fas fa-closed-captioning mr-2"></i>Legenda do Vídeo
+                    </h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="videoCaption" class="block text-sm font-medium text-white mb-2">
+                                Texto da Legenda
+                            </label>
+                            <textarea 
+                                id="videoCaption" 
+                                rows="3"
+                                class="w-full px-4 py-3 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-300"
+                                placeholder="Digite a legenda que aparecerá no vídeo..."
+                            ></textarea>
+                        </div>
+                        <div>
+                            <label for="videoCaptionFont" class="block text-sm font-medium text-white mb-2">
+                                Fonte da Legenda
+                            </label>
+                            <select 
+                                id="videoCaptionFont" 
+                                class="w-full px-4 py-3 rounded-lg bg-white/20 border border-white/30 text-white focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-300"
+                            >
+                                <option value="font-inter">Inter</option>
+                                <option value="font-roboto">Roboto</option>
+                                <option value="font-open-sans">Open Sans</option>
+                                <option value="font-montserrat">Montserrat</option>
+                            </select>
+                    </div>
+                    </div>
+                </div>
+
+                <!-- Video Effects -->
+                <div class="bg-white/5 rounded-lg p-6">
+                    <h3 class="text-lg font-semibold text-white mb-4">
+                        <i class="fas fa-magic mr-2"></i>Efeitos do Vídeo
+                    </h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="videoSpeed" class="block text-sm font-medium text-white mb-2">
+                                Velocidade do Vídeo
+                            </label>
+                            <select 
+                                id="videoSpeed" 
+                                class="w-full px-4 py-3 rounded-lg bg-white/20 border border-white/30 text-white focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-300"
+                            >
+                                <option value="0.5">0.5x (Lento)</option>
+                                <option value="0.75">0.75x</option>
+                                <option value="1" selected>1x (Normal)</option>
+                                <option value="1.25">1.25x</option>
+                                <option value="1.5">1.5x</option>
+                                <option value="2">2x (Rápido)</option>
+                            </select>
+                    </div>
+                        <div>
+                            <label for="videoFilter" class="block text-sm font-medium text-white mb-2">
+                                Filtro do Vídeo
+                            </label>
+                            <select 
+                                id="videoFilter" 
+                                class="w-full px-4 py-3 rounded-lg bg-white/20 border border-white/30 text-white focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all duration-300"
+                            >
+                                <option value="none">Nenhum</option>
+                                <option value="grayscale">Preto e Branco</option>
+                                <option value="sepia">Sépia</option>
+                                <option value="brightness">Brilho</option>
+                                <option value="contrast">Contraste</option>
+                            </select>
+                    </div>
+                    </div>
+                </div>
+            </div>
+                </div>
+
+        <!-- Actions -->
+        <div class="glass-effect rounded-2xl p-8">
+            <div class="flex justify-between items-center">
+                <button onclick="window.location.href='/create-post'" class="bg-white/10 text-white px-6 py-3 rounded-lg hover:bg-white/20 transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i>Voltar
+                </button>
+                <button onclick="saveVideo()" class="bg-green-500/20 text-green-300 px-6 py-3 rounded-lg hover:bg-green-500/30 transition-colors">
+                    <i class="fas fa-save mr-2"></i>Salvar Vídeo
+                </button>
+            </div>
+        </div>
+        </div>
+
+    <script>
+        let selectedVideo = null;
+        let pexelsManager = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            pexelsManager = new ModernVideosManager();
+        });
+
+        // Pexels Manager Class
+        class ModernVideosManager {
+            constructor() {
+                this.accessKey = 'f0djuVMOG9iW68zHOsbZmk2yt5ip7wbajvoPz10jMOhVDtg7yihzmRjJ';
+                this.baseURL = 'https://api.pexels.com/v1';
+                this.cache = new Map();
+                this.cacheTimeout = 10 * 60 * 1000; // 10 minutos
+            }
+
+            // Cache com timeout
+            getCachedData(key) {
+                const cached = this.cache.get(key);
+                if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
+                    return cached.data;
+                }
+                this.cache.delete(key);
+                return null;
+            }
+
+            setCachedData(key, data) {
+                this.cache.set(key, {
+                    data: data,
+                    timestamp: Date.now()
+                });
+            }
+
+            async searchVideos(query, page = 1) {
+                const cacheKey = `search_${query}_${page}`;
+                const cached = this.getCachedData(cacheKey);
+                if (cached) {
+                    console.log('📦 Vídeos carregados do cache');
+                    return cached;
+                }
+
+                try {
+                    const response = await fetch(
+                        `${this.baseURL}/videos/search?query=${encodeURIComponent(query)}&page=${page}&per_page=12&orientation=landscape&size=large`,
+                        {
+                            headers: {
+                                'Authorization': this.accessKey
+                            }
+                        }
+                    );
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    const result = {
+                        videos: data.videos,
+                        total: data.total_results
+                    };
+                    
+                    // Salvar no cache
+                    this.setCachedData(cacheKey, result);
+                    return result;
+                } catch (error) {
+                    console.error('❌ Erro ao buscar vídeos do Pexels:', error);
+                    return { videos: [], total: 0 };
+                }
+            }
+
+            async getVideosByCategory(category, page = 1) {
+                const categories = {
+                    'technology modern digital': 'technology modern digital',
+                    'modern city urban architecture': 'modern city urban architecture',
+                    'business corporate office modern': 'business corporate office modern',
+                    'lifestyle modern fashion': 'lifestyle modern fashion',
+                    'sports fitness modern gym': 'sports fitness modern gym',
+                    'food modern restaurant cuisine': 'food modern restaurant cuisine'
+                };
+
+                const query = categories[category] || category;
+                return await this.searchVideos(query, page);
+            }
+        }
+
+        // Handle Video Upload
+        function handleVideoUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                selectedVideo = file;
+                displayVideoPreview();
+            }
+        }
+
+        // Display Video Preview
+        function displayVideoPreview() {
+            const previewContainer = document.getElementById('videoPreview');
+            
+            if (selectedVideo) {
+                // Verificar se é um File (upload local) ou um objeto com URL (Pexels)
+                if (selectedVideo instanceof File) {
+                    // Upload local - usar FileReader
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewContainer.innerHTML = `
+                            <div class="relative">
+                                <video src="${e.target.result}" class="w-full h-64 object-cover rounded-lg border border-white/20" controls>
+                                    Seu navegador não suporta vídeos.
+                                </video>
+                                <div class="absolute top-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+                                    ${selectedVideo.name}
+                                </div>
+                                <button type="button" onclick="removeVideo()" class="absolute top-4 left-4 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm hover:bg-red-600">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        `;
+                    };
+                    reader.readAsDataURL(selectedVideo);
+                } else if (selectedVideo.url) {
+                    // Vídeo do Pexels - usar URL diretamente
+                    previewContainer.innerHTML = `
+                        <div class="relative">
+                            <video src="${selectedVideo.url}" class="w-full h-64 object-cover rounded-lg border border-white/20" controls>
+                                Seu navegador não suporta vídeos.
+                            </video>
+                            <!-- Botão de remover -->
+                            <button type="button" onclick="removeVideo()" class="absolute top-2 right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm hover:bg-red-600">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `;
+                }
+            } else {
+                previewContainer.innerHTML = '';
+            }
+        }
+
+        // Remove Video
+        function removeVideo() {
+            selectedVideo = null;
+            document.getElementById('videoUpload').value = '';
+            document.getElementById('videoPreview').innerHTML = '';
+        }
+
+        // Search Pexels Videos
+        async function searchPexelsVideos() {
+            const query = document.getElementById('pexelsVideoSearch').value;
+            if (query.trim() && pexelsManager) {
+                const result = await pexelsManager.searchVideos(query);
+                displayPexelsVideos(result.videos);
+            }
+        }
+
+        // Load Modern Video Category
+        async function loadModernVideoCategory(category) {
+            if (pexelsManager) {
+                const result = await pexelsManager.getVideosByCategory(category);
+                displayPexelsVideos(result.videos);
+            }
+        }
+
+        // Load Pexels Video Category (legacy)
+        async function loadPexelsVideoCategory(category) {
+            if (pexelsManager) {
+                const result = await pexelsManager.getVideosByCategory(category);
+                displayPexelsVideos(result.videos);
+            }
+        }
+
+        // Display Pexels Videos
+        function displayPexelsVideos(videos) {
+            const container = document.getElementById('pexelsVideosList');
+            if (!container) return;
+
+            container.innerHTML = videos.map(video => `
+                <div class="pexels-video-card bg-white/5 rounded-lg overflow-hidden hover:bg-white/10 transition-all cursor-pointer group border border-white/20 hover:border-white/40" 
+                     onclick="selectPexelsVideo('${video.id}', '${video.video_files[0].link}', '${video.user.name}')">
+                    <div class="relative">
+                        <video class="w-full h-24 object-cover" muted>
+                            <source src="${video.video_files[0].link}" type="video/mp4">
+                        </video>
+                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                            <i class="fas fa-play text-white opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                        </div>
+                        <div class="absolute bottom-1 right-1 bg-black/50 text-white text-xs px-1 rounded">
+                            ${Math.round(video.duration)}s
+                        </div>
+                    </div>
+                    <div class="p-3">
+                        <!-- Card limpo sem informações -->
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Select Pexels Video
+        function selectPexelsVideo(videoId, videoUrl, author) {
+            selectedVideo = {
+                id: videoId,
+                url: videoUrl,
+                author: author,
+                source: 'pexels'
+            };
+            
+            console.log('🎬 Vídeo selecionado:', selectedVideo);
+            
+            // Remove previous selection
+            document.querySelectorAll('.pexels-video-card').forEach(card => {
+                card.classList.remove('ring-2', 'ring-orange-400', 'bg-orange-500/20');
+            });
+            
+            // Add selection to clicked video
+            const selectedCard = document.querySelector(`[onclick*="${videoId}"]`);
+            if (selectedCard) {
+                selectedCard.classList.add('ring-2', 'ring-orange-400', 'bg-orange-500/20');
+            }
+            
+            // Update video preview
+            displayVideoPreview();
+        }
+
+        // Save Video
+        async function saveVideo() {
+            if (!selectedVideo) {
+                alert('Por favor, selecione um vídeo primeiro.');
+                return;
+            }
+
+            try {
+                // Coletar dados do formulário
+                const caption = document.getElementById('videoCaption').value;
+                const captionFont = document.getElementById('videoCaptionFont').value;
+                const videoSpeed = document.getElementById('videoSpeed').value;
+                const videoFilter = document.getElementById('videoFilter').value;
+
+                // Preparar dados para envio
+                const videoData = {
+                    video: selectedVideo,
+                    caption: caption,
+                    captionFont: captionFont,
+                    speed: videoSpeed,
+                    filter: videoFilter,
+                    timestamp: new Date().toISOString()
+                };
+
+                console.log('💾 Salvando vídeo como post:', videoData);
+
+                // Criar post com vídeo
+                const postData = {
+                    title: caption || 'Vídeo criado com legenda personalizada',
+                    content: caption || 'Vídeo criado com legenda personalizada',
+                    template: 'Vídeo com Legenda',
+                    hashtags: '#video #legenda #personalizado',
+                    platforms: JSON.stringify(['instagram', 'facebook']),
+                    customization: JSON.stringify({
+                        video: selectedVideo.url || selectedVideo,
+                        videoCaption: caption,
+                        videoCaptionFont: captionFont,
+                        videoSpeed: videoSpeed,
+                        videoFilter: videoFilter,
+                        font: captionFont,
+                        color: '#ffffff',
+                        background: 'post-bg-video',
+                        textEffect: 'normal'
+                    })
+                };
+
+                console.log('📝 Dados do post:', postData);
+
+                // Enviar para API
+                const response = await fetch('/api/posts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(postData)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('✅ Post com vídeo salvo:', result);
+                    
+                    // Salvar também no localStorage para backup
+                    const savedVideos = JSON.parse(localStorage.getItem('savedVideos') || '[]');
+                    savedVideos.push(videoData);
+                    localStorage.setItem('savedVideos', JSON.stringify(savedVideos));
+
+                    alert('✅ Vídeo salvo como post! Você pode visualizá-lo na página de posts.');
+                    
+                    // Redirecionar para posts
+                        window.location.href = '/posts';
+                    } else {
+                    const error = await response.text();
+                    console.error('❌ Erro ao salvar post:', error);
+                    alert('❌ Erro ao salvar o vídeo. Tente novamente.');
+                }
+                
+            } catch (error) {
+                console.error('❌ Erro ao salvar vídeo:', error);
+                alert('Erro ao salvar vídeo. Tente novamente.');
+            }
+        }
+
+        // Search on input
+        document.getElementById('pexelsVideoSearch').addEventListener('input', function(e) {
+            const query = e.target.value;
+            if (query.length > 2 && pexelsManager) {
+                searchPexelsVideos();
+            }
+        });
+    </script>
+</body>
+</html>

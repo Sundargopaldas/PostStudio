@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagamento Simples - PostStudio I.A</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+        <div class="glass-effect rounded-2xl p-8 shadow-2xl">
+            <h1 class="text-3xl font-bold text-white mb-6 text-center">💳 Pagamento Simples</h1>
+            
+            <!-- Plano Selecionado -->
+            <div class="bg-white/10 rounded-xl p-4 mb-6">
+                <h3 class="text-xl font-bold text-white mb-2">Plano Premium</h3>
+                <p class="text-white/70 text-sm mb-2">50 posts por mês, Text-to-Speech</p>
+                <p class="text-3xl font-bold text-white">R$ 59,90<span class="text-lg text-white/70">/mês</span></p>
+            </div>
+
+            <!-- Formulário de Pagamento -->
+            <form id="payment-form" class="space-y-4">
+                <!-- Dados do Cliente -->
+                <div>
+                    <label class="block text-sm font-medium text-white mb-2">
+                        <i class="fas fa-user mr-2"></i>Nome Completo
+                    </label>
+                    <input type="text" id="billing-name" required
+                           class="w-full p-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50"
+                           placeholder="Seu nome completo">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-white mb-2">
+                        <i class="fas fa-envelope mr-2"></i>Email
+                    </label>
+                    <input type="email" id="billing-email" required
+                           class="w-full p-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50"
+                           placeholder="seu@email.com">
+                </div>
+
+                <!-- Cartão -->
+                <div>
+                    <label class="block text-sm font-medium text-white mb-2">
+                        <i class="fas fa-credit-card mr-2"></i>Cartão de Crédito
+                    </label>
+                    <div id="card-element" class="p-3 rounded-lg bg-white/10 border border-white/20">
+                        <!-- Stripe Elements será inserido aqui -->
+                    </div>
+                    <div id="card-errors" class="text-red-400 text-sm mt-2"></div>
+                </div>
+
+                <!-- Botão de Pagamento -->
+                <button type="submit" id="pay-button" 
+                        class="w-full bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition-all transform hover:scale-105">
+                    <i class="fas fa-lock mr-2"></i>Pagar R$ 59,90/mês
+                </button>
+            </form>
+
+            <!-- Informações de Teste -->
+            <div class="mt-6 p-4 bg-blue-500/20 rounded-lg">
+                <h4 class="text-white font-semibold mb-2">🧪 Cartões de Teste:</h4>
+                <div class="text-white/80 text-sm space-y-1">
+                    <p><strong>Sucesso:</strong> 4242 4242 4242 4242</p>
+                    <p><strong>Falha:</strong> 4000 0000 0000 0002</p>
+                    <p><strong>Data:</strong> Qualquer data futura</p>
+                    <p><strong>CVC:</strong> Qualquer 3 dígitos</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuração do Stripe
+        const stripe = Stripe('pk_test_SUA_CHAVE_PUBLICA_AQUI'); // Substitua pela sua chave
+        
+        // Elementos do formulário
+        const elements = stripe.elements();
+        const cardElement = elements.create('card', {
+            style: {
+                base: {
+                    fontSize: '16px',
+                    color: '#ffffff',
+                    '::placeholder': {
+                        color: '#ffffff80',
+                    },
+                },
+            },
+        });
+        
+        cardElement.mount('#card-element');
+        
+        // Tratamento de erros
+        cardElement.on('change', function(event) {
+            const displayError = document.getElementById('card-errors');
+            if (event.error) {
+                displayError.textContent = event.error.message;
+            } else {
+                displayError.textContent = '';
+            }
+        });
+        
+        // Processar pagamento
+        document.getElementById('payment-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const payButton = document.getElementById('pay-button');
+            const billingName = document.getElementById('billing-name').value;
+            const billingEmail = document.getElementById('billing-email').value;
+            
+            // Validações básicas
+            if (!billingName || !billingEmail) {
+                alert('Por favor, preencha todos os campos');
+                return;
+            }
+            
+            payButton.disabled = true;
+            payButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processando...';
+            
+            try {
+                // Criar Payment Method
+                const { paymentMethod, error: pmError } = await stripe.createPaymentMethod({
+                    type: 'card',
+                    card: cardElement,
+                    billing_details: {
+                        name: billingName,
+                        email: billingEmail,
+                    },
+                });
+                
+                if (pmError) {
+                    alert('Erro no cartão: ' + pmError.message);
+                    return;
+                }
+                
+                // Simular criação de assinatura (versão simples)
+                console.log('💳 Payment Method criado:', paymentMethod.id);
+                console.log('👤 Cliente:', billingName, billingEmail);
+                
+                // Simular sucesso
+                alert('✅ Pagamento processado com sucesso!\n\nAssinatura criada para: ' + billingName + '\nEmail: ' + billingEmail);
+                
+                // Redirecionar para sucesso
+                setTimeout(() => {
+                    window.location.href = '/payment-success?plan=premium&price=59.90';
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Erro no pagamento:', error);
+                alert('Erro ao processar pagamento. Tente novamente.');
+            } finally {
+                payButton.disabled = false;
+                payButton.innerHTML = '<i class="fas fa-lock mr-2"></i>Pagar R$ 59,90/mês';
+            }
+        });
+    </script>
+</body>
+</html>

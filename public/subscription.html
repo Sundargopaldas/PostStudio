@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PostStudio I.A - Planos e Assinaturas</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Fontes personalizadas */
+        .font-inter { font-family: 'Inter', sans-serif; }
+        .font-poppins { font-family: 'Poppins', sans-serif; }
+        .font-playfair { font-family: 'Playfair Display', serif; }
+        .font-montserrat { font-family: 'Montserrat', sans-serif; }
+        
+        /* Efeitos de texto modernos */
+        .text-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .text-shadow-glow {
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+        
+        /* Animações suaves */
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        
+        .animate-slide-up {
+            animation: slideUp 0.8s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { 
+                opacity: 0; 
+                transform: translateY(30px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+        
+        .hover-lift {
+            transition: all 0.3s ease;
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Premium card glow */
+        .premium-glow {
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+            border: 2px solid rgba(255, 215, 0, 0.5);
+        }
+        
+        .premium-badge {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #000;
+            font-weight: bold;
+        }
+        
+        /* Feature list */
+        .feature-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0;
+        }
+        
+        .feature-item i {
+            color: #10B981;
+            margin-right: 0.75rem;
+            width: 1.25rem;
+        }
+        
+        .feature-item.disabled i {
+            color: #6B7280;
+        }
+        
+        .feature-item.disabled {
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen font-inter">
+    <!-- Header -->
+    <div class="container mx-auto px-4 py-8">
+        <!-- Navigation -->
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center space-x-4">
+                <button onclick="window.location.href='/dashboard'" class="text-white hover:text-white/80 transition-colors">
+                    <i class="fas fa-arrow-left text-xl"></i>
+                </button>
+                <h1 class="text-3xl font-bold text-white font-montserrat">
+                    <i class="fas fa-crown mr-3"></i>Planos e Assinaturas
+                </h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button onclick="window.location.href='/dashboard'" class="text-white hover:text-white/80 transition-colors">
+                    <i class="fas fa-home text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Current Plan Status -->
+        <div class="glass-effect rounded-2xl p-6 mb-8 animate-fade-in">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-xl font-bold text-white mb-2">Plano Atual</h2>
+                    <p class="text-white/70">Você está usando o plano <span class="font-semibold text-yellow-300">Gratuito</span></p>
+                </div>
+                <div class="text-right">
+                    <p class="text-white/70 text-sm">Posts este mês</p>
+                    <p class="text-2xl font-bold text-white">2 / 6</p>
+                </div>
+            </div>
+            <div class="mt-4 bg-white/10 rounded-lg p-4">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-white/80 text-sm">Limite mensal</span>
+                    <span class="text-white/80 text-sm">6 posts</span>
+                </div>
+                <div class="w-full bg-white/20 rounded-full h-2">
+                    <div class="bg-gradient-to-r from-blue-400 to-purple-400 h-2 rounded-full" style="width: 33%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pricing Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            <!-- Free Plan -->
+            <div class="glass-effect rounded-2xl p-8 hover-lift animate-slide-up">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-user text-2xl text-white"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-2">Gratuito</h3>
+                    <div class="text-4xl font-bold text-white mb-2">R$ 0</div>
+                    <p class="text-white/70">Para sempre</p>
+                </div>
+                
+                <div class="space-y-4 mb-8">
+                    <div class="feature-item">
+                        <i class="fas fa-check"></i>
+                        <span class="text-white">6 posts por mês</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check"></i>
+                        <span class="text-white">3 fontes básicas</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check"></i>
+                        <span class="text-white">5 cores padrão</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check"></i>
+                        <span class="text-white">Templates básicos</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check"></i>
+                        <span class="text-white">Vídeos com legendas</span>
+                    </div>
+                    <div class="feature-item disabled">
+                        <i class="fas fa-times"></i>
+                        <span class="text-white/50">Filtros de imagem</span>
+                    </div>
+                    <div class="feature-item disabled">
+                        <i class="fas fa-times"></i>
+                        <span class="text-white/50">Google Fonts</span>
+                    </div>
+                    <div class="feature-item disabled">
+                        <i class="fas fa-times"></i>
+                        <span class="text-white/50">Text-to-Speech</span>
+                    </div>
+                </div>
+                
+                <button class="w-full bg-white/20 text-white px-6 py-3 rounded-lg font-semibold hover:bg-white/30 transition-all">
+                    Plano Atual
+                </button>
+            </div>
+
+            <!-- Premium Plan -->
+            <div class="glass-effect rounded-2xl p-8 hover-lift animate-slide-up premium-glow relative">
+                <div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                    <span class="premium-badge px-4 py-2 rounded-full text-sm">
+                        <i class="fas fa-crown mr-1"></i>MAIS POPULAR
+                    </span>
+                </div>
+                
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-crown text-2xl text-white"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-2">Premium</h3>
+                    <div class="text-4xl font-bold text-white mb-2">R$ 29</div>
+                    <p class="text-white/70">por mês</p>
+                </div>
+                
+                <div class="space-y-4 mb-8">
+                    <div class="feature-item">
+                        <i class="fas fa-check"></i>
+                        <span class="text-white">Posts ilimitados</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check"></i>
+                        <span class="text-white">Google Fonts (1000+ fontes)</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check"></i>
+                        <span class="text-white">Cores ilimitadas</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check"></i>
+                        <span class="text-white">Templates premium</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check"></i>
+                        <span class="text-white">Filtros Instagram</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check"></i>
+                        <span class="text-white">Banco de imagens (Unsplash)</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check"></i>
+                        <span class="text-white">Text-to-Speech (ElevenLabs)</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check"></i>
+                        <span class="text-white">Músicas de fundo</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check"></i>
+                        <span class="text-white">Integração redes sociais</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check"></i>
+                        <span class="text-white">Suporte prioritário</span>
+                    </div>
+                </div>
+                
+                <button onclick="subscribeToPremium()" class="w-full bg-gradient-to-r from-yellow-400 to-orange-400 text-black px-6 py-3 rounded-lg font-bold hover:from-yellow-500 hover:to-orange-500 transition-all transform hover:scale-105">
+                    <i class="fas fa-crown mr-2"></i>Assinar Premium
+                </button>
+            </div>
+
+            <!-- Pro Plan -->
+            <div class="glass-effect rounded-2xl p-8 hover-lift animate-slide-up">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-rocket text-2xl text-white"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-2">Pro</h3>
+                    <div class="text-4xl font-bold text-white mb-2">R$ 59</div>
+                    <p class="text-white/70">por mês</p>
+                </div>
+                
+                <div class="space-y-4 mb-8">
+                    <div class="feature-item">
+                        <i class="fas fa-check"></i>
+                        <span class="text-white">Tudo do Premium</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check"></i>
+                        <span class="text-white">API personalizada</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check"></i>
+                        <span class="text-white">White-label</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check"></i>
+                        <span class="text-white">Suporte 24/7</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check"></i>
+                        <span class="text-white">Relatórios avançados</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check"></i>
+                        <span class="text-white">Equipe (até 5 usuários)</span>
+                    </div>
+                </div>
+                
+                <button onclick="subscribeToPro()" class="w-full bg-gradient-to-r from-purple-400 to-pink-400 text-white px-6 py-3 rounded-lg font-bold hover:from-purple-500 hover:to-pink-500 transition-all transform hover:scale-105">
+                    <i class="fas fa-rocket mr-2"></i>Assinar Pro
+                </button>
+            </div>
+        </div>
+
+        <!-- Features Comparison -->
+        <div class="glass-effect rounded-2xl p-8 animate-fade-in">
+            <h2 class="text-2xl font-bold text-white mb-6 text-center font-montserrat">
+                <i class="fas fa-chart-bar mr-3"></i>Comparação de Recursos
+            </h2>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-white">
+                    <thead>
+                        <tr class="border-b border-white/20">
+                            <th class="text-left py-4 px-2">Recursos</th>
+                            <th class="text-center py-4 px-2">Gratuito</th>
+                            <th class="text-center py-4 px-2">Premium</th>
+                            <th class="text-center py-4 px-2">Pro</th>
+                        </tr>
+                    </thead>
+                    <tbody class="space-y-2">
+                        <tr class="border-b border-white/10">
+                            <td class="py-3 px-2">Posts por mês</td>
+                            <td class="text-center py-3 px-2">6</td>
+                            <td class="text-center py-3 px-2">Ilimitado</td>
+                            <td class="text-center py-3 px-2">Ilimitado</td>
+                        </tr>
+                        <tr class="border-b border-white/10">
+                            <td class="py-3 px-2">Fontes</td>
+                            <td class="text-center py-3 px-2">3 básicas</td>
+                            <td class="text-center py-3 px-2">1000+ Google Fonts</td>
+                            <td class="text-center py-3 px-2">1000+ Google Fonts</td>
+                        </tr>
+                        <tr class="border-b border-white/10">
+                            <td class="py-3 px-2">Cores</td>
+                            <td class="text-center py-3 px-2">5 padrão</td>
+                            <td class="text-center py-3 px-2">Ilimitadas</td>
+                            <td class="text-center py-3 px-2">Ilimitadas</td>
+                        </tr>
+                        <tr class="border-b border-white/10">
+                            <td class="py-3 px-2">Filtros Instagram</td>
+                            <td class="text-center py-3 px-2">❌</td>
+                            <td class="text-center py-3 px-2">✅</td>
+                            <td class="text-center py-3 px-2">✅</td>
+                        </tr>
+                        <tr class="border-b border-white/10">
+                            <td class="py-3 px-2">Banco de Imagens</td>
+                            <td class="text-center py-3 px-2">❌</td>
+                            <td class="text-center py-3 px-2">✅ Unsplash</td>
+                            <td class="text-center py-3 px-2">✅ Unsplash</td>
+                        </tr>
+                        <tr class="border-b border-white/10">
+                            <td class="py-3 px-2">Text-to-Speech</td>
+                            <td class="text-center py-3 px-2">❌</td>
+                            <td class="text-center py-3 px-2">✅ ElevenLabs</td>
+                            <td class="text-center py-3 px-2">✅ ElevenLabs</td>
+                        </tr>
+                        <tr class="border-b border-white/10">
+                            <td class="py-3 px-2">Músicas de Fundo</td>
+                            <td class="text-center py-3 px-2">❌</td>
+                            <td class="text-center py-3 px-2">✅</td>
+                            <td class="text-center py-3 px-2">✅</td>
+                        </tr>
+                        <tr class="border-b border-white/10">
+                            <td class="py-3 px-2">Integração Redes Sociais</td>
+                            <td class="text-center py-3 px-2">❌</td>
+                            <td class="text-center py-3 px-2">✅</td>
+                            <td class="text-center py-3 px-2">✅</td>
+                        </tr>
+                        <tr class="border-b border-white/10">
+                            <td class="py-3 px-2">Suporte</td>
+                            <td class="text-center py-3 px-2">Email</td>
+                            <td class="text-center py-3 px-2">Prioritário</td>
+                            <td class="text-center py-3 px-2">24/7</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="glass-effect rounded-2xl p-8 mt-8 animate-fade-in">
+            <h2 class="text-2xl font-bold text-white mb-6 text-center font-montserrat">
+                <i class="fas fa-question-circle mr-3"></i>Perguntas Frequentes
+            </h2>
+            
+            <div class="space-y-4">
+                <div class="bg-white/5 rounded-lg p-4">
+                    <h3 class="text-white font-semibold mb-2">Posso cancelar a qualquer momento?</h3>
+                    <p class="text-white/70">Sim! Você pode cancelar sua assinatura a qualquer momento sem taxas adicionais.</p>
+                </div>
+                
+                <div class="bg-white/5 rounded-lg p-4">
+                    <h3 class="text-white font-semibold mb-2">O que acontece com meus posts se eu cancelar?</h3>
+                    <p class="text-white/70">Seus posts ficam salvos, mas você volta ao limite do plano gratuito (6 posts/mês).</p>
+                </div>
+                
+                <div class="bg-white/5 rounded-lg p-4">
+                    <h3 class="text-white font-semibold mb-2">Posso testar o Premium antes de pagar?</h3>
+                    <p class="text-white/70">Sim! Oferecemos 7 dias de teste gratuito do Premium.</p>
+                </div>
+                
+                <div class="bg-white/5 rounded-lg p-4">
+                    <h3 class="text-white font-semibold mb-2">Quais métodos de pagamento aceitos?</h3>
+                    <p class="text-white/70">Aceitamos cartão de crédito, débito, PIX e PayPal.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function subscribeToPremium() {
+            showNotification('Redirecionando para pagamento do Premium...', 'info');
+            // Aqui você integraria com gateway de pagamento
+            setTimeout(() => {
+                showNotification('Assinatura Premium ativada!', 'success');
+            }, 2000);
+        }
+
+        function subscribeToPro() {
+            showNotification('Redirecionando para pagamento do Pro...', 'info');
+            // Aqui você integraria com gateway de pagamento
+            setTimeout(() => {
+                showNotification('Assinatura Pro ativada!', 'success');
+            }, 2000);
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white z-50 ${
+                type === 'success' ? 'bg-green-500' : 
+                type === 'error' ? 'bg-red-500' : 
+                'bg-blue-500'
+            }`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

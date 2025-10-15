@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PostStudio I.A - Editar Post</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .font-inter { font-family: 'Inter', sans-serif; }
+        .font-poppins { font-family: 'Poppins', sans-serif; }
+        .font-roboto { font-family: 'Roboto', sans-serif; }
+        .replacement-warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+            border: 2px solid #f59e0b;
+        }
+        .current-file {
+            background: rgba(34, 197, 94, 0.2);
+            border: 2px solid #22c55e;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <!-- Header -->
+    <header class="glass-effect border-b border-white/20">
+        <div class="max-w-4xl mx-auto px-4 py-3">
+            <div class="flex items-center justify-between">
+                <a href="posts.html" class="text-white hover:text-white/80 transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i>Voltar aos Posts
+                </a>
+                <h1 class="text-lg font-bold text-white">Editar Post</h1>
+                <div class="w-20"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main class="max-w-4xl mx-auto px-4 py-6">
+        <form id="editForm" enctype="multipart/form-data" class="space-y-6">
+            <!-- Card Principal -->
+            <div class="glass-effect rounded-xl p-6">
+                <!-- Título e Conteúdo -->
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-white mb-2">Título</label>
+                        <textarea 
+                            id="postTitle" 
+                            name="title" 
+                            rows="2"
+                            class="w-full px-3 py-2 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 text-sm"
+                            placeholder="Título do post..."
+                        ></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-white mb-2">Conteúdo</label>
+                        <textarea 
+                            id="postContent" 
+                            name="content" 
+                            rows="3"
+                            class="w-full px-3 py-2 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 text-sm"
+                            placeholder="Conteúdo do post..."
+                        ></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-white mb-2">Hashtags</label>
+                        <input 
+                            type="text" 
+                            id="postHashtags" 
+                            name="hashtags" 
+                            class="w-full px-3 py-2 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 text-sm"
+                            placeholder="#exemplo #hashtag"
+                        >
+                    </div>
+                </div>
+
+                <!-- Mídia Atual -->
+                <div class="mt-6">
+                    <h3 class="text-lg font-semibold text-white mb-4">
+                        <i class="fas fa-images mr-2"></i>Mídia Atual
+                    </h3>
+                    
+                    <!-- Imagem Atual -->
+                    <div id="currentImageSection" class="mb-4">
+                        <label class="block text-sm font-medium text-white mb-2">Imagem Atual</label>
+                        <div id="currentImagePreview" class="current-file rounded-lg p-4 text-center">
+                            <p class="text-white/60 text-sm">
+                                <i class="fas fa-image mr-2"></i>Carregando imagem atual...
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Vídeo Atual -->
+                    <div id="currentVideoSection" class="mb-4">
+                        <label class="block text-sm font-medium text-white mb-2">Vídeo Atual</label>
+                        <div id="currentVideoPreview" class="current-file rounded-lg p-4 text-center">
+                            <p class="text-white/60 text-sm">
+                                <i class="fas fa-video mr-2"></i>Carregando vídeo atual...
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Substituição de Mídia -->
+                <div class="mt-6">
+                    <h3 class="text-lg font-semibold text-white mb-4">
+                        <i class="fas fa-exchange-alt mr-2"></i>Substituir Mídia
+                    </h3>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <!-- Nova Imagem -->
+                        <div>
+                            <label class="block text-sm font-medium text-white mb-2">Nova Imagem</label>
+                            <div class="replacement-warning rounded-lg p-4 text-center">
+                                <input type="file" id="newImage" name="image" accept="image/*" class="hidden" onchange="handleNewImageUpload(event)">
+                                <label for="newImage" class="cursor-pointer">
+                                    <i class="fas fa-upload text-2xl text-white mb-2"></i>
+                                    <p class="text-white text-sm font-medium">Substituir Imagem</p>
+                                    <p class="text-white/80 text-xs">A imagem atual será deletada</p>
+                                </label>
+                            </div>
+                            <div id="newImagePreview" class="mt-2"></div>
+                        </div>
+
+                        <!-- Novo Vídeo -->
+                        <div>
+                            <label class="block text-sm font-medium text-white mb-2">Novo Vídeo</label>
+                            <div class="replacement-warning rounded-lg p-4 text-center">
+                                <input type="file" id="newVideo" name="video" accept="video/*" class="hidden" onchange="handleNewVideoUpload(event)">
+                                <label for="newVideo" class="cursor-pointer">
+                                    <i class="fas fa-video text-2xl text-white mb-2"></i>
+                                    <p class="text-white text-sm font-medium">Substituir Vídeo</p>
+                                    <p class="text-white/80 text-xs">O vídeo atual será deletado</p>
+                                </label>
+                            </div>
+                            <div id="newVideoPreview" class="mt-2"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Legenda do Vídeo -->
+                <div id="videoCaptionSection" class="hidden mt-4">
+                    <label class="block text-sm font-medium text-white mb-2">Legenda do Vídeo</label>
+                    <textarea 
+                        id="videoCaption" 
+                        name="videoCaption" 
+                        rows="2"
+                        class="w-full px-3 py-2 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 text-sm"
+                        placeholder="Legenda que aparecerá no vídeo..."
+                    ></textarea>
+                </div>
+
+                <!-- Personalização -->
+                <div class="mt-6 grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-sm font-medium text-white mb-1">Fonte</label>
+                        <select id="postFont" name="font" class="w-full px-3 py-2 rounded-lg bg-white/20 border border-white/30 text-white focus:outline-none focus:ring-2 focus:ring-white/50 text-sm">
+                            <option value="font-inter">Inter</option>
+                            <option value="font-poppins">Poppins</option>
+                            <option value="font-roboto">Roboto</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-white mb-1">Cor</label>
+                        <select id="postColor" name="color" class="w-full px-3 py-2 rounded-lg bg-white/20 border border-white/30 text-white focus:outline-none focus:ring-2 focus:ring-white/50 text-sm">
+                            <option value="#3b82f6">Azul</option>
+                            <option value="#10b981">Verde</option>
+                            <option value="#f59e0b">Amarelo</option>
+                            <option value="#ef4444">Vermelho</option>
+                            <option value="#8b5cf6">Roxo</option>
+                            <option value="#ffffff">Branco</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-white mb-1">Background</label>
+                        <select id="postBackground" name="background" class="w-full px-3 py-2 rounded-lg bg-white/20 border border-white/30 text-white focus:outline-none focus:ring-2 focus:ring-white/50 text-sm">
+                            <option value="gradient-1">Gradiente 1</option>
+                            <option value="gradient-2">Gradiente 2</option>
+                            <option value="gradient-3">Gradiente 3</option>
+                            <option value="solid">Sólido</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Preview -->
+                <div class="mt-6">
+                    <label class="block text-sm font-medium text-white mb-2">Preview</label>
+                    <div id="postPreview" class="bg-white/10 rounded-lg p-4 min-h-32 flex items-center justify-center">
+                        <p class="text-white/60 text-center text-sm">
+                            <i class="fas fa-eye-slash mr-2"></i>Preview aparecerá aqui
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Botões -->
+                <div class="mt-6 flex gap-3">
+                    <button type="button" onclick="updatePreview()" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 text-sm">
+                        <i class="fas fa-refresh mr-2"></i>Preview
+                    </button>
+                    <button type="submit" class="flex-1 bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 text-sm">
+                        <i class="fas fa-save mr-2"></i>Salvar Alterações
+                    </button>
+                </div>
+            </div>
+        </form>
+    </main>
+
+    <script>
+        // Variáveis globais
+        let currentPost = null;
+        let newImage = null;
+        let newVideo = null;
+
+        // Carregar dados do post para edição
+        function loadPostData() {
+            try {
+                const raw = sessionStorage.getItem('editPostData');
+                if (raw) {
+                    currentPost = JSON.parse(raw);
+                    console.log('📝 Post carregado para edição:', currentPost);
+                    
+                    // Preencher campos
+                    document.getElementById('postTitle').value = currentPost.title || '';
+                    document.getElementById('postContent').value = currentPost.content || '';
+                    document.getElementById('postHashtags').value = currentPost.hashtags || '';
+                    
+                    // Carregar customizações
+                    if (currentPost.customization) {
+                        let custom = currentPost.customization;
+                        if (typeof custom === 'string') {
+                            custom = JSON.parse(custom);
+                        }
+                        
+                        if (custom.font) {
+                            document.getElementById('postFont').value = custom.font;
+                        }
+                        if (custom.color) {
+                            document.getElementById('postColor').value = custom.color;
+                        }
+                        if (custom.background) {
+                            document.getElementById('postBackground').value = custom.background;
+                        }
+                        
+                        // Carregar mídia atual
+                        loadCurrentMedia(custom);
+                    }
+                    
+                    updatePreview();
+                } else {
+                    console.log('❌ Nenhum post encontrado para edição');
+                    window.location.href = 'posts.html';
+                }
+            } catch (error) {
+                console.error('❌ Erro ao carregar post:', error);
+                window.location.href = 'posts.html';
+            }
+        }
+
+        // Carregar mídia atual
+        function loadCurrentMedia(custom) {
+            // Imagem atual
+            if (currentPost.image_url && currentPost.image_url !== 'imagem_uploaded') {
+                document.getElementById('currentImagePreview').innerHTML = `
+                    <div class="relative">
+                        <img src="${currentPost.image_url}" class="w-full h-24 object-cover rounded border border-white/20">
+                        <div class="absolute inset-0 bg-green-500/20 flex items-center justify-center rounded">
+                            <span class="text-green-300 text-xs font-medium">Imagem Atual</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                document.getElementById('currentImageSection').classList.add('hidden');
+            }
+            
+            // Vídeo atual
+            if (custom.video && custom.video !== 'uploaded') {
+                document.getElementById('currentVideoPreview').innerHTML = `
+                    <div class="relative">
+                        <video src="${custom.video}" class="w-full h-24 object-cover rounded border border-white/20" controls>
+                            Seu navegador não suporta vídeos.
+                        </video>
+                        <div class="absolute inset-0 bg-green-500/20 flex items-center justify-center rounded">
+                            <span class="text-green-300 text-xs font-medium">Vídeo Atual</span>
+                        </div>
+                    </div>
+                `;
+                
+                // Mostrar seção de legenda
+                if (custom.videoCaption) {
+                    document.getElementById('videoCaption').value = custom.videoCaption;
+                    document.getElementById('videoCaptionSection').classList.remove('hidden');
+                }
+            } else {
+                document.getElementById('currentVideoSection').classList.add('hidden');
+            }
+        }
+
+        // Função para lidar com upload de nova imagem
+        function handleNewImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                newImage = file;
+                displayNewImagePreview();
+                showNotification('Nova imagem selecionada! A imagem atual será deletada.', 'warning');
+            }
+        }
+
+        // Função para lidar com upload de novo vídeo
+        function handleNewVideoUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                newVideo = file;
+                displayNewVideoPreview();
+                showNotification('Novo vídeo selecionado! O vídeo atual será deletado.', 'warning');
+            }
+        }
+
+        // Função para exibir preview da nova imagem
+        function displayNewImagePreview() {
+            const previewContainer = document.getElementById('newImagePreview');
+            if (newImage) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewContainer.innerHTML = `
+                        <div class="relative">
+                            <img src="${e.target.result}" class="w-full h-24 object-cover rounded border border-orange-400">
+                            <div class="absolute inset-0 bg-orange-500/20 flex items-center justify-center rounded">
+                                <span class="text-orange-300 text-xs font-medium">Nova Imagem</span>
+                            </div>
+                            <button type="button" onclick="removeNewImage()" class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `;
+                };
+                reader.readAsDataURL(newImage);
+            }
+        }
+
+        // Função para exibir preview do novo vídeo
+        function displayNewVideoPreview() {
+            const previewContainer = document.getElementById('newVideoPreview');
+            const captionSection = document.getElementById('videoCaptionSection');
+            
+            if (newVideo) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewContainer.innerHTML = `
+                        <div class="relative">
+                            <video src="${e.target.result}" class="w-full h-24 object-cover rounded border border-orange-400" controls>
+                                Seu navegador não suporta vídeos.
+                            </video>
+                            <div class="absolute inset-0 bg-orange-500/20 flex items-center justify-center rounded">
+                                <span class="text-orange-300 text-xs font-medium">Novo Vídeo</span>
+                            </div>
+                            <button type="button" onclick="removeNewVideo()" class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `;
+                };
+                reader.readAsDataURL(newVideo);
+                
+                // Mostrar seção de legenda
+                if (captionSection) {
+                    captionSection.classList.remove('hidden');
+                }
+            }
+        }
+
+        // Função para remover nova imagem
+        function removeNewImage() {
+            newImage = null;
+            document.getElementById('newImage').value = '';
+            document.getElementById('newImagePreview').innerHTML = '';
+            showNotification('Nova imagem removida!', 'info');
+        }
+
+        // Função para remover novo vídeo
+        function removeNewVideo() {
+            newVideo = null;
+            document.getElementById('newVideo').value = '';
+            document.getElementById('newVideoPreview').innerHTML = '';
+            document.getElementById('videoCaptionSection').classList.add('hidden');
+            showNotification('Novo vídeo removido!', 'info');
+        }
+
+        // Função para atualizar preview
+        function updatePreview() {
+            const title = document.getElementById('postTitle').value;
+            const content = document.getElementById('postContent').value;
+            const hashtags = document.getElementById('postHashtags').value;
+            const font = document.getElementById('postFont').value;
+            const color = document.getElementById('postColor').value;
+            const background = document.getElementById('postBackground').value;
+            
+            const previewContainer = document.getElementById('postPreview');
+            
+            if (!title && !content) {
+                previewContainer.innerHTML = `
+                    <p class="text-white/60 text-center text-sm">
+                        <i class="fas fa-eye-slash mr-2"></i>Digite o título e conteúdo para ver o preview
+                    </p>
+                `;
+                return;
+            }
+            
+            // Aplicar estilos baseados nas seleções
+            let backgroundStyle = '';
+            switch(background) {
+                case 'gradient-1':
+                    backgroundStyle = 'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);';
+                    break;
+                case 'gradient-2':
+                    backgroundStyle = 'background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);';
+                    break;
+                case 'gradient-3':
+                    backgroundStyle = 'background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);';
+                    break;
+                case 'solid':
+                    backgroundStyle = 'background: rgba(255, 255, 255, 0.1);';
+                    break;
+            }
+            
+            let fontClass = '';
+            switch(font) {
+                case 'font-inter':
+                    fontClass = 'font-inter';
+                    break;
+                case 'font-poppins':
+                    fontClass = 'font-poppins';
+                    break;
+                case 'font-roboto':
+                    fontClass = 'font-roboto';
+                    break;
+            }
+            
+            previewContainer.innerHTML = `
+                <div class="w-full p-4 rounded-lg text-sm" style="${backgroundStyle}">
+                    ${title ? `<h3 class="text-lg font-bold mb-2 ${fontClass}" style="color: ${color} !important; white-space: pre-line;">${title}</h3>` : ''}
+                    ${content ? `<p class="text-sm leading-relaxed mb-2 ${fontClass}" style="color: ${color} !important; white-space: pre-line;">${content}</p>` : ''}
+                    ${hashtags ? `<div class="flex flex-wrap gap-1">
+                        ${hashtags.split(' ').map(tag => `<span class="bg-white/20 px-2 py-1 rounded text-xs">${tag}</span>`).join('')}
+                    </div>` : ''}
+                </div>
+            `;
+        }
+
+        // Função para mostrar notificações
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 px-4 py-2 rounded-lg text-white font-medium transition-all duration-300 transform translate-x-full text-sm`;
+            
+            switch(type) {
+                case 'success':
+                    notification.className += ' bg-green-500';
+                    break;
+                case 'error':
+                    notification.className += ' bg-red-500';
+                    break;
+                case 'warning':
+                    notification.className += ' bg-orange-500';
+                    break;
+                default:
+                    notification.className += ' bg-blue-500';
+            }
+            
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+            }, 100);
+            
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPostData();
+            
+            // Atualizar preview quando campos mudarem
+            const inputs = ['postTitle', 'postContent', 'postHashtags', 'postFont', 'postColor', 'postBackground'];
+            inputs.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('input', updatePreview);
+                }
+            });
+            
+            // Submissão do formulário
+            document.getElementById('editForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Montar customização como JSON
+                const customization = {
+                    font: document.getElementById('postFont').value,
+                    color: document.getElementById('postColor').value,
+                    background: document.getElementById('postBackground').value
+                };
+                
+                // Preservar outras customizações existentes
+                if (currentPost.customization) {
+                    let existingCustom = currentPost.customization;
+                    if (typeof existingCustom === 'string') {
+                        existingCustom = JSON.parse(existingCustom);
+                    }
+                    
+                    // Manter customizações existentes que não foram alteradas
+                    if (existingCustom.backgroundImage) {
+                        customization.backgroundImage = existingCustom.backgroundImage;
+                    }
+                    if (existingCustom.textEffect) {
+                        customization.textEffect = existingCustom.textEffect;
+                    }
+                    if (existingCustom.video) {
+                        customization.video = existingCustom.video;
+                    }
+                    if (existingCustom.videoCaption) {
+                        customization.videoCaption = existingCustom.videoCaption;
+                    }
+                }
+                
+                const formData = new FormData();
+                formData.append('title', document.getElementById('postTitle').value);
+                formData.append('content', document.getElementById('postContent').value);
+                formData.append('hashtags', document.getElementById('postHashtags').value);
+                formData.append('customization', JSON.stringify(customization));
+                
+                if (newImage) {
+                    formData.append('image', newImage);
+                }
+                
+                if (newVideo) {
+                    formData.append('video', newVideo);
+                    const caption = document.getElementById('videoCaption').value;
+                    if (caption) {
+                        formData.append('videoCaption', caption);
+                    }
+                }
+                
+                // Enviar para o servidor
+                fetch(`/api/posts/${currentPost.id}`, {
+                    method: 'PUT',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showNotification('Post atualizado com sucesso!', 'success');
+                        setTimeout(() => {
+                            window.location.href = 'posts.html';
+                        }, 2000);
+                    } else {
+                        showNotification('Erro ao atualizar post: ' + data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    showNotification('Erro ao atualizar post', 'error');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

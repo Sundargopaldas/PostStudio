@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corrigir Velocidade dos Vídeos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .video-container {
+            position: relative;
+            overflow: hidden;
+        }
+        .speed-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 10;
+        }
+        .controls {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 8px;
+            border-radius: 8px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .control-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .control-btn.active {
+            background: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-white mb-4">
+                <i class="fas fa-tachometer-alt mr-3"></i>
+                Corrigir Velocidade dos Vídeos
+            </h1>
+            <p class="text-white/80 text-lg">
+                Solução para vídeos em câmera lenta
+            </p>
+        </div>
+
+        <!-- Upload de Vídeo -->
+        <div class="glass-effect rounded-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-white mb-4">
+                <i class="fas fa-upload mr-2"></i>
+                Upload de Vídeo
+            </h2>
+            <div class="border-2 border-dashed border-white/30 rounded-lg p-8 text-center">
+                <input type="file" id="videoInput" accept="video/*" class="hidden">
+                <button onclick="document.getElementById('videoInput').click()" 
+                        class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                    <i class="fas fa-upload mr-2"></i>
+                    Escolher Vídeo
+                </button>
+                <p class="text-white/70 mt-2">Formatos suportados: MP4, MOV, AVI</p>
+            </div>
+        </div>
+
+        <!-- Vídeo Otimizado -->
+        <div class="glass-effect rounded-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-white mb-4">
+                <i class="fas fa-video mr-2"></i>
+                Vídeo Otimizado
+            </h2>
+            <div id="videoContainer" class="video-container bg-black rounded-lg overflow-hidden" style="min-height: 300px;">
+                <div class="flex items-center justify-center h-full text-white/70">
+                    <div class="text-center">
+                        <i class="fas fa-video text-4xl mb-4"></i>
+                        <p>Selecione um vídeo para otimizar</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controles de Velocidade -->
+        <div class="glass-effect rounded-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-white mb-4">
+                <i class="fas fa-sliders-h mr-2"></i>
+                Controles de Velocidade
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-white font-semibold mb-2">Velocidade de Reprodução:</label>
+                    <div class="flex gap-2 mb-4">
+                        <button onclick="setPlaybackRate(0.5)" class="control-btn">0.5x</button>
+                        <button onclick="setPlaybackRate(0.75)" class="control-btn">0.75x</button>
+                        <button onclick="setPlaybackRate(1.0)" class="control-btn active">1.0x</button>
+                        <button onclick="setPlaybackRate(1.25)" class="control-btn">1.25x</button>
+                        <button onclick="setPlaybackRate(1.5)" class="control-btn">1.5x</button>
+                        <button onclick="setPlaybackRate(2.0)" class="control-btn">2.0x</button>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-white font-semibold mb-2">Qualidade:</label>
+                    <select id="qualitySelect" class="w-full p-3 rounded-lg bg-white/10 border border-white/20 text-white">
+                        <option value="low">Baixa (480p)</option>
+                        <option value="medium" selected>Média (720p)</option>
+                        <option value="high">Alta (1080p)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Otimizações Automáticas -->
+        <div class="glass-effect rounded-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-white mb-4">
+                <i class="fas fa-magic mr-2"></i>
+                Otimizações Automáticas
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button onclick="optimizeVideo()" 
+                        class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                    <i class="fas fa-magic mr-2"></i>
+                    Otimizar Vídeo
+                </button>
+                <button onclick="fixSpeedIssues()" 
+                        class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                    <i class="fas fa-tachometer-alt mr-2"></i>
+                    Corrigir Velocidade
+                </button>
+                <button onclick="optimizeForDevice()" 
+                        class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                    <i class="fas fa-mobile-alt mr-2"></i>
+                    Otimizar para Dispositivo
+                </button>
+                <button onclick="resetVideo()" 
+                        class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                    <i class="fas fa-undo mr-2"></i>
+                    Resetar Vídeo
+                </button>
+            </div>
+        </div>
+
+        <!-- Status e Logs -->
+        <div class="glass-effect rounded-lg p-6">
+            <h2 class="text-2xl font-bold text-white mb-4">
+                <i class="fas fa-terminal mr-2"></i>
+                Status e Logs
+            </div>
+            <div id="statusLog" class="bg-black/50 rounded-lg p-4 text-green-400 font-mono text-sm max-h-64 overflow-y-auto">
+                <div>🚀 Sistema iniciado</div>
+                <div>📹 Aguardando vídeo...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="video-optimizer.js"></script>
+    <script>
+        let videoOptimizer = null;
+        let currentVideo = null;
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            videoOptimizer = new VideoOptimizer();
+            setupEventListeners();
+            addLog('🎯 Sistema pronto para otimização');
+        });
+
+        function setupEventListeners() {
+            // Upload de vídeo
+            document.getElementById('videoInput').addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    loadVideo(e.target.files[0]);
+                }
+            });
+
+            // Mudança de qualidade
+            document.getElementById('qualitySelect').addEventListener('change', function(e) {
+                if (currentVideo) {
+                    optimizeVideo();
+                }
+            });
+        }
+
+        function loadVideo(file) {
+            const container = document.getElementById('videoContainer');
+            const videoUrl = URL.createObjectURL(file);
+            
+            // Limpar container
+            container.innerHTML = '';
+            
+            // Criar vídeo otimizado
+            currentVideo = videoOptimizer.createOptimizedVideo(videoUrl, container, {
+                className: 'w-full h-auto rounded-lg',
+                quality: document.getElementById('qualitySelect').value
+            });
+            
+            // Adicionar controles customizados
+            addCustomControls(currentVideo);
+            
+            addLog('📹 Vídeo carregado: ' + file.name);
+            addLog('🔧 Aplicando otimizações...');
+        }
+
+        function addCustomControls(video) {
+            const container = video.parentElement;
+            
+            // Indicador de velocidade
+            const speedIndicator = document.createElement('div');
+            speedIndicator.className = 'speed-indicator';
+            speedIndicator.innerHTML = '1.0x';
+            container.appendChild(speedIndicator);
+            
+            // Controles customizados
+            const controls = document.createElement('div');
+            controls.className = 'controls';
+            controls.innerHTML = `
+                <button onclick="togglePlay()" class="control-btn">
+                    <i class="fas fa-play"></i>
+                </button>
+                <button onclick="toggleMute()" class="control-btn">
+                    <i class="fas fa-volume-up"></i>
+                </button>
+                <input type="range" min="0" max="1" step="0.1" value="1" 
+                       onchange="setVolume(this.value)" class="flex-1">
+                <span class="text-white text-sm">Volume</span>
+            `;
+            container.appendChild(controls);
+            
+            // Atualizar indicador de velocidade
+            video.addEventListener('ratechange', () => {
+                speedIndicator.textContent = video.playbackRate + 'x';
+            });
+        }
+
+        function setPlaybackRate(rate) {
+            if (currentVideo) {
+                currentVideo.playbackRate = rate;
+                addLog(`🎬 Velocidade alterada para: ${rate}x`);
+                
+                // Atualizar botões ativos
+                document.querySelectorAll('.control-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                event.target.classList.add('active');
+            }
+        }
+
+        function optimizeVideo() {
+            if (currentVideo) {
+                videoOptimizer.optimizeVideoForPlayback(currentVideo);
+                addLog('🔧 Vídeo otimizado para reprodução');
+            }
+        }
+
+        function fixSpeedIssues() {
+            if (currentVideo) {
+                videoOptimizer.detectAndFixSpeedIssues(currentVideo);
+                addLog('🔧 Problemas de velocidade corrigidos');
+            }
+        }
+
+        function optimizeForDevice() {
+            if (currentVideo) {
+                videoOptimizer.optimizeForDevice(currentVideo);
+                addLog('📱 Otimizado para dispositivo atual');
+            }
+        }
+
+        function resetVideo() {
+            if (currentVideo) {
+                currentVideo.playbackRate = 1.0;
+                currentVideo.currentTime = 0;
+                addLog('🔄 Vídeo resetado');
+            }
+        }
+
+        function togglePlay() {
+            if (currentVideo) {
+                if (currentVideo.paused) {
+                    currentVideo.play();
+                    addLog('▶️ Reproduzindo');
+                } else {
+                    currentVideo.pause();
+                    addLog('⏸️ Pausado');
+                }
+            }
+        }
+
+        function toggleMute() {
+            if (currentVideo) {
+                currentVideo.muted = !currentVideo.muted;
+                addLog(currentVideo.muted ? '🔇 Sem som' : '🔊 Som ativado');
+            }
+        }
+
+        function setVolume(value) {
+            if (currentVideo) {
+                currentVideo.volume = parseFloat(value);
+                addLog(`🔊 Volume: ${Math.round(value * 100)}%`);
+            }
+        }
+
+        function addLog(message) {
+            const log = document.getElementById('statusLog');
+            const timestamp = new Date().toLocaleTimeString();
+            log.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PostStudio I.A - Criar Post</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Garantir que o cursor apareça */
+        input, textarea {
+            caret-color: white !important;
+            color: white !important;
+        }
+        
+        /* Garantir que os inputs sejam clicáveis */
+        input:focus, textarea:focus {
+            outline: none !important;
+            border-color: rgba(255, 255, 255, 0.5) !important;
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3) !important;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <!-- Header -->
+    <header class="glass-effect">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center">
+                    <a href="/dashboard" class="flex items-center">
+                        <i class="fas fa-arrow-left text-2xl text-white mr-3 hover:text-white/80 transition-colors"></i>
+                        <i class="fas fa-brain text-3xl text-white mr-3"></i>
+                        <h1 class="text-2xl font-bold text-white">PostStudio I.A</h1>
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-white/80">Bem-vindo, Usuário</span>
+                    <button onclick="logout()" class="bg-white/20 text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-colors">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Sair
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Title -->
+        <div class="glass-effect rounded-2xl p-6 mb-8">
+            <div class="text-center">
+                <h2 class="text-3xl font-bold text-white mb-2">Criar Nova Postagem</h2>
+                <p class="text-white/80">Versão simplificada para teste</p>
+            </div>
+        </div>
+
+        <!-- Simple Form -->
+        <div class="glass-effect rounded-2xl p-8">
+            <h3 class="text-2xl font-bold text-white mb-6">
+                <i class="fas fa-edit mr-2"></i>Formulário de Post
+            </h3>
+            
+            <form id="simplePostForm" class="space-y-6">
+                <!-- Post Title -->
+                <div>
+                    <label for="postTitle" class="block text-sm font-medium text-white mb-2">
+                        <i class="fas fa-heading mr-2"></i>Título do Post
+                    </label>
+                    <input 
+                        type="text" 
+                        id="postTitle" 
+                        name="title" 
+                        required 
+                        class="w-full px-4 py-3 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent"
+                        placeholder="Digite o título do seu post"
+                        style="caret-color: white; color: white;"
+                    >
+                </div>
+
+                <!-- Post Content -->
+                <div>
+                    <label for="postContent" class="block text-sm font-medium text-white mb-2">
+                        <i class="fas fa-align-left mr-2"></i>Conteúdo
+                    </label>
+                    <textarea 
+                        id="postContent" 
+                        name="content" 
+                        rows="6" 
+                        required 
+                        class="w-full px-4 py-3 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent resize-none"
+                        placeholder="Escreva o conteúdo do seu post aqui..."
+                        style="caret-color: white; color: white;"
+                    ></textarea>
+                    <div class="flex justify-between items-center mt-2">
+                        <span class="text-xs text-white/60">Use hashtags para melhor alcance</span>
+                        <span id="charCount" class="text-xs text-white/60">0 caracteres</span>
+                    </div>
+                </div>
+
+                <!-- Hashtags -->
+                <div>
+                    <label for="hashtags" class="block text-sm font-medium text-white mb-2">
+                        <i class="fas fa-hashtag mr-2"></i>Hashtags
+                    </label>
+                    <input 
+                        type="text" 
+                        id="hashtags" 
+                        name="hashtags" 
+                        class="w-full px-4 py-3 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent"
+                        placeholder="#marketing #conteudo #socialmedia"
+                        style="caret-color: white; color: white;"
+                    >
+                    <p class="text-xs text-white/60 mt-1">Separe as hashtags com espaços</p>
+                </div>
+
+                <!-- Social Platforms -->
+                <div>
+                    <label class="block text-sm font-medium text-white mb-3">
+                        <i class="fas fa-share-alt mr-2"></i>Plataformas
+                    </label>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" name="platforms" value="twitter" class="rounded border-white/30 bg-white/20 text-blue-600 focus:ring-blue-500">
+                            <i class="fab fa-twitter text-blue-400"></i>
+                            <span class="text-white">Twitter</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" name="platforms" value="facebook" class="rounded border-white/30 bg-white/20 text-blue-600 focus:ring-blue-500">
+                            <i class="fab fa-facebook text-blue-600"></i>
+                            <span class="text-white">Facebook</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" name="platforms" value="instagram" class="rounded border-white/30 bg-white/20 text-blue-600 focus:ring-blue-500">
+                            <i class="fab fa-instagram text-pink-500"></i>
+                            <span class="text-white">Instagram</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" name="platforms" value="linkedin" class="rounded border-white/30 bg-white/20 text-blue-600 focus:ring-blue-500">
+                            <i class="fab fa-linkedin text-blue-700"></i>
+                            <span class="text-white">LinkedIn</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex justify-between items-center pt-6">
+                    <button 
+                        type="button" 
+                        onclick="window.location.href='/dashboard'" 
+                        class="bg-white/20 text-white px-6 py-3 rounded-lg hover:bg-white/30 transition-colors"
+                    >
+                        <i class="fas fa-arrow-left mr-2"></i>Voltar ao Dashboard
+                    </button>
+                    <div class="space-x-4">
+                        <button 
+                            type="button" 
+                            onclick="saveDraft()" 
+                            class="bg-white/20 text-white px-6 py-3 rounded-lg hover:bg-white/30 transition-colors"
+                        >
+                            <i class="fas fa-save mr-2"></i>Salvar Rascunho
+                        </button>
+                        <button 
+                            type="submit" 
+                            class="bg-white text-gray-800 px-6 py-3 rounded-lg font-semibold hover:bg-white/90 transition-colors"
+                        >
+                            <i class="fas fa-paper-plane mr-2"></i>Publicar
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        // Contador de caracteres
+        function updateCharCount() {
+            const content = document.getElementById('postContent').value;
+            document.getElementById('charCount').textContent = `${content.length} caracteres`;
+        }
+
+        // Inicializar quando a página carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Página carregada - versão simplificada');
+            
+            // Adicionar listener para contador de caracteres
+            const contentInput = document.getElementById('postContent');
+            if (contentInput) {
+                contentInput.addEventListener('input', updateCharCount);
+                console.log('Listener de input adicionado ao textarea');
+            }
+            
+            // Teste de foco
+            const titleInput = document.getElementById('postTitle');
+            if (titleInput) {
+                titleInput.addEventListener('focus', function() {
+                    console.log('Título focado');
+                });
+                titleInput.addEventListener('input', function() {
+                    console.log('Título alterado:', this.value);
+                });
+            }
+            
+            if (contentInput) {
+                contentInput.addEventListener('focus', function() {
+                    console.log('Conteúdo focado');
+                });
+                contentInput.addEventListener('input', function() {
+                    console.log('Conteúdo alterado:', this.value);
+                });
+            }
+        });
+
+        // Salvar rascunho
+        function saveDraft() {
+            const title = document.getElementById('postTitle').value;
+            const content = document.getElementById('postContent').value;
+            const hashtags = document.getElementById('hashtags').value;
+            
+            if (!title && !content) {
+                alert('Preencha pelo menos o título ou conteúdo para salvar como rascunho.');
+                return;
+            }
+            
+            alert('Rascunho salvo! (Funcionalidade será implementada)');
+            console.log('Rascunho:', { title, content, hashtags });
+        }
+
+        // Logout
+        function logout() {
+            if (confirm('Tem certeza que deseja sair?')) {
+                window.location.href = '/';
+            }
+        }
+
+        // Submit do formulário
+        document.getElementById('simplePostForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('postTitle').value;
+            const content = document.getElementById('postContent').value;
+            const hashtags = document.getElementById('hashtags').value;
+            const platforms = Array.from(document.querySelectorAll('input[name="platforms"]:checked')).map(cb => cb.value);
+            
+            if (!title || !content) {
+                alert('Preencha o título e conteúdo do post.');
+                return;
+            }
+            
+            console.log('Dados do post:', { title, content, hashtags, platforms });
+            alert('Post criado com sucesso! (Funcionalidade será implementada)');
+        });
+    </script>
+</body>
+</html>

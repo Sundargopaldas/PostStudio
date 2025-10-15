@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PostStudio I.A - Meus Posts</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Typed.js para efeito typewriter -->
+    <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&family=Montserrat:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&family=Open+Sans:wght@300;400;600;700;800&family=Lato:wght@300;400;700;900&family=Source+Sans+Pro:wght@300;400;600;700;900&family=Nunito:wght@300;400;600;700;800;900&family=Quicksand:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700;800;900&family=Abril+Fatface&family=Merriweather:wght@300;400;700;900&family=PT+Serif:wght@400;700&family=Work+Sans:wght@300;400;600;700;800&family=Oswald:wght@300;400;500;600;700&family=Lobster&family=Pacifico&family=Dancing+Script:wght@400;500;600;700&family=Great+Vibes&family=Satisfy&family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .post-card {
+            transition: all 0.3s ease;
+            min-height: 400px; /* Altura mínima consistente */
+            display: flex;
+            flex-direction: column;
+        }
+        .post-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Garantir que o conteúdo ocupe o espaço disponível */
+        .post-card .relative {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .post-card .relative > div {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Fontes personalizadas */
+        .font-inter { font-family: 'Inter', sans-serif; }
+        .font-poppins { font-family: 'Poppins', sans-serif; }
+        .font-playfair { font-family: 'Playfair Display', serif; }
+        .font-montserrat { font-family: 'Montserrat', sans-serif; }
+        .font-abril { font-family: 'Abril Fatface', cursive; }
+        .font-merriweather { font-family: 'Merriweather', serif; }
+        .font-pt-serif { font-family: 'PT Serif', serif; }
+        .font-work-sans { font-family: 'Work Sans', sans-serif; }
+        .font-roboto { font-family: 'Roboto', sans-serif; }
+        .font-open-sans { font-family: 'Open Sans', sans-serif; }
+        .font-lato { font-family: 'Lato', sans-serif; }
+        .font-source-sans { font-family: 'Source Sans Pro', sans-serif; }
+        .font-nunito { font-family: 'Nunito', sans-serif; }
+        .font-quicksand { font-family: 'Quicksand', sans-serif; }
+        .font-raleway { font-family: 'Raleway', sans-serif; }
+        .font-oswald { font-family: 'Oswald', sans-serif; }
+        .font-lobster { font-family: 'Lobster', cursive; }
+        .font-pacifico { font-family: 'Pacifico', cursive; }
+        .font-dancing { font-family: 'Dancing Script', cursive; }
+        .font-great-vibes { font-family: 'Great Vibes', cursive; }
+        .font-satisfy { font-family: 'Satisfy', cursive; }
+        .font-ubuntu { font-family: 'Ubuntu', sans-serif; }
+        
+        /* Efeitos de texto modernos */
+        .text-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .text-shadow-glow {
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+        
+        /* Animações suaves */
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        
+        .animate-slide-up {
+            animation: slideUp 0.8s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { 
+                opacity: 0; 
+                transform: translateY(30px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+        
+        /* Efeitos de hover aprimorados */
+        .hover-lift {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+        }
+        
+        /* Backgrounds dinâmicos para posts */
+        .post-bg-motivacional {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+        }
+        
+        .post-bg-negocios {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .post-bg-engajamento {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .post-bg-promocao {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        }
+        
+        .post-bg-tecnico {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .post-bg-pessoal {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        
+        .post-bg-default {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .post-bg-video {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <!-- Header -->
+    <nav class="glass-effect p-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <i class="fas fa-brain text-3xl text-white"></i>
+                <h1 class="text-2xl font-bold text-white">PostStudio I.A</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span id="userWelcome" class="text-white/80">Carregando...</span>
+                <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Sair
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto p-6">
+        <!-- Header Section -->
+        <div class="glass-effect rounded-2xl p-8 mb-8 animate-fade-in">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h2 class="text-4xl font-bold text-white mb-4 font-playfair text-shadow-glow">Meus Posts</h2>
+                    <p class="text-white/90 text-lg font-inter">Gerencie e visualize todos os seus posts criados</p>
+                    <div class="mt-4 flex justify-start">
+                        <div class="w-24 h-1 bg-gradient-to-r from-pink-400 to-purple-400 rounded-full"></div>
+                    </div>
+                </div>
+                <div class="flex space-x-4">
+                    <button onclick="window.location.href='/create-post'" class="bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition-all transform hover:scale-105">
+                        <i class="fas fa-plus mr-2"></i>Novo Post
+                    </button>
+                    <button onclick="window.location.href='/dashboard'" class="bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-all transform hover:scale-105">
+                        <i class="fas fa-home mr-2"></i>Dashboard
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Posts Grid -->
+        <div id="postsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="col-span-full text-center text-white/70 py-8">
+                <i class="fas fa-spinner fa-spin text-4xl mb-4"></i>
+                <p>Carregando posts...</p>
+                <div class="mt-4">
+                    <div class="bg-white/10 rounded-full h-2 w-64 mx-auto">
+                        <div class="bg-blue-500 h-2 rounded-full animate-pulse" style="width: 60%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div id="loadingPosts" class="text-center py-12">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+            <p class="text-white/80 mt-4">Carregando posts...</p>
+        </div>
+
+        <!-- No Posts Message -->
+        <div id="noPosts" class="text-center py-12 hidden">
+            <i class="fas fa-file-alt text-6xl text-white/50 mb-4"></i>
+            <h3 class="text-2xl font-bold text-white mb-2">Nenhum post encontrado</h3>
+            <p class="text-white/80 mb-6">Crie seu primeiro post para começar!</p>
+            <button onclick="window.location.href='/create-post'" class="bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition-all">
+                <i class="fas fa-plus mr-2"></i>Criar Primeiro Post
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Carregar dados do usuário
+        async function loadUserData() {
+            try {
+                const response = await fetch('/api/user');
+                if (response.ok) {
+                    const data = await response.json();
+                    const user = data.user; // A API retorna { user: { name, email, ... } }
+                    document.getElementById('userWelcome').textContent = `Olá, ${user.name}`;
+                } else {
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                console.error('Erro ao carregar usuário:', error);
+                window.location.href = '/login';
+            }
+        }
+
+        // Função para mostrar legendas com animação de API gratuita
+        function animateVideoCaption(postId, caption, font, speed = 1000, pauseSpeed = 2000) {
+            const captionElement = document.getElementById(`videoCaption-${postId}`);
+            
+            if (!captionElement || !caption) {
+                console.log(`❌ Elemento de legenda não encontrado para post ${postId}`);
+                return;
+            }
+            
+            console.log(`📝 Animando legenda para post ${postId}:`, caption);
+            
+            // Aplicar fonte
+            captionElement.style.fontFamily = font;
+            captionElement.style.opacity = '1';
+            captionElement.style.display = 'block';
+            
+            // Usar animação de API gratuita
+            animateTextWithAPI(captionElement, caption);
+        }
+        
+        // Função para animar texto usando API gratuita (CORRIGIDA)
+        function animateTextWithAPI(element, text) {
+            // Parar animação anterior se existir
+            if (element.animationTimeout) {
+                clearTimeout(element.animationTimeout);
+            }
+            
+            const words = text.split(' ');
+            let currentIndex = 0;
+            let currentLine = '';
+            let lineCount = 0;
+            const maxWordsPerLine = 8; // Máximo de palavras por linha
+            
+            // Limpar elemento completamente
+            element.innerHTML = '';
+            element.textContent = '';
+            
+            // Função para mostrar próxima palavra
+            function showNextWord() {
+                if (currentIndex < words.length) {
+                    // Adicionar palavra atual à linha atual
+                    currentLine += (currentLine ? ' ' : '') + words[currentIndex];
+                    
+                    // Verificar se precisa quebrar linha
+                    const shouldBreakLine = (currentIndex + 1) % maxWordsPerLine === 0 || 
+                                         currentIndex === words.length - 1;
+                    
+                    if (shouldBreakLine) {
+                        // Criar linha
+                        const lineDiv = document.createElement('div');
+                        lineDiv.textContent = currentLine;
+                        lineDiv.style.opacity = '0';
+                        lineDiv.style.transition = 'opacity 0.3s ease-in-out';
+                        lineDiv.style.color = 'white';
+                        lineDiv.style.fontWeight = 'bold';
+                        lineDiv.style.display = 'block';
+                        lineDiv.style.textAlign = 'center';
+                        lineDiv.style.marginBottom = lineCount > 0 ? '0.25rem' : '0';
+                        element.appendChild(lineDiv);
+                        
+                        // Animar entrada da linha
+                        setTimeout(() => {
+                            lineDiv.style.opacity = '1';
+                        }, 50);
+                        
+                        // Reset para próxima linha
+                        currentLine = '';
+                        lineCount++;
+                    }
+                    
+                    currentIndex++;
+                    
+                    // Continuar com próxima palavra
+                    element.animationTimeout = setTimeout(showNextWord, 150);
+                } else {
+                    // Animação concluída
+                    element.animationTimeout = null;
+                    console.log('✅ Animação de texto concluída');
+                }
+            }
+            
+            // Iniciar animação
+            showNextWord();
+            console.log('📝 Animação de texto iniciada:', text);
+        }
+
+        // Carregar posts
+        async function loadPosts() {
+            try {
+                console.log('🔄 Carregando posts...');
+                console.log('🔍 URL da API: /api/posts');
+                
+                // Adicionar timeout à requisição
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 segundos
+                
+                const response = await fetch('/api/posts', {
+                    signal: controller.signal,
+                    credentials: 'include' // Incluir cookies de sessão
+                });
+                
+                clearTimeout(timeoutId);
+                
+                console.log('📡 Status da resposta:', response.status);
+                console.log('📡 Status Text:', response.statusText);
+                console.log('📡 Headers da resposta:', response.headers);
+                console.log('📡 Response OK?', response.ok);
+                
+                if (response.ok) {
+                    const posts = await response.json();
+                    console.log('📊 Posts recebidos:', posts);
+                    console.log('📊 Número de posts:', posts.length);
+                    
+                    if (posts.length > 0) {
+                        console.log('✅ Exibindo posts...');
+                        // Tornar posts acessíveis globalmente para suporte a edição
+                        window._posts = posts;
+                        displayPosts(posts);
+                    } else {
+                        console.log('⚠️ Nenhum post encontrado');
+                        document.getElementById('noPosts').classList.remove('hidden');
+                    }
+                } else {
+                    const errorText = await response.text();
+                    console.error('❌ Erro na resposta:', response.status, errorText);
+                    
+                    try {
+                        const error = JSON.parse(errorText);
+                        console.error('❌ Erro JSON:', error);
+                    } catch (e) {
+                        console.error('❌ Erro não é JSON:', errorText);
+                    }
+                    
+                    if (response.status === 401) {
+                        console.log('🔐 Usuário não autenticado - tentando login automático...');
+                        // Tentar fazer login automático
+                        await autoLogin();
+                        // Tentar carregar posts novamente
+                        const retryResponse = await fetch('/api/posts');
+                        if (retryResponse.ok) {
+                            const posts = await retryResponse.json();
+                            displayPosts(posts);
+                        } else {
+                            console.log('⚠️ Ainda não autenticado após login automático');
+                            document.getElementById('noPosts').classList.remove('hidden');
+                        }
+                    } else {
+                        console.log('⚠️ Mostrando mensagem de erro');
+                        document.getElementById('noPosts').classList.remove('hidden');
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Erro de conexão:', error);
+                console.error('❌ Stack trace:', error.stack);
+                document.getElementById('noPosts').classList.remove('hidden');
+            } finally {
+                console.log('🏁 Finalizando carregamento...');
+                document.getElementById('loadingPosts').classList.add('hidden');
+            }
+        }
+
+        // Login automático
+        async function autoLogin() {
+            try {
+                console.log('🔐 Tentando login automático...');
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'sundaragopaldas@gmail.com',
+                        password: '123456'
+                    })
+                });
+                
+                if (response.ok) {
+                    console.log('✅ Login automático realizado com sucesso');
+                } else {
+                    console.log('❌ Falha no login automático');
+                }
+            } catch (error) {
+                console.error('❌ Erro no login automático:', error);
+            }
+        }
+
+        // Exibir posts
+        function displayPosts(posts) {
+            console.log('🎨 Iniciando exibição de posts...');
+            console.log('📊 Posts para exibir:', posts);
+            console.log('📊 Tipo de posts:', typeof posts);
+            console.log('📊 É array?', Array.isArray(posts));
+            console.log('📊 Length:', posts ? posts.length : 'undefined');
+            
+            const container = document.getElementById('postsContainer');
+            console.log('📦 Container encontrado:', container);
+            console.log('📦 Container innerHTML antes:', container.innerHTML);
+            
+            if (!posts || posts.length === 0) {
+                console.log('⚠️ Nenhum post para exibir');
+                console.log('⚠️ Mostrando mensagem "Nenhum post encontrado"');
+                document.getElementById('noPosts').classList.remove('hidden');
+                return;
+            }
+
+            console.log(`🔄 Processando ${posts.length} posts...`);
+            
+            // Limpar container antes de adicionar novos posts
+            container.innerHTML = '';
+            
+            posts.forEach((post, index) => {
+                console.log(`📝 Processando post ${index + 1}:`, post);
+                console.log(`🔍 Post ID: ${post.id}`);
+                console.log(`🔍 Post tem ID? ${!!post.id}`);
+                
+                // Determinar estilo baseado no template
+                const templateStyle = getTemplateStyle(post.template);
+                
+                // Aplicar customizações se existirem
+                let customStyle = {};
+                if (post.customization) {
+                    try {
+                        const customization = JSON.parse(post.customization);
+                        customStyle = {
+                            font: customization.font || templateStyle.fontFamily,
+                            color: customization.color || templateStyle.textColor,
+                            background: customization.background || templateStyle.bgClass,
+                            textEffect: customization.textEffect || 'normal',
+                            video: customization.video || null,
+                            videoCaption: customization.videoCaption || '',
+                            videoCaptionFont: customization.videoCaptionFont || 'Arial',
+                            backgroundImage: customization.backgroundImage || null
+                        };
+                        
+                        // Debug do vídeo
+                        if (customStyle.video) {
+                            console.log(`🎬 Post ${post.id} - Vídeo encontrado:`, customStyle.video);
+                        } else {
+                            console.log(`🎬 Post ${post.id} - Nenhum vídeo encontrado`);
+                        }
+                        
+                        // Verificar se a cor está sendo aplicada corretamente
+                        if (customization.color && customization.color !== customStyle.color) {
+                            console.log(`⚠️ Post ${post.id} - Cor não aplicada corretamente!`);
+                            console.log(`⚠️ Cor esperada: ${customization.color}`);
+                            console.log(`⚠️ Cor aplicada: ${customStyle.color}`);
+                            // Forçar a cor personalizada
+                            customStyle.color = customization.color;
+                        }
+                        console.log(`🎨 Post ${post.id} - Customização aplicada:`, customStyle);
+                        console.log(`🎨 Post ${post.id} - Cor escolhida:`, customization.color);
+                        console.log(`🎨 Post ${post.id} - Cor aplicada:`, customStyle.color);
+                    } catch (e) {
+                        console.log('Erro ao parsear customização:', e);
+                        customStyle = templateStyle;
+                    }
+                } else {
+                    customStyle = templateStyle;
+                    console.log(`🎨 Post ${post.id} - Usando estilo do template:`, customStyle);
+                }
+                
+                const postCard = document.createElement('div');
+                postCard.className = `post-card hover-lift rounded-2xl p-6 ${customStyle.background} animate-fade-in`;
+                postCard.style.animationDelay = `${index * 0.1}s`;
+                postCard.setAttribute('data-post-id', post.id);
+                
+                // Aplicar imagem de fundo se existir
+                if (customStyle.backgroundImage) {
+                    postCard.style.backgroundImage = `url(${customStyle.backgroundImage})`;
+                    postCard.style.backgroundSize = 'cover';
+                    postCard.style.backgroundPosition = 'center';
+                    postCard.style.backgroundRepeat = 'no-repeat';
+                }
+
+                // Resolver fonte: aceita classe (ex: 'font-inter'), forma antiga Tailwind JIT (ex: "font-['Abril Fatface']")
+                // ou nome de família (ex: 'Merriweather')
+                let resolvedFontClass = '';
+                let resolvedFontStyle = '';
+                if (typeof customStyle.font === 'string') {
+                    if (customStyle.font.startsWith("font-['") || customStyle.font.startsWith('font-["')) {
+                        // Extrair nome da família entre os colchetes
+                        const match = customStyle.font.match(/font-\[['\"]([^'\"]+)['\"]\]/);
+                        const family = match && match[1] ? match[1] : '';
+                        if (family) {
+                            resolvedFontStyle = `font-family: ${JSON.stringify(family)};`;
+                        }
+                    } else if (customStyle.font.startsWith('font-')) {
+                        resolvedFontClass = customStyle.font;
+                    } else {
+                        resolvedFontStyle = `font-family: ${JSON.stringify(customStyle.font)};`;
+                    }
+                }
+                
+                // Tratar platforms como string ou JSON
+                let platforms = [];
+                if (post.platforms) {
+                    try {
+                        // Se for string, tentar fazer parse como JSON primeiro
+                        if (typeof post.platforms === 'string') {
+                            platforms = JSON.parse(post.platforms);
+                        } else {
+                            // Se já for array, usar diretamente
+                            platforms = post.platforms;
+                        }
+                    } catch (e) {
+                        // Se não for JSON válido, tratar como string separada por vírgula
+                        if (typeof post.platforms === 'string') {
+                            platforms = post.platforms.split(',').map(p => p.trim());
+                        } else {
+                            platforms = [];
+                        }
+                    }
+                }
+                const platformIcons = {
+                    'twitter': 'fab fa-twitter',
+                    'facebook': 'fab fa-facebook',
+                    'instagram': 'fab fa-instagram',
+                    'linkedin': 'fab fa-linkedin'
+                };
+
+                console.log(`🎨 Criando HTML para post ${post.id}...`);
+                postCard.innerHTML = `
+                    <div class="relative">
+                        <div>
+                            <!-- Header com três pontos -->
+                            <div class="flex items-start justify-between mb-4">
+                                ${!customStyle.video ? `<h3 class="text-2xl font-bold ${resolvedFontClass}" style="${resolvedFontStyle} color: ${customStyle.color}">${post.title}</h3>` : ''}
+                                <div class="relative ml-4">
+                                    <button onclick="togglePostMenu(${post.id})" class="px-3 py-1 rounded-lg transition-colors hover:bg-white/30" style="background: rgba(255,255,255,0.2); color: white;">⋯</button>
+                                    <div id="menu-${post.id}" class="absolute right-0 top-10 bg-white/20 backdrop-blur-xl rounded-xl p-1 shadow-2xl border border-white/30 hidden z-10 min-w-40" style="display: none;">
+                                        <button onclick="editPost(${post.id})" class="w-full text-left px-4 py-3 rounded-lg hover:bg-white/30 transition-all duration-200 text-white text-sm font-medium">
+                                            <i class="fas fa-edit mr-2"></i>Editar Post
+                                        </button>
+                                        <div class="h-px bg-white/20 my-1"></div>
+                                        <button onclick="deletePost(${post.id})" class="w-full text-left px-4 py-3 rounded-lg hover:bg-white/30 transition-all duration-200 text-white text-sm font-medium">
+                                            <i class="fas fa-trash mr-2"></i>Deletar Post
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Conteúdo do Post (sem ícones) -->
+                            <div class="mb-6">
+                                ${customStyle.video ? `
+                                <div class="relative rounded-xl overflow-hidden border border-white/20 mb-4">
+                                    <video src="${customStyle.video}" controls playsinline muted class="w-full h-64 object-cover" onloadstart="console.log('🎬 Carregando vídeo:', '${customStyle.video}')" onerror="console.error('❌ Erro ao carregar vídeo:', '${customStyle.video}')" onloadeddata="console.log('✅ Vídeo carregado:', '${customStyle.video}')" oncanplay="this.play().catch(e => console.log('⚠️ Autoplay bloqueado:', e))" onplay="console.log('▶️ Vídeo iniciado - reiniciando legenda'); if('${customStyle.videoCaption}') { const captionElement = document.getElementById('videoCaption-${post.id}'); if(captionElement) { animateVideoCaption(${post.id}, '${customStyle.videoCaption}', '${customStyle.videoCaptionFont || 'Arial'}'); } }" ontimeupdate="if(this.currentTime < 1 && this.duration > 0 && '${customStyle.videoCaption}') { const captionElement = document.getElementById('videoCaption-${post.id}'); if(captionElement) { animateVideoCaption(${post.id}, '${customStyle.videoCaption}', '${customStyle.videoCaptionFont || 'Arial'}'); } }"></video>
+                                    ${customStyle.videoCaption ? `<div id="videoCaption-${post.id}" class="absolute bottom-4 left-4 right-4 bg-black/80 text-white text-sm px-3 py-2 rounded-lg z-10" style="font-family: '${customStyle.videoCaptionFont}'; word-wrap: break-word; max-width: calc(100% - 2rem); line-height: 1.4; min-height: 2.8rem; display: flex; align-items: center; justify-content: center; text-align: center;"></div>` : ''}
+                                    
+                                </div>
+                                ` : ''}
+                                <p class="text-base leading-relaxed ${resolvedFontClass} mb-4" style="${resolvedFontStyle} color: ${customStyle.color}">${post.content.substring(0, 200)}${post.content.length > 200 ? '...' : ''}</p>
+                                ${post.image_url && post.image_url !== '' && post.image_url !== 'imagem_uploaded' ? `
+                                    <div class="mt-4">
+                                        <img src="${post.image_url}" alt="Imagem do post" class="w-full h-64 object-cover rounded-xl border border-white/20">
+                                    </div>
+                                ` : ''}
+                            </div>
+                            
+                            <!-- Hashtags (sem ícones) -->
+                            ${post.hashtags ? `
+                                <div class="mb-4">
+                                    <p class="text-sm font-inter" style="color: ${customStyle.color}99">${post.hashtags}</p>
+                                </div>
+                            ` : ''}
+                            
+                            <!-- Footer sem data -->
+                            <div class="flex items-center justify-between pt-4">
+                                <div></div>
+                                <div></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(postCard);
+                console.log(`✅ Post ${index + 1} adicionado ao DOM`);
+                console.log(`🔍 Post ${post.id} - Menu criado? ${!!document.getElementById(`menu-${post.id}`)}`);
+                console.log(`🔍 Post ${post.id} - Botão criado? ${!!document.querySelector(`[onclick="togglePostMenu(${post.id})"]`)}`);
+            });
+            
+            console.log(`🎉 Total de posts exibidos: ${posts.length}`);
+            console.log('📦 Container final:', container.innerHTML.length, 'caracteres');
+            
+            // Mostrar legendas de vídeo (SIMPLES)
+            posts.forEach(post => {
+                if (post.customization) {
+                    try {
+                        const customization = JSON.parse(post.customization);
+                        if (customization.videoCaption) {
+                            console.log(`📝 Configurando legenda para post ${post.id}:`, customization.videoCaption);
+                            
+                            // Mostrar legenda imediatamente (SEM DELAY)
+                            setTimeout(() => {
+                                const captionElement = document.getElementById(`videoCaption-${post.id}`);
+                                if (captionElement) {
+                                    animateVideoCaption(
+                                        post.id,
+                                        customization.videoCaption,
+                                        customization.videoCaptionFont || 'Arial'
+                                    );
+                                }
+                            }, 100); // Delay mínimo
+                        }
+                    } catch (e) {
+                        console.error('Erro ao processar customização:', e);
+                    }
+                }
+            });
+        }
+
+        // Função para determinar estilo do template
+        function getTemplateStyle(template) {
+            const styles = {
+                'Post Motivacional': {
+                    bgClass: 'post-bg-motivacional',
+                    fontFamily: 'font-playfair',
+                    textColor: 'text-gray-800'
+                },
+                'Dica de Negócio': {
+                    bgClass: 'post-bg-negocios',
+                    fontFamily: 'font-montserrat',
+                    textColor: 'text-white'
+                },
+                'Pergunta Engajamento': {
+                    bgClass: 'post-bg-engajamento',
+                    fontFamily: 'font-poppins',
+                    textColor: 'text-white'
+                },
+                'Promoção de Produto': {
+                    bgClass: 'post-bg-promocao',
+                    fontFamily: 'font-montserrat',
+                    textColor: 'text-white'
+                },
+                'Dica Técnica': {
+                    bgClass: 'post-bg-tecnico',
+                    fontFamily: 'font-inter',
+                    textColor: 'text-white'
+                },
+                'Post Pessoal': {
+                    bgClass: 'post-bg-pessoal',
+                    fontFamily: 'font-poppins',
+                    textColor: 'text-gray-800'
+                },
+                'Vídeo com Legenda': {
+                    bgClass: 'post-bg-video',
+                    fontFamily: 'font-inter',
+                    textColor: 'text-white'
+                }
+            };
+            
+            return styles[template] || {
+                bgClass: 'post-bg-default',
+                fontFamily: 'font-inter',
+                textColor: 'text-white'
+            };
+        }
+
+        // Funções auxiliares
+        function getStatusColor(status) {
+            const colors = {
+                'draft': 'yellow',
+                'published': 'green',
+                'scheduled': 'blue',
+                'archived': 'gray'
+            };
+            return colors[status] || 'gray';
+        }
+
+        function getStatusText(status) {
+            const texts = {
+                'draft': 'Rascunho',
+                'published': 'Publicado',
+                'scheduled': 'Agendado',
+                'archived': 'Arquivado'
+            };
+            return texts[status] || status;
+        }
+
+        // Toggle menu de três pontos
+        function togglePostMenu(postId) {
+            console.log(`🔍 Toggle menu para post ${postId}`);
+            
+            // Fechar todos os outros menus primeiro
+            document.querySelectorAll('[id^="menu-"]').forEach(menu => {
+                if (menu.id !== `menu-${postId}`) {
+                    menu.classList.add('hidden');
+                    menu.style.display = 'none';
+                    console.log(`❌ Fechando menu: ${menu.id}`);
+                }
+            });
+            
+            // Toggle do menu atual
+            const menu = document.getElementById(`menu-${postId}`);
+            if (menu) {
+                const isHidden = menu.classList.contains('hidden') || menu.style.display === 'none';
+                if (isHidden) {
+                    menu.classList.remove('hidden');
+                    menu.style.display = 'block';
+                    console.log(`✅ Abrindo menu: ${menu.id}`);
+                } else {
+                    menu.classList.add('hidden');
+                    menu.style.display = 'none';
+                    console.log(`❌ Fechando menu: ${menu.id}`);
+                }
+            } else {
+                console.log(`⚠️ Menu não encontrado: menu-${postId}`);
+            }
+        }
+
+        // Fechar menus ao clicar fora
+        document.addEventListener('click', function(event) {
+            // Verificar se o clique foi em um botão de menu ou dentro de um menu
+            const isMenuButton = event.target.closest('[onclick^="togglePostMenu"]');
+            const isInsideMenu = event.target.closest('[id^="menu-"]');
+            
+            if (!isMenuButton && !isInsideMenu) {
+                // Fechar todos os menus se clicou fora
+                document.querySelectorAll('[id^="menu-"]').forEach(menu => {
+                    menu.classList.add('hidden');
+                    menu.style.display = 'none';
+                });
+                console.log('🔒 Fechando todos os menus - clique fora');
+            }
+        });
+
+        // Editar post
+        function editPost(postId) {
+            // Fechar menu
+            const menu = document.getElementById(`menu-${postId}`);
+            if (menu) {
+                menu.classList.add('hidden');
+                menu.style.display = 'none';
+            }
+            
+            // Obter post completo da lista carregada
+            const posts = window._posts || [];
+            const post = posts.find(p => String(p.id) === String(postId));
+            if (!post) {
+                showNotification('Post não encontrado para edição', 'error');
+                return;
+            }
+            
+            // Salvar dados completos no sessionStorage para evitar URL longa
+            try {
+                sessionStorage.setItem('editPostData', JSON.stringify(post));
+            } catch (e) {
+                console.warn('Falha ao salvar dados no sessionStorage', e);
+            }
+            
+            // Redirecionar para a página principal de criação/edição
+            window.location.href = `/create-post?edit=${encodeURIComponent(postId)}`;
+        }
+
+        // Deletar post
+        async function deletePost(postId) {
+            // Fechar menu
+            const menu = document.getElementById(`menu-${postId}`);
+            if (menu) {
+                menu.classList.add('hidden');
+                menu.style.display = 'none';
+            }
+            // Criar modal de confirmação personalizado
+            const confirmModal = document.createElement('div');
+            confirmModal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50';
+            confirmModal.innerHTML = `
+                <div class="glass-effect rounded-2xl p-8 max-w-md mx-4 animate-slide-up">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-trash text-red-400 text-2xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-4 font-montserrat">Deletar Post</h3>
+                        <p class="text-white/80 text-lg mb-6 font-inter">Tem certeza que deseja deletar este post? Esta ação não pode ser desfeita.</p>
+                        <div class="flex space-x-4">
+                            <button onclick="closeDeleteModal()" class="flex-1 bg-white/20 text-white px-6 py-3 rounded-lg font-semibold hover:bg-white/30 transition-colors">
+                                <i class="fas fa-times mr-2"></i>Cancelar
+                            </button>
+                            <button onclick="confirmDelete(${postId})" class="flex-1 bg-red-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-600 transition-colors">
+                                <i class="fas fa-trash mr-2"></i>Deletar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(confirmModal);
+        }
+
+        // Fechar modal de confirmação
+        function closeDeleteModal() {
+            const modal = document.querySelector('.fixed.inset-0.bg-black\\/50');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        // Confirmar deleção
+        async function confirmDelete(postId) {
+            try {
+                console.log(`🗑️ Deletando post ${postId}...`);
+                console.log(`🔍 URL da requisição: /api/posts/${postId}`);
+                console.log(`🔍 Método: DELETE`);
+                
+                // Verificar se o post ainda existe no DOM
+                const postElement = document.querySelector(`[data-post-id="${postId}"]`);
+                if (!postElement) {
+                    console.log(`⚠️ Post ${postId} não encontrado no DOM - já foi deletado`);
+                    closeDeleteModal();
+                    showNotification('Post já foi deletado', 'info');
+                    return;
+                }
+                
+                // Mostrar loading
+                const deleteButton = event.target;
+                const originalText = deleteButton.innerHTML;
+                deleteButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Deletando...';
+                deleteButton.disabled = true;
+                
+                console.log(`📤 Enviando requisição DELETE para /api/posts/${postId}`);
+                
+                const response = await fetch(`/api/posts/${postId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Cache-Control': 'no-cache'
+                    },
+                    cache: 'no-store'
+                });
+                
+                console.log(`📥 Resposta recebida:`, response.status, response.statusText);
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    console.log('✅ Post deletado com sucesso');
+                    
+                    // Fechar modal
+                    closeDeleteModal();
+                    
+                    // Mostrar notificação de sucesso
+                    showNotification('Post deletado com sucesso!', 'success');
+                    
+                    // Remover o card do DOM imediatamente
+                    const node = document.querySelector(`[data-post-id="${postId}"]`);
+                    if (node && node.parentElement) {
+                        node.parentElement.removeChild(node);
+                    }
+                    
+                    // Recarregar a lista de posts sem cache para garantir sincronização
+                    await new Promise(r => setTimeout(r, 150));
+                    loadPosts();
+                } else {
+                    console.error('❌ Erro ao deletar post:', data.message);
+                    
+                    // Se o post não foi encontrado, recarregar a lista
+                    if (response.status === 404) {
+                        console.log('🔄 Post não encontrado - recarregando lista');
+                        closeDeleteModal();
+                        showNotification('Post não encontrado', 'info');
+                        loadPosts();
+                        return;
+                    }
+                    
+                    showNotification(data.message || 'Erro ao deletar post', 'error');
+                    
+                    // Restaurar botão
+                    deleteButton.innerHTML = originalText;
+                    deleteButton.disabled = false;
+                }
+            } catch (error) {
+                console.error('❌ Erro de conexão:', error);
+                showNotification('Erro de conexão. Tente novamente.', 'error');
+                
+                // Restaurar botão
+                const deleteButton = event.target;
+                deleteButton.innerHTML = '<i class="fas fa-trash mr-2"></i>Deletar';
+                deleteButton.disabled = false;
+            }
+        }
+
+        // Mostrar notificação
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg animate-slide-up ${type === 'success' ? 'bg-green-500 text-white' : type === 'error' ? 'bg-red-500 text-white' : 'bg-blue-500 text-white'}`;
+            notification.innerHTML = `
+                <div class="flex items-center space-x-3">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+                    <span class="font-semibold">${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Remover após 3 segundos
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+
+
+        // Funções de narração removidas - não disponível nos posts salvos
+
+        // Funções de narração removidas
+
+        // Logout
+        async function logout() {
+            try {
+                await fetch('/api/logout', { method: 'POST' });
+                window.location.href = '/login';
+            } catch (error) {
+                console.error('Erro ao fazer logout:', error);
+                window.location.href = '/login';
+            }
+        }
+
+        // Inicializar página
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Inicializando página...');
+            
+            // Carregar dados com timeout
+            Promise.race([
+                loadUserData(),
+                new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 5000))
+            ]).catch(error => {
+                console.error('❌ Erro ao carregar dados do usuário:', error);
+            });
+            
+            Promise.race([
+                loadPosts(),
+                new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 10000))
+            ]).catch(error => {
+                console.error('❌ Erro ao carregar posts:', error);
+                // Mostrar mensagem de erro
+                const container = document.getElementById('postsContainer');
+                if (container) {
+                    container.innerHTML = `
+                        <div class="text-center text-white/70 py-8">
+                            <i class="fas fa-exclamation-triangle text-4xl mb-4"></i>
+                            <p>Erro ao carregar posts. Tente recarregar a página.</p>
+                            <button onclick="location.reload()" class="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
+                                Recarregar Página
+                            </button>
+                        </div>
+                    `;
+                }
+            });
+            
+            // Aplicar otimizações de vídeo
+            if (window.VideoOptimizer) {
+                const videoOptimizer = new VideoOptimizer();
+                videoOptimizer.setAdvancedPerformanceSettings();
+            }
+        });
+    </script>
+    <script src="video-optimizer.js"></script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PostStudio I.A - Pagamento Realizado</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        @keyframes floating {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .pulse-success {
+            animation: pulse-success 2s ease-in-out infinite;
+        }
+        @keyframes pulse-success {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-2xl">
+        <!-- Success Card -->
+        <div class="glass-effect rounded-2xl p-8 text-center">
+            <!-- Success Icon -->
+            <div class="floating mb-6">
+                <div class="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center mx-auto pulse-success">
+                    <i class="fas fa-check text-4xl text-white"></i>
+                </div>
+            </div>
+            
+            <!-- Success Message -->
+            <h1 class="text-4xl font-bold text-white mb-4">Pagamento Realizado!</h1>
+            <p class="text-white/90 text-lg mb-6">Seu plano foi ativado com sucesso</p>
+            
+            <!-- Plan Details -->
+            <div class="bg-white/10 rounded-xl p-6 mb-8">
+                <h3 class="text-xl font-semibold text-white mb-4">Detalhes da Assinatura</h3>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-white/80">Plano:</span>
+                        <span class="text-white font-semibold" id="planName">Premium</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-white/80">Valor:</span>
+                        <span class="text-white font-semibold" id="planPrice">R$ 59,90/mês</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-white/80">Status:</span>
+                        <span class="text-green-400 font-semibold">Ativo</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Features -->
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold text-white mb-4">Recursos Desbloqueados</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="flex items-center text-white">
+                        <i class="fas fa-check text-green-400 mr-3"></i>
+                        <span>Posts ilimitados</span>
+                    </div>
+                    <div class="flex items-center text-white">
+                        <i class="fas fa-check text-green-400 mr-3"></i>
+                        <span>Todos os templates</span>
+                    </div>
+                    <div class="flex items-center text-white">
+                        <i class="fas fa-check text-green-400 mr-3"></i>
+                        <span>Text-to-Speech</span>
+                    </div>
+                    <div class="flex items-center text-white">
+                        <i class="fas fa-check text-green-400 mr-3"></i>
+                        <span>Suporte prioritário</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4">
+                <button onclick="window.location.href='/dashboard'" class="flex-1 bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition-colors">
+                    <i class="fas fa-home mr-2"></i>Ir para Dashboard
+                </button>
+                <button onclick="window.location.href='/create-post'" class="flex-1 bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors">
+                    <i class="fas fa-plus mr-2"></i>Criar Primeiro Post
+                </button>
+            </div>
+            
+            <!-- Additional Info -->
+            <div class="mt-8 pt-6 border-t border-white/20">
+                <p class="text-white/60 text-sm">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    Você receberá um email de confirmação em breve
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Carregar dados do plano da URL
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const plan = urlParams.get('plan') || 'premium';
+            const price = urlParams.get('price') || '59,90';
+            
+            // Atualizar informações na página
+            document.getElementById('planName').textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
+            document.getElementById('planPrice').textContent = `R$ ${price}/mês`;
+            
+            // Mostrar notificação de sucesso
+            setTimeout(() => {
+                showSuccessNotification();
+            }, 1000);
+        });
+        
+        // Mostrar notificação de sucesso
+        function showSuccessNotification() {
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg bg-green-500 text-white animate-slide-in';
+            notification.innerHTML = `
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-check-circle"></i>
+                    <span class="font-semibold">Plano ativado com sucesso!</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

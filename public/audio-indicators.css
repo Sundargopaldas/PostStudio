@@ -1,0 +1,303 @@
+/* Audio Detection Indicators */
+.audio-indicator {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.audio-indicator.has-audio {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+    border-color: rgba(34, 197, 94, 0.3);
+}
+
+.audio-indicator.no-audio {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.audio-indicator i {
+    margin-right: 4px;
+}
+
+/* Audio Controls */
+.audio-controls {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 8px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    opacity: 0;
+}
+
+.video-container:hover .audio-controls {
+    opacity: 1;
+}
+
+.audio-controls button {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.audio-controls button:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.audio-controls input[type="range"] {
+    width: 80px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+}
+
+.audio-controls input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    background: #3b82f6;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.audio-controls input[type="range"]::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    background: #3b82f6;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+}
+
+.audio-controls .volume-display {
+    color: white;
+    font-size: 12px;
+    font-weight: 500;
+    min-width: 30px;
+    text-align: center;
+}
+
+/* Video Status Badges */
+.video-status-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 10;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.video-status-badge.audio-enabled {
+    background: rgba(34, 197, 94, 0.9);
+    color: white;
+}
+
+.video-status-badge.audio-disabled {
+    background: rgba(239, 68, 68, 0.9);
+    color: white;
+}
+
+.video-status-badge.audio-unknown {
+    background: rgba(156, 163, 175, 0.9);
+    color: white;
+}
+
+/* Audio Detection Loading */
+.audio-detection-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.audio-detection-loading i {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Video List Audio Status */
+.video-list-item {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.video-list-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.video-list-item .audio-status {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.video-list-item .audio-status.has-audio {
+    background: rgba(34, 197, 94, 0.9);
+    color: white;
+}
+
+.video-list-item .audio-status.no-audio {
+    background: rgba(239, 68, 68, 0.9);
+    color: white;
+}
+
+.video-list-item .audio-status.unknown {
+    background: rgba(156, 163, 175, 0.9);
+    color: white;
+}
+
+/* Audio Report Styles */
+.audio-report {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.audio-report h3 {
+    color: white;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+
+.audio-report .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.audio-report .stat-item {
+    text-align: center;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+}
+
+.audio-report .stat-number {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.audio-report .stat-label {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.audio-report .stat-number.green {
+    color: #22c55e;
+}
+
+.audio-report .stat-number.red {
+    color: #ef4444;
+}
+
+.audio-report .stat-number.blue {
+    color: #3b82f6;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .audio-indicator {
+        top: 5px;
+        right: 5px;
+        padding: 6px 8px;
+        font-size: 10px;
+    }
+    
+    .audio-controls {
+        bottom: 5px;
+        left: 5px;
+        padding: 6px 8px;
+    }
+    
+    .audio-controls input[type="range"] {
+        width: 60px;
+    }
+    
+    .video-status-badge {
+        top: 5px;
+        left: 5px;
+        padding: 3px 6px;
+        font-size: 8px;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .audio-indicator {
+        backdrop-filter: blur(15px);
+    }
+    
+    .audio-controls {
+        background: rgba(0, 0, 0, 0.8);
+    }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .audio-indicator.has-audio {
+        background: #22c55e;
+        color: white;
+        border: 2px solid white;
+    }
+    
+    .audio-indicator.no-audio {
+        background: #ef4444;
+        color: white;
+        border: 2px solid white;
+    }
+}

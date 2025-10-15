@@ -1,0 +1,218 @@
+[
+  {
+    "id": "test-admin-001",
+    "name": "Admin Teste",
+    "email": "admin@teste.com",
+    "password": "$2a$10$test.hash.for.admin",
+    "role": "admin",
+    "plan": "enterprise",
+    "permissions": [
+      "all"
+    ],
+    "features": {
+      "textToSpeech": {
+        "enabled": true,
+        "voices": 20,
+        "characters": 10000,
+        "apiKey": "7bddbf397d93ddfe06bcc5fa428d9cd418b046978ce65b7334b2313c9112e338"
+      },
+      "aiGeneration": {
+        "enabled": true,
+        "models": [
+          "gpt-4",
+          "claude-3",
+          "gemini-pro"
+        ],
+        "requests": 100,
+        "languages": [
+          "pt-BR",
+          "en-US",
+          "es-ES"
+        ]
+      },
+      "analytics": {
+        "enabled": true,
+        "realTime": true,
+        "customReports": true,
+        "exportData": true,
+        "retention": 90
+      },
+      "socialMedia": {
+        "enabled": true,
+        "platforms": [
+          "twitter",
+          "facebook",
+          "instagram",
+          "linkedin"
+        ],
+        "autoPosting": true,
+        "scheduling": true,
+        "hashtagSuggestions": true
+      },
+      "collaboration": {
+        "enabled": true,
+        "teamMembers": 10,
+        "workspaces": 5,
+        "approvalWorkflow": true,
+        "comments": true
+      },
+      "apiAccess": {
+        "enabled": true,
+        "endpoints": "all",
+        "rateLimit": 1000,
+        "documentation": true
+      },
+      "branding": {
+        "enabled": true,
+        "customLogo": true,
+        "customColors": true,
+        "whiteLabel": true
+      }
+    }
+  },
+  {
+    "id": "test-user-001",
+    "name": "Usuário Premium",
+    "email": "premium@teste.com",
+    "password": "$2a$10$test.hash.for.premium",
+    "role": "user",
+    "plan": "pro",
+    "permissions": [
+      "content",
+      "analytics",
+      "social"
+    ],
+    "features": {
+      "textToSpeech": {
+        "enabled": true,
+        "voices": 20,
+        "characters": 10000,
+        "apiKey": "7bddbf397d93ddfe06bcc5fa428d9cd418b046978ce65b7334b2313c9112e338"
+      },
+      "aiGeneration": {
+        "enabled": true,
+        "models": [
+          "gpt-4",
+          "claude-3",
+          "gemini-pro"
+        ],
+        "requests": 100,
+        "languages": [
+          "pt-BR",
+          "en-US",
+          "es-ES"
+        ]
+      },
+      "analytics": {
+        "enabled": true,
+        "realTime": true,
+        "customReports": true,
+        "exportData": true,
+        "retention": 90
+      },
+      "socialMedia": {
+        "enabled": true,
+        "platforms": [
+          "twitter",
+          "facebook",
+          "instagram",
+          "linkedin"
+        ],
+        "autoPosting": true,
+        "scheduling": true,
+        "hashtagSuggestions": true
+      },
+      "collaboration": {
+        "enabled": true,
+        "teamMembers": 10,
+        "workspaces": 5,
+        "approvalWorkflow": true,
+        "comments": true
+      },
+      "apiAccess": {
+        "enabled": true,
+        "endpoints": "all",
+        "rateLimit": 1000,
+        "documentation": true
+      },
+      "branding": {
+        "enabled": true,
+        "customLogo": true,
+        "customColors": true,
+        "whiteLabel": true
+      }
+    }
+  },
+  {
+    "id": "test-team-001",
+    "name": "Equipe Colaboração",
+    "email": "team@teste.com",
+    "password": "$2a$10$test.hash.for.team",
+    "role": "user",
+    "plan": "pro",
+    "permissions": [
+      "content",
+      "collaboration"
+    ],
+    "features": {
+      "textToSpeech": {
+        "enabled": true,
+        "voices": 20,
+        "characters": 10000,
+        "apiKey": "7bddbf397d93ddfe06bcc5fa428d9cd418b046978ce65b7334b2313c9112e338"
+      },
+      "aiGeneration": {
+        "enabled": true,
+        "models": [
+          "gpt-4",
+          "claude-3",
+          "gemini-pro"
+        ],
+        "requests": 100,
+        "languages": [
+          "pt-BR",
+          "en-US",
+          "es-ES"
+        ]
+      },
+      "analytics": {
+        "enabled": true,
+        "realTime": true,
+        "customReports": true,
+        "exportData": true,
+        "retention": 90
+      },
+      "socialMedia": {
+        "enabled": true,
+        "platforms": [
+          "twitter",
+          "facebook",
+          "instagram",
+          "linkedin"
+        ],
+        "autoPosting": true,
+        "scheduling": true,
+        "hashtagSuggestions": true
+      },
+      "collaboration": {
+        "enabled": true,
+        "teamMembers": 10,
+        "workspaces": 5,
+        "approvalWorkflow": true,
+        "comments": true
+      },
+      "apiAccess": {
+        "enabled": true,
+        "endpoints": "all",
+        "rateLimit": 1000,
+        "documentation": true
+      },
+      "branding": {
+        "enabled": true,
+        "customLogo": true,
+        "customColors": true,
+        "whiteLabel": true
+      }
+    }
+  }
+]

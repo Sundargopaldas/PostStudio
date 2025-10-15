@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Posts - PostStudio I.A</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            color: white;
+        }
+        .post-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .login-form {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 30px;
+            margin: 20px 0;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+        .success { background: rgba(0, 255, 0, 0.2); border: 1px solid green; }
+        .error { background: rgba(255, 0, 0, 0.2); border: 1px solid red; }
+        .info { background: rgba(0, 0, 255, 0.2); border: 1px solid blue; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 Meus Posts - PostStudio I.A</h1>
+        
+        <div id="loginSection">
+            <div class="login-form">
+                <h3>🔐 Faça Login para Ver os Posts</h3>
+                <input type="email" id="email" placeholder="Email" value="sundaragopaldas@gmail.com">
+                <input type="password" id="password" placeholder="Senha">
+                <button onclick="login()">🚀 Fazer Login</button>
+            </div>
+        </div>
+        
+        <div id="postsSection" style="display: none;">
+            <div>
+                <button onclick="loadPosts()">🔄 Carregar Posts</button>
+                <button onclick="logout()">🚪 Sair</button>
+            </div>
+            <div id="status"></div>
+            <div id="posts"></div>
+        </div>
+    </div>
+
+    <script>
+        function showStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            status.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                showStatus('❌ Preencha email e senha!', 'error');
+                return;
+            }
+            
+            showStatus('🔄 Fazendo login...', 'info');
+            
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    showStatus(`✅ Login realizado! Bem-vindo, ${result.user.name}`, 'success');
+                    
+                    // Mostrar seção de posts
+                    document.getElementById('loginSection').style.display = 'none';
+                    document.getElementById('postsSection').style.display = 'block';
+                    
+                    // Carregar posts automaticamente
+                    loadPosts();
+                } else {
+                    const error = await response.json();
+                    showStatus(`❌ Erro no login: ${error.message}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`❌ Erro: ${error.message}`, 'error');
+            }
+        }
+
+        async function loadPosts() {
+            showStatus('🔄 Carregando posts...', 'info');
+            
+            try {
+                const response = await fetch('/api/posts');
+                
+                if (response.ok) {
+                    const posts = await response.json();
+                    showStatus(`✅ ${posts.length} posts encontrados!`, 'success');
+                    displayPosts(posts);
+                } else {
+                    const error = await response.text();
+                    showStatus(`❌ Erro ao carregar posts: ${response.status} - ${error}`, 'error');
+                }
+                
+            } catch (error) {
+                showStatus(`❌ Erro: ${error.message}`, 'error');
+            }
+        }
+
+        function displayPosts(posts) {
+            const container = document.getElementById('posts');
+            
+            if (posts.length === 0) {
+                container.innerHTML = '<div class="post-card"><h3>Nenhum post encontrado</h3></div>';
+                return;
+            }
+
+            let html = '';
+            posts.forEach((post, index) => {
+                html += `
+                    <div class="post-card">
+                        <h3>📝 ${post.title}</h3>
+                        <p><strong>Conteúdo:</strong> ${post.content}</p>
+                        <p><strong>Template:</strong> ${post.template || 'N/A'}</p>
+                        <p><strong>Status:</strong> ${post.status}</p>
+                        <p><strong>ID:</strong> ${post.id}</p>
+                        <p><strong>Criado em:</strong> ${new Date(post.created_at).toLocaleString('pt-BR')}</p>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        async function logout() {
+            try {
+                await fetch('/api/logout', { method: 'POST' });
+                document.getElementById('loginSection').style.display = 'block';
+                document.getElementById('postsSection').style.display = 'none';
+                showStatus('🚪 Logout realizado!', 'info');
+            } catch (error) {
+                showStatus('❌ Erro no logout', 'error');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PostStudio I.A - Configurações</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Fontes personalizadas */
+        .font-inter { font-family: 'Inter', sans-serif; }
+        .font-poppins { font-family: 'Poppins', sans-serif; }
+        .font-playfair { font-family: 'Playfair Display', serif; }
+        .font-montserrat { font-family: 'Montserrat', sans-serif; }
+        
+        /* Efeitos de texto modernos */
+        .text-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .text-shadow-glow {
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+        
+        /* Animações suaves */
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        
+        .animate-slide-up {
+            animation: slideUp 0.8s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { 
+                opacity: 0; 
+                transform: translateY(30px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+        
+        .hover-lift {
+            transition: all 0.3s ease;
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #667eea;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen font-inter">
+    <!-- Header -->
+    <div class="container mx-auto px-4 py-8">
+        <!-- Navigation -->
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center space-x-4">
+                <button onclick="window.location.href='/dashboard'" class="text-white hover:text-white/80 transition-colors">
+                    <i class="fas fa-arrow-left text-xl"></i>
+                </button>
+                <h1 class="text-3xl font-bold text-white font-montserrat">
+                    <i class="fas fa-cog mr-3"></i>Configurações
+                </h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button onclick="window.location.href='/dashboard'" class="text-white hover:text-white/80 transition-colors">
+                    <i class="fas fa-home text-xl"></i>
+                </button>
+                <button onclick="logout()" class="text-white hover:text-white/80 transition-colors">
+                    <i class="fas fa-sign-out-alt text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Settings Content -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Sidebar Navigation -->
+            <div class="lg:col-span-1">
+                <div class="glass-effect rounded-2xl p-6 sticky top-8">
+                    <h3 class="text-xl font-bold text-white mb-6 font-montserrat">
+                        <i class="fas fa-list mr-2"></i>Menu
+                    </h3>
+                    <nav class="space-y-2">
+                        <button onclick="showSection('profile')" class="settings-nav w-full text-left px-4 py-3 rounded-lg text-white hover:bg-white/20 transition-colors flex items-center">
+                            <i class="fas fa-user mr-3"></i>Perfil
+                        </button>
+                        <button onclick="showSection('account')" class="settings-nav w-full text-left px-4 py-3 rounded-lg text-white hover:bg-white/20 transition-colors flex items-center">
+                            <i class="fas fa-user-cog mr-3"></i>Conta
+                        </button>
+                        <button onclick="showSection('notifications')" class="settings-nav w-full text-left px-4 py-3 rounded-lg text-white hover:bg-white/20 transition-colors flex items-center">
+                            <i class="fas fa-bell mr-3"></i>Notificações
+                        </button>
+                        <button onclick="showSection('privacy')" class="settings-nav w-full text-left px-4 py-3 rounded-lg text-white hover:bg-white/20 transition-colors flex items-center">
+                            <i class="fas fa-shield-alt mr-3"></i>Privacidade
+                        </button>
+                        <button onclick="showSection('appearance')" class="settings-nav w-full text-left px-4 py-3 rounded-lg text-white hover:bg-white/20 transition-colors flex items-center">
+                            <i class="fas fa-palette mr-3"></i>Aparência
+                        </button>
+                        <button onclick="showSection('integrations')" class="settings-nav w-full text-left px-4 py-3 rounded-lg text-white hover:bg-white/20 transition-colors flex items-center">
+                            <i class="fas fa-plug mr-3"></i>Integrações
+                        </button>
+                        <button onclick="showSection('billing')" class="settings-nav w-full text-left px-4 py-3 rounded-lg text-white hover:bg-white/20 transition-colors flex items-center">
+                            <i class="fas fa-credit-card mr-3"></i>Faturamento
+                        </button>
+                        <button onclick="showSection('advanced')" class="settings-nav w-full text-left px-4 py-3 rounded-lg text-white hover:bg-white/20 transition-colors flex items-center">
+                            <i class="fas fa-cogs mr-3"></i>Avançado
+                        </button>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="lg:col-span-2">
+                <!-- Profile Section -->
+                <div id="profile-section" class="settings-section">
+                    <div class="glass-effect rounded-2xl p-8 animate-fade-in">
+                        <h2 class="text-2xl font-bold text-white mb-6 font-montserrat">
+                            <i class="fas fa-user mr-3"></i>Perfil
+                        </h2>
+                        
+                        <div class="space-y-6">
+                            <!-- Profile Picture -->
+                            <div class="flex items-center space-x-6">
+                                <div class="relative">
+                                    <img id="profile-picture" src="https://via.placeholder.com/100x100/667eea/ffffff?text=U" 
+                                         alt="Profile Picture" class="w-24 h-24 rounded-full border-4 border-white/20">
+                                    <button onclick="changeProfilePicture()" class="absolute -bottom-2 -right-2 bg-white text-gray-800 rounded-full p-2 hover:bg-gray-100 transition-colors">
+                                        <i class="fas fa-camera text-sm"></i>
+                                    </button>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-semibold text-white">Seu Nome</h3>
+                                    <p class="text-white/70">usuario@email.com</p>
+                                    <button onclick="changeProfilePicture()" class="text-white/80 hover:text-white transition-colors text-sm mt-1">
+                                        <i class="fas fa-edit mr-1"></i>Alterar foto
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Profile Form -->
+                            <form id="profile-form" class="space-y-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-white/80 text-sm font-medium mb-2">Nome</label>
+                                        <input type="text" id="profile-name" value="Seu Nome" 
+                                               class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent">
+                                    </div>
+                                    <div>
+                                        <label class="block text-white/80 text-sm font-medium mb-2">Sobrenome</label>
+                                        <input type="text" id="profile-lastname" value="Sobrenome" 
+                                               class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent">
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-white/80 text-sm font-medium mb-2">Email</label>
+                                    <input type="email" id="profile-email" value="usuario@email.com" 
+                                           class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-white/80 text-sm font-medium mb-2">Bio</label>
+                                    <textarea id="profile-bio" rows="3" placeholder="Conte um pouco sobre você..." 
+                                              class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent resize-none"></textarea>
+                                </div>
+                                
+                                <div class="flex justify-end">
+                                    <button type="submit" class="bg-white text-gray-800 px-6 py-3 rounded-lg font-semibold hover:bg-white/90 transition-all transform hover:scale-105">
+                                        <i class="fas fa-save mr-2"></i>Salvar Alterações
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Section -->
+                <div id="account-section" class="settings-section hidden">
+                    <div class="glass-effect rounded-2xl p-8 animate-fade-in">
+                        <h2 class="text-2xl font-bold text-white mb-6 font-montserrat">
+                            <i class="fas fa-user-cog mr-3"></i>Conta
+                        </h2>
+                        
+                        <div class="space-y-6">
+                            <!-- Change Password -->
+                            <div class="bg-white/5 rounded-xl p-6">
+                                <h3 class="text-lg font-semibold text-white mb-4">Alterar Senha</h3>
+                                <form id="password-form" class="space-y-4">
+                                    <div>
+                                        <label class="block text-white/80 text-sm font-medium mb-2">Senha Atual</label>
+                                        <input type="password" id="current-password" 
+                                               class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent">
+                                    </div>
+                                    <div>
+                                        <label class="block text-white/80 text-sm font-medium mb-2">Nova Senha</label>
+                                        <input type="password" id="new-password" 
+                                               class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent">
+                                    </div>
+                                    <div>
+                                        <label class="block text-white/80 text-sm font-medium mb-2">Confirmar Nova Senha</label>
+                                        <input type="password" id="confirm-password" 
+                                               class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent">
+                                    </div>
+                                    <button type="submit" class="bg-white text-gray-800 px-6 py-3 rounded-lg font-semibold hover:bg-white/90 transition-all transform hover:scale-105">
+                                        <i class="fas fa-key mr-2"></i>Alterar Senha
+                                    </button>
+                                </form>
+                            </div>
+
+                            <!-- Account Actions -->
+                            <div class="bg-white/5 rounded-xl p-6">
+                                <h3 class="text-lg font-semibold text-white mb-4">Ações da Conta</h3>
+                                <div class="space-y-4">
+                                    <button onclick="exportData()" class="w-full text-left px-4 py-3 rounded-lg bg-white/10 hover:bg-white/20 transition-colors text-white flex items-center">
+                                        <i class="fas fa-download mr-3"></i>Exportar Dados
+                                    </button>
+                                    <button onclick="deleteAccount()" class="w-full text-left px-4 py-3 rounded-lg bg-red-500/20 hover:bg-red-500/30 transition-colors text-red-300 flex items-center">
+                                        <i class="fas fa-trash mr-3"></i>Excluir Conta
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notifications Section -->
+                <div id="notifications-section" class="settings-section hidden">
+                    <div class="glass-effect rounded-2xl p-8 animate-fade-in">
+                        <h2 class="text-2xl font-bold text-white mb-6 font-montserrat">
+                            <i class="fas fa-bell mr-3"></i>Notificações
+                        </h2>
+                        
+                        <div class="space-y-6">
+                            <!-- Email Notifications -->
+                            <div class="bg-white/5 rounded-xl p-6">
+                                <h3 class="text-lg font-semibold text-white mb-4">Notificações por Email</h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h4 class="text-white font-medium">Novos Posts</h4>
+                                            <p class="text-white/70 text-sm">Receba notificações quando criar novos posts</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h4 class="text-white font-medium">Analytics</h4>
+                                            <p class="text-white/70 text-sm">Relatórios semanais de performance</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h4 class="text-white font-medium">Atualizações</h4>
+                                            <p class="text-white/70 text-sm">Novidades e melhorias da plataforma</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Push Notifications -->
+                            <div class="bg-white/5 rounded-xl p-6">
+                                <h3 class="text-lg font-semibold text-white mb-4">Notificações Push</h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h4 class="text-white font-medium">Lembretes</h4>
+                                            <p class="text-white/70 text-sm">Lembretes para publicar conteúdo</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h4 class="text-white font-medium">Interações</h4>
+                                            <p class="text-white/70 text-sm">Curtidas e comentários nos seus posts</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Privacy Section -->
+                <div id="privacy-section" class="settings-section hidden">
+                    <div class="glass-effect rounded-2xl p-8 animate-fade-in">
+                        <h2 class="text-2xl font-bold text-white mb-6 font-montserrat">
+                            <i class="fas fa-shield-alt mr-3"></i>Privacidade
+                        </h2>
+                        
+                        <div class="space-y-6">
+                            <!-- Profile Visibility -->
+                            <div class="bg-white/5 rounded-xl p-6">
+                                <h3 class="text-lg font-semibold text-white mb-4">Visibilidade do Perfil</h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h4 class="text-white font-medium">Perfil Público</h4>
+                                            <p class="text-white/70 text-sm">Permitir que outros vejam seu perfil</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h4 class="text-white font-medium">Posts Públicos</h4>
+                                            <p class="text-white/70 text-sm">Permitir que outros vejam seus posts</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Data Collection -->
+                            <div class="bg-white/5 rounded-xl p-6">
+                                <h3 class="text-lg font-semibold text-white mb-4">Coleta de Dados</h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h4 class="text-white font-medium">Analytics</h4>
+                                            <p class="text-white/70 text-sm">Coletar dados de uso para melhorar o serviço</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h4 class="text-white font-medium">Cookies</h4>
+                                            <p class="text-white/70 text-sm">Permitir cookies para personalização</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Appearance Section -->
+                <div id="appearance-section" class="settings-section hidden">
+                    <div class="glass-effect rounded-2xl p-8 animate-fade-in">
+                        <h2 class="text-2xl font-bold text-white mb-6 font-montserrat">
+                            <i class="fas fa-palette mr-3"></i>Aparência
+                        </h2>
+                        
+                        <div class="space-y-6">
+                            <!-- Theme -->
+                            <div class="bg-white/5 rounded-xl p-6">
+                                <h3 class="text-lg font-semibold text-white mb-4">Tema</h3>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <button onclick="setTheme('light')" class="theme-option p-4 rounded-lg bg-white/10 hover:bg-white/20 transition-colors text-white border-2 border-transparent hover:border-white/30">
+                                        <i class="fas fa-sun text-2xl mb-2"></i>
+                                        <div class="font-medium">Claro</div>
+                                    </button>
+                                    <button onclick="setTheme('dark')" class="theme-option p-4 rounded-lg bg-white/10 hover:bg-white/20 transition-colors text-white border-2 border-white/30">
+                                        <i class="fas fa-moon text-2xl mb-2"></i>
+                                        <div class="font-medium">Escuro</div>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Language -->
+                            <div class="bg-white/5 rounded-xl p-6">
+                                <h3 class="text-lg font-semibold text-white mb-4">Idioma</h3>
+                                <select class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent">
+                                    <option value="pt-BR" class="bg-gray-800">Português (Brasil)</option>
+                                    <option value="en-US" class="bg-gray-800">English (US)</option>
+                                    <option value="es-ES" class="bg-gray-800">Español</option>
+                                </select>
+                            </div>
+
+                            <!-- Font Size -->
+                            <div class="bg-white/5 rounded-xl p-6">
+                                <h3 class="text-lg font-semibold text-white mb-4">Tamanho da Fonte</h3>
+                                <div class="flex items-center space-x-4">
+                                    <span class="text-white/70">Pequeno</span>
+                                    <input type="range" min="12" max="18" value="14" class="flex-1">
+                                    <span class="text-white/70">Grande</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Integrations Section -->
+                <div id="integrations-section" class="settings-section hidden">
+                    <div class="glass-effect rounded-2xl p-8 animate-fade-in">
+                        <h2 class="text-2xl font-bold text-white mb-6 font-montserrat">
+                            <i class="fas fa-plug mr-3"></i>Integrações
+                        </h2>
+                        
+                        <div class="space-y-6">
+                            <!-- Social Media -->
+                            <div class="bg-white/5 rounded-xl p-6">
+                                <h3 class="text-lg font-semibold text-white mb-4">Redes Sociais</h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between p-4 rounded-lg bg-white/5">
+                                        <div class="flex items-center space-x-3">
+                                            <i class="fab fa-facebook text-blue-400 text-xl"></i>
+                                            <span class="text-white">Facebook</span>
+                                        </div>
+                                        <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                                            Conectar
+                                        </button>
+                                    </div>
+                                    <div class="flex items-center justify-between p-4 rounded-lg bg-white/5">
+                                        <div class="flex items-center space-x-3">
+                                            <i class="fab fa-instagram text-pink-400 text-xl"></i>
+                                            <span class="text-white">Instagram</span>
+                                        </div>
+                                        <button class="bg-pink-500 text-white px-4 py-2 rounded-lg hover:bg-pink-600 transition-colors">
+                                            Conectar
+                                        </button>
+                                    </div>
+                                    <div class="flex items-center justify-between p-4 rounded-lg bg-white/5">
+                                        <div class="flex items-center space-x-3">
+                                            <i class="fab fa-twitter text-blue-300 text-xl"></i>
+                                            <span class="text-white">Twitter</span>
+                                        </div>
+                                        <button class="bg-blue-400 text-white px-4 py-2 rounded-lg hover:bg-blue-500 transition-colors">
+                                            Conectar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Analytics -->
+                            <div class="bg-white/5 rounded-xl p-6">
+                                <h3 class="text-lg font-semibold text-white mb-4">Analytics</h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between p-4 rounded-lg bg-white/5">
+                                        <div class="flex items-center space-x-3">
+                                            <i class="fab fa-google text-red-400 text-xl"></i>
+                                            <span class="text-white">Google Analytics</span>
+                                        </div>
+                                        <button class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors">
+                                            Conectar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Billing Section -->
+                <div id="billing-section" class="settings-section hidden">
+                    <div class="glass-effect rounded-2xl p-8 animate-fade-in">
+                        <h2 class="text-2xl font-bold text-white mb-6 font-montserrat">
+                            <i class="fas fa-credit-card mr-3"></i>Faturamento
+                        </h2>
+                        
+                        <div class="space-y-6">
+                            <!-- Current Plan -->
+                            <div class="bg-white/5 rounded-xl p-6">
+                                <h3 class="text-lg font-semibold text-white mb-4">Plano Atual</h3>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h4 class="text-white font-medium">Plano Gratuito</h4>
+                                        <p class="text-white/70 text-sm">R$ 0,00/mês</p>
+                                    </div>
+                                    <button class="bg-white text-gray-800 px-6 py-3 rounded-lg font-semibold hover:bg-white/90 transition-all transform hover:scale-105">
+                                        Upgrade
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Payment Methods -->
+                            <div class="bg-white/5 rounded-xl p-6">
+                                <h3 class="text-lg font-semibold text-white mb-4">Métodos de Pagamento</h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between p-4 rounded-lg bg-white/5">
+                                        <div class="flex items-center space-x-3">
+                                            <i class="fas fa-credit-card text-white text-xl"></i>
+                                            <span class="text-white">**** **** **** 1234</span>
+                                        </div>
+                                        <button class="text-white/70 hover:text-white transition-colors">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </div>
+                                    <button class="w-full text-left px-4 py-3 rounded-lg bg-white/10 hover:bg-white/20 transition-colors text-white flex items-center">
+                                        <i class="fas fa-plus mr-3"></i>Adicionar Método de Pagamento
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Advanced Section -->
+                <div id="advanced-section" class="settings-section hidden">
+                    <div class="glass-effect rounded-2xl p-8 animate-fade-in">
+                        <h2 class="text-2xl font-bold text-white mb-6 font-montserrat">
+                            <i class="fas fa-cogs mr-3"></i>Avançado
+                        </h2>
+                        
+                        <div class="space-y-6">
+                            <!-- API Settings -->
+                            <div class="bg-white/5 rounded-xl p-6">
+                                <h3 class="text-lg font-semibold text-white mb-4">Configurações da API</h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-white/80 text-sm font-medium mb-2">API Key</label>
+                                        <div class="flex items-center space-x-2">
+                                            <input type="text" value="pk_live_1234567890abcdef" readonly 
+                                                   class="flex-1 px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white/70">
+                                            <button onclick="copyApiKey()" class="bg-white/20 text-white px-4 py-3 rounded-lg hover:bg-white/30 transition-colors">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <button class="bg-white/20 text-white px-4 py-3 rounded-lg hover:bg-white/30 transition-colors">
+                                        <i class="fas fa-refresh mr-2"></i>Regenerar API Key
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Developer Tools -->
+                            <div class="bg-white/5 rounded-xl p-6">
+                                <h3 class="text-lg font-semibold text-white mb-4">Ferramentas de Desenvolvedor</h3>
+                                <div class="space-y-4">
+                                    <button onclick="clearCache()" class="w-full text-left px-4 py-3 rounded-lg bg-white/10 hover:bg-white/20 transition-colors text-white flex items-center">
+                                        <i class="fas fa-trash mr-3"></i>Limpar Cache
+                                    </button>
+                                    <button onclick="exportLogs()" class="w-full text-left px-4 py-3 rounded-lg bg-white/10 hover:bg-white/20 transition-colors text-white flex items-center">
+                                        <i class="fas fa-file-alt mr-3"></i>Exportar Logs
+                                    </button>
+                                    <button onclick="resetSettings()" class="w-full text-left px-4 py-3 rounded-lg bg-red-500/20 hover:bg-red-500/30 transition-colors text-red-300 flex items-center">
+                                        <i class="fas fa-undo mr-3"></i>Resetar Configurações
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Navigation
+        function showSection(sectionName) {
+            // Hide all sections
+            document.querySelectorAll('.settings-section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Remove active class from all nav buttons
+            document.querySelectorAll('.settings-nav').forEach(nav => {
+                nav.classList.remove('bg-white/20');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionName + '-section').classList.remove('hidden');
+            
+            // Add active class to clicked nav button
+            event.target.classList.add('bg-white/20');
+        }
+
+        // Profile functions
+        function changeProfilePicture() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        document.getElementById('profile-picture').src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+            input.click();
+        }
+
+        // Form submissions
+        document.getElementById('profile-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            showNotification('Perfil atualizado com sucesso!', 'success');
+        });
+
+        document.getElementById('password-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            showNotification('Senha alterada com sucesso!', 'success');
+        });
+
+        // Theme functions
+        function setTheme(theme) {
+            document.querySelectorAll('.theme-option').forEach(option => {
+                option.classList.remove('border-white/30');
+                option.classList.add('border-transparent');
+            });
+            event.target.classList.add('border-white/30');
+            event.target.classList.remove('border-transparent');
+            
+            showNotification(`Tema ${theme === 'light' ? 'claro' : 'escuro'} aplicado!`, 'success');
+        }
+
+        // Utility functions
+        function exportData() {
+            showNotification('Exportando dados...', 'info');
+        }
+
+        function deleteAccount() {
+            if (confirm('Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita.')) {
+                showNotification('Conta excluída com sucesso!', 'success');
+            }
+        }
+
+        function copyApiKey() {
+            navigator.clipboard.writeText('pk_live_1234567890abcdef');
+            showNotification('API Key copiada!', 'success');
+        }
+
+        function clearCache() {
+            showNotification('Cache limpo com sucesso!', 'success');
+        }
+
+        function exportLogs() {
+            showNotification('Logs exportados com sucesso!', 'success');
+        }
+
+        function resetSettings() {
+            if (confirm('Tem certeza que deseja resetar todas as configurações?')) {
+                showNotification('Configurações resetadas!', 'success');
+            }
+        }
+
+        function logout() {
+            if (confirm('Tem certeza que deseja sair?')) {
+                window.location.href = '/login';
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white z-50 ${
+                type === 'success' ? 'bg-green-500' : 
+                type === 'error' ? 'bg-red-500' : 
+                'bg-blue-500'
+            }`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default active section
+            showSection('profile');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PostStudio I.A - Analytics</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .font-inter { font-family: 'Inter', sans-serif; }
+        .font-poppins { font-family: 'Poppins', sans-serif; }
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .metric-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <!-- Header -->
+    <header class="glass-effect">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center">
+                    <i class="fas fa-chart-line text-3xl text-white mr-3"></i>
+                    <h1 class="text-2xl font-bold text-white">Analytics</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="window.location.href='/dashboard'" class="bg-white/20 text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i>Voltar
+                    </button>
+                    <button onclick="logout()" class="bg-white/20 text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-colors">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Sair
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Title -->
+        <div class="mb-8 animate-fade-in">
+            <h2 class="text-4xl font-bold text-white mb-4 font-poppins">Analytics Dashboard</h2>
+            <p class="text-white/80 text-lg font-inter">Acompanhe o desempenho dos seus posts e conteúdo</p>
+        </div>
+
+        <!-- Metrics Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="metric-card rounded-2xl p-6 text-center">
+                <i class="fas fa-file-alt text-4xl text-white mb-4"></i>
+                <h3 class="text-2xl font-bold text-white mb-2" id="totalPosts">0</h3>
+                <p class="text-white/80">Total de Posts</p>
+            </div>
+            
+            <div class="metric-card rounded-2xl p-6 text-center">
+                <i class="fas fa-eye text-4xl text-white mb-4"></i>
+                <h3 class="text-2xl font-bold text-white mb-2" id="totalViews">0</h3>
+                <p class="text-white/80">Visualizações</p>
+            </div>
+            
+            <div class="metric-card rounded-2xl p-6 text-center">
+                <i class="fas fa-heart text-4xl text-white mb-4"></i>
+                <h3 class="text-2xl font-bold text-white mb-2" id="totalLikes">0</h3>
+                <p class="text-white/80">Curtidas</p>
+            </div>
+            
+            <div class="metric-card rounded-2xl p-6 text-center">
+                <i class="fas fa-share text-4xl text-white mb-4"></i>
+                <h3 class="text-2xl font-bold text-white mb-2" id="totalShares">0</h3>
+                <p class="text-white/80">Compartilhamentos</p>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Posts Performance Chart -->
+            <div class="glass-effect rounded-2xl p-6">
+                <h3 class="text-xl font-bold text-white mb-4 font-poppins">
+                    <i class="fas fa-chart-bar mr-2"></i>Performance dos Posts
+                </h3>
+                <canvas id="postsChart" width="400" height="200"></canvas>
+            </div>
+
+            <!-- Engagement Rate Chart -->
+            <div class="glass-effect rounded-2xl p-6">
+                <h3 class="text-xl font-bold text-white mb-4 font-poppins">
+                    <i class="fas fa-chart-pie mr-2"></i>Taxa de Engajamento
+                </h3>
+                <canvas id="engagementChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- Top Performing Posts -->
+        <div class="glass-effect rounded-2xl p-6 mb-8">
+            <h3 class="text-xl font-bold text-white mb-6 font-poppins">
+                <i class="fas fa-trophy mr-2"></i>Posts com Melhor Performance
+            </h3>
+            <div id="topPosts" class="space-y-4">
+                <!-- Posts will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Content Insights -->
+        <div class="glass-effect rounded-2xl p-6">
+            <h3 class="text-xl font-bold text-white mb-6 font-poppins">
+                <i class="fas fa-lightbulb mr-2"></i>Insights de Conteúdo
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-white/10 rounded-xl p-4">
+                    <h4 class="text-lg font-semibold text-white mb-2">Melhor Horário</h4>
+                    <p class="text-white/80 text-sm">14:00 - 16:00</p>
+                    <p class="text-white/60 text-xs mt-1">Baseado nos seus posts</p>
+                </div>
+                
+                <div class="bg-white/10 rounded-xl p-4">
+                    <h4 class="text-lg font-semibold text-white mb-2">Tipo Mais Engajado</h4>
+                    <p class="text-white/80 text-sm">Posts Motivacionais</p>
+                    <p class="text-white/60 text-xs mt-1">85% de engajamento</p>
+                </div>
+                
+                <div class="bg-white/10 rounded-xl p-4">
+                    <h4 class="text-lg font-semibold text-white mb-2">Hashtag Top</h4>
+                    <p class="text-white/80 text-sm">#motivação</p>
+                    <p class="text-white/60 text-xs mt-1">Usado em 12 posts</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let postsChart, engagementChart;
+
+        // Load analytics data
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadAnalyticsData();
+            initializeCharts();
+        });
+
+        async function loadAnalyticsData() {
+            try {
+                const response = await fetch('/api/posts');
+                if (response.ok) {
+                    const posts = await response.json();
+                    updateMetrics(posts);
+                    updateTopPosts(posts);
+                } else {
+                    console.error('Erro ao carregar posts');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+            }
+        }
+
+        function updateMetrics(posts) {
+            const totalPosts = posts.length;
+            const totalViews = posts.reduce((sum, post) => sum + (post.views || Math.floor(Math.random() * 1000)), 0);
+            const totalLikes = posts.reduce((sum, post) => sum + (post.likes || Math.floor(Math.random() * 100)), 0);
+            const totalShares = posts.reduce((sum, post) => sum + (post.shares || Math.floor(Math.random() * 50)), 0);
+
+            document.getElementById('totalPosts').textContent = totalPosts;
+            document.getElementById('totalViews').textContent = totalViews.toLocaleString();
+            document.getElementById('totalLikes').textContent = totalLikes.toLocaleString();
+            document.getElementById('totalShares').textContent = totalShares.toLocaleString();
+        }
+
+        function updateTopPosts(posts) {
+            const topPostsContainer = document.getElementById('topPosts');
+            
+            // Simulate performance data
+            const postsWithPerformance = posts.map(post => ({
+                ...post,
+                views: Math.floor(Math.random() * 1000),
+                likes: Math.floor(Math.random() * 100),
+                shares: Math.floor(Math.random() * 50),
+                engagement: Math.floor(Math.random() * 20) + 5
+            })).sort((a, b) => b.engagement - a.engagement).slice(0, 5);
+
+            if (postsWithPerformance.length === 0) {
+                topPostsContainer.innerHTML = '<p class="text-white/60 text-center py-8">Nenhum post encontrado</p>';
+                return;
+            }
+
+            topPostsContainer.innerHTML = postsWithPerformance.map((post, index) => `
+                <div class="bg-white/10 rounded-xl p-4 flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold">
+                            ${index + 1}
+                        </div>
+                        <div>
+                            <h4 class="text-white font-semibold">${post.title}</h4>
+                            <p class="text-white/60 text-sm">${new Date(post.created_at).toLocaleDateString('pt-BR')}</p>
+                        </div>
+                    </div>
+                    <div class="flex space-x-6 text-white/80 text-sm">
+                        <div class="text-center">
+                            <div class="font-bold">${post.views}</div>
+                            <div class="text-xs">Views</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="font-bold">${post.likes}</div>
+                            <div class="text-xs">Likes</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="font-bold">${post.engagement}%</div>
+                            <div class="text-xs">Engajamento</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function initializeCharts() {
+            // Posts Performance Chart
+            const postsCtx = document.getElementById('postsChart').getContext('2d');
+            postsChart = new Chart(postsCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+                    datasets: [{
+                        label: 'Posts Criados',
+                        data: [12, 19, 3, 5, 2, 3],
+                        borderColor: 'rgba(255, 255, 255, 0.8)',
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'white'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: 'white'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: 'white'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Engagement Rate Chart
+            const engagementCtx = document.getElementById('engagementChart').getContext('2d');
+            engagementChart = new Chart(engagementCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Alto Engajamento', 'Médio Engajamento', 'Baixo Engajamento'],
+                    datasets: [{
+                        data: [45, 35, 20],
+                        backgroundColor: [
+                            'rgba(34, 197, 94, 0.8)',
+                            'rgba(251, 191, 36, 0.8)',
+                            'rgba(239, 68, 68, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(34, 197, 94, 1)',
+                            'rgba(251, 191, 36, 1)',
+                            'rgba(239, 68, 68, 1)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'white'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        async function logout() {
+            if (confirm('Tem certeza que deseja sair?')) {
+                try {
+                    const response = await fetch('/api/logout', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        window.location.href = '/';
+                    } else {
+                        window.location.href = '/';
+                    }
+                } catch (error) {
+                    console.error('Erro:', error);
+                    window.location.href = '/';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

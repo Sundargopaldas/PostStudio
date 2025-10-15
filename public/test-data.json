@@ -1,0 +1,113 @@
+{
+  "posts": [
+    {
+      "id": 1,
+      "title": "Post de Teste - PostStudio I.A",
+      "content": "Este é um post de teste criado para demonstrar as funcionalidades do PostStudio I.A. Inclui imagem de fundo personalizada e vídeo com legenda animada.",
+      "template": "Post Motivacional",
+      "image_url": "imagem_uploaded",
+      "hashtags": "#teste #poststudio #ia #conteudo #demonstracao",
+      "platforms": "twitter,facebook,instagram,linkedin",
+      "customization": {
+        "font": "font-inter",
+        "color": "#3b82f6",
+        "background": "gradient-1",
+        "textEffect": "normal",
+        "backgroundImage": "uploaded",
+        "video": "uploaded",
+        "videoCaption": "Esta é uma legenda de teste para demonstrar a funcionalidade de legendas animadas no PostStudio I.A",
+        "videoCaptionFont": "Arial"
+      },
+      "user_id": 1,
+      "created_at": "2024-01-15T10:30:00.000Z",
+      "updated_at": "2024-01-15T10:30:00.000Z"
+    },
+    {
+      "id": 2,
+      "title": "Criando Conteúdo com IA",
+      "content": "Descubra como a inteligência artificial pode revolucionar sua criação de conteúdo. Com PostStudio I.A, você tem acesso a ferramentas profissionais de design e animação.",
+      "template": "Post Educativo",
+      "image_url": "imagem_uploaded",
+      "hashtags": "#ia #inteligenciaartificial #conteudo #marketing #inovacao",
+      "platforms": "twitter,facebook,instagram,linkedin",
+      "customization": {
+        "font": "font-roboto",
+        "color": "#10b981",
+        "background": "gradient-2",
+        "textEffect": "bold",
+        "backgroundImage": "uploaded",
+        "video": null,
+        "videoCaption": null,
+        "videoCaptionFont": null
+      },
+      "user_id": 1,
+      "created_at": "2024-01-15T11:00:00.000Z",
+      "updated_at": "2024-01-15T11:00:00.000Z"
+    },
+    {
+      "id": 3,
+      "title": "Vídeo com Legenda Animada",
+      "content": "Veja como criar vídeos envolventes com legendas que aparecem palavra por palavra. Perfeito para aumentar o engajamento nas redes sociais!",
+      "template": "Post de Vídeo",
+      "image_url": null,
+      "hashtags": "#video #legenda #animacao #redessociais #engajamento",
+      "platforms": "twitter,facebook,instagram,linkedin",
+      "customization": {
+        "font": "font-inter",
+        "color": "#8b5cf6",
+        "background": "solid",
+        "textEffect": "normal",
+        "backgroundImage": null,
+        "video": "uploaded",
+        "videoCaption": "Aprenda a criar vídeos incríveis com legendas animadas usando PostStudio I.A",
+        "videoCaptionFont": "Georgia"
+      },
+      "user_id": 1,
+      "created_at": "2024-01-15T11:30:00.000Z",
+      "updated_at": "2024-01-15T11:30:00.000Z"
+    }
+  ],
+  "templates": [
+    {
+      "id": 1,
+      "name": "Post Motivacional",
+      "description": "Perfeito para inspirar e motivar sua audiência",
+      "colors": ["#3b82f6", "#10b981", "#f59e0b"],
+      "fonts": ["Inter", "Roboto", "Open Sans"]
+    },
+    {
+      "id": 2,
+      "name": "Post Educativo",
+      "description": "Ideal para compartilhar conhecimento e dicas",
+      "colors": ["#10b981", "#06b6d4", "#8b5cf6"],
+      "fonts": ["Roboto", "Inter", "Lato"]
+    },
+    {
+      "id": 3,
+      "name": "Post de Vídeo",
+      "description": "Otimizado para conteúdo em vídeo com legendas",
+      "colors": ["#8b5cf6", "#ec4899", "#f59e0b"],
+      "fonts": ["Inter", "Georgia", "Times New Roman"]
+    }
+  ],
+  "backgrounds": [
+    {
+      "id": 1,
+      "name": "Gradiente Azul",
+      "type": "gradient",
+      "value": "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+    },
+    {
+      "id": 2,
+      "name": "Gradiente Verde",
+      "type": "gradient",
+      "value": "linear-gradient(135deg, #10b981 0%, #06b6d4 100%)"
+    },
+    {
+      "id": 3,
+      "name": "Gradiente Roxo",
+      "type": "gradient",
+      "value": "linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%)"
+    }
+  ]
+}

@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PostStudio I.A - Insights IA</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .font-inter { font-family: 'Inter', sans-serif; }
+        .font-poppins { font-family: 'Poppins', sans-serif; }
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .insight-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        .insight-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        .confidence-bar {
+            background: linear-gradient(90deg, #ef4444 0%, #f59e0b 50%, #10b981 100%);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <!-- Header -->
+    <header class="glass-effect">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center">
+                    <i class="fas fa-lightbulb text-3xl text-white mr-3"></i>
+                    <h1 class="text-2xl font-bold text-white">Insights IA</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="window.location.href='/dashboard'" class="bg-white/20 text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i>Voltar
+                    </button>
+                    <button onclick="logout()" class="bg-white/20 text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-colors">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Sair
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Title -->
+        <div class="mb-8 animate-fade-in">
+            <h2 class="text-4xl font-bold text-white mb-4 font-poppins">Insights de Inteligência Artificial</h2>
+            <p class="text-white/80 text-lg font-inter">Receba sugestões inteligentes para melhorar seu conteúdo</p>
+        </div>
+
+        <!-- AI Insights Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="insight-card rounded-2xl p-6 text-center">
+                <i class="fas fa-brain text-4xl text-white mb-4"></i>
+                <h3 class="text-2xl font-bold text-white mb-2" id="totalInsights">0</h3>
+                <p class="text-white/80">Insights Gerados</p>
+            </div>
+            
+            <div class="insight-card rounded-2xl p-6 text-center">
+                <i class="fas fa-check-circle text-4xl text-white mb-4"></i>
+                <h3 class="text-2xl font-bold text-white mb-2" id="appliedInsights">0</h3>
+                <p class="text-white/80">Insights Aplicados</p>
+            </div>
+            
+            <div class="insight-card rounded-2xl p-6 text-center">
+                <i class="fas fa-chart-line text-4xl text-white mb-4"></i>
+                <h3 class="text-2xl font-bold text-white mb-2" id="avgConfidence">0%</h3>
+                <p class="text-white/80">Confiança Média</p>
+            </div>
+        </div>
+
+        <!-- AI Insights Cards -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- Content Suggestions -->
+            <div class="insight-card rounded-2xl p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-white font-poppins">
+                        <i class="fas fa-edit mr-2"></i>Sugestões de Conteúdo
+                    </h3>
+                    <span class="bg-green-500/20 text-green-300 px-3 py-1 rounded-full text-sm">
+                        Alta Confiança
+                    </span>
+                </div>
+                <div class="space-y-4" id="contentSuggestions">
+                    <!-- Content suggestions will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Hashtag Optimization -->
+            <div class="insight-card rounded-2xl p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-white font-poppins">
+                        <i class="fas fa-hashtag mr-2"></i>Otimização de Hashtags
+                    </h3>
+                    <span class="bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full text-sm">
+                        Média Confiança
+                    </span>
+                </div>
+                <div class="space-y-4" id="hashtagSuggestions">
+                    <!-- Hashtag suggestions will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Timing Suggestions -->
+            <div class="insight-card rounded-2xl p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-white font-poppins">
+                        <i class="fas fa-clock mr-2"></i>Melhor Horário para Postar
+                    </h3>
+                    <span class="bg-yellow-500/20 text-yellow-300 px-3 py-1 rounded-full text-sm">
+                        Baseado em Dados
+                    </span>
+                </div>
+                <div class="space-y-4" id="timingSuggestions">
+                    <!-- Timing suggestions will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Engagement Predictions -->
+            <div class="insight-card rounded-2xl p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-white font-poppins">
+                        <i class="fas fa-chart-bar mr-2"></i>Previsão de Engajamento
+                    </h3>
+                    <span class="bg-purple-500/20 text-purple-300 px-3 py-1 rounded-full text-sm">
+                        IA Avançada
+                    </span>
+                </div>
+                <div class="space-y-4" id="engagementPredictions">
+                    <!-- Engagement predictions will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Configuration -->
+        <div class="glass-effect rounded-2xl p-6 mb-8">
+            <h3 class="text-xl font-bold text-white mb-6 font-poppins">
+                <i class="fas fa-cog mr-2"></i>Configurações da IA
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-white/80 text-sm mb-2">Estilo de Conteúdo</label>
+                    <select id="contentStyle" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 text-white focus:outline-none focus:ring-2 focus:ring-white/50">
+                        <option value="profissional">Profissional</option>
+                        <option value="casual">Casual</option>
+                        <option value="motivacional">Motivacional</option>
+                        <option value="educativo">Educativo</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-white/80 text-sm mb-2">Público-Alvo</label>
+                    <select id="targetAudience" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 text-white focus:outline-none focus:ring-2 focus:ring-white/50">
+                        <option value="empreendedores">Empreendedores</option>
+                        <option value="profissionais">Profissionais</option>
+                        <option value="estudantes">Estudantes</option>
+                        <option value="geral">Público Geral</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-white/80 text-sm mb-2">Frequência de Insights</label>
+                    <select id="insightFrequency" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 text-white focus:outline-none focus:ring-2 focus:ring-white/50">
+                        <option value="daily">Diário</option>
+                        <option value="weekly">Semanal</option>
+                        <option value="monthly">Mensal</option>
+                    </select>
+                </div>
+                
+                <div class="flex items-end">
+                    <button onclick="saveAISettings()" class="w-full bg-white text-gray-800 px-4 py-2 rounded-lg font-semibold hover:bg-white/90 transition-colors">
+                        <i class="fas fa-save mr-2"></i>Salvar Configurações
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent AI Activity -->
+        <div class="glass-effect rounded-2xl p-6">
+            <h3 class="text-xl font-bold text-white mb-6 font-poppins">
+                <i class="fas fa-history mr-2"></i>Atividade Recente da IA
+            </h3>
+            <div id="recentActivity" class="space-y-4">
+                <!-- Recent activity will be loaded here -->
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let aiInsights = [];
+        let aiSettings = {};
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAIInsights();
+            loadAISettings();
+            loadRecentActivity();
+        });
+
+        async function loadAIInsights() {
+            try {
+                // Simulate loading AI insights
+                aiInsights = [
+                    {
+                        id: 1,
+                        type: 'content_suggestion',
+                        text: 'Posts com perguntas geram 40% mais engajamento. Considere adicionar uma pergunta ao final do seu conteúdo.',
+                        confidence: 0.85,
+                        applied: false,
+                        created_at: new Date().toISOString()
+                    },
+                    {
+                        id: 2,
+                        type: 'hashtag_optimization',
+                        text: 'Use hashtags específicas como #empreendedorismo #mindset em vez de hashtags genéricas para melhor alcance.',
+                        confidence: 0.78,
+                        applied: true,
+                        created_at: new Date(Date.now() - 86400000).toISOString()
+                    },
+                    {
+                        id: 3,
+                        type: 'timing_suggestion',
+                        text: 'Seu público está mais ativo entre 14h e 16h. Agende seus posts para esse horário.',
+                        confidence: 0.92,
+                        applied: false,
+                        created_at: new Date(Date.now() - 172800000).toISOString()
+                    }
+                ];
+
+                updateInsightsOverview();
+                populateInsightCards();
+            } catch (error) {
+                console.error('Erro ao carregar insights:', error);
+            }
+        }
+
+        function updateInsightsOverview() {
+            const totalInsights = aiInsights.length;
+            const appliedInsights = aiInsights.filter(insight => insight.applied).length;
+            const avgConfidence = Math.round(aiInsights.reduce((sum, insight) => sum + insight.confidence, 0) / aiInsights.length * 100);
+
+            document.getElementById('totalInsights').textContent = totalInsights;
+            document.getElementById('appliedInsights').textContent = appliedInsights;
+            document.getElementById('avgConfidence').textContent = avgConfidence + '%';
+        }
+
+        function populateInsightCards() {
+            // Content Suggestions
+            const contentSuggestions = aiInsights.filter(insight => insight.type === 'content_suggestion');
+            document.getElementById('contentSuggestions').innerHTML = contentSuggestions.map(insight => `
+                <div class="bg-white/10 rounded-xl p-4">
+                    <p class="text-white/90 text-sm mb-2">${insight.text}</p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-20 h-2 bg-white/20 rounded-full">
+                                <div class="h-2 bg-green-400 rounded-full" style="width: ${insight.confidence * 100}%"></div>
+                            </div>
+                            <span class="text-white/60 text-xs">${Math.round(insight.confidence * 100)}%</span>
+                        </div>
+                        <button onclick="applyInsight(${insight.id})" class="bg-white/20 text-white px-3 py-1 rounded text-xs hover:bg-white/30 transition-colors">
+                            ${insight.applied ? 'Aplicado' : 'Aplicar'}
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            // Hashtag Suggestions
+            const hashtagSuggestions = aiInsights.filter(insight => insight.type === 'hashtag_optimization');
+            document.getElementById('hashtagSuggestions').innerHTML = hashtagSuggestions.map(insight => `
+                <div class="bg-white/10 rounded-xl p-4">
+                    <p class="text-white/90 text-sm mb-2">${insight.text}</p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-20 h-2 bg-white/20 rounded-full">
+                                <div class="h-2 bg-blue-400 rounded-full" style="width: ${insight.confidence * 100}%"></div>
+                            </div>
+                            <span class="text-white/60 text-xs">${Math.round(insight.confidence * 100)}%</span>
+                        </div>
+                        <button onclick="applyInsight(${insight.id})" class="bg-white/20 text-white px-3 py-1 rounded text-xs hover:bg-white/30 transition-colors">
+                            ${insight.applied ? 'Aplicado' : 'Aplicar'}
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            // Timing Suggestions
+            const timingSuggestions = aiInsights.filter(insight => insight.type === 'timing_suggestion');
+            document.getElementById('timingSuggestions').innerHTML = timingSuggestions.map(insight => `
+                <div class="bg-white/10 rounded-xl p-4">
+                    <p class="text-white/90 text-sm mb-2">${insight.text}</p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-20 h-2 bg-white/20 rounded-full">
+                                <div class="h-2 bg-yellow-400 rounded-full" style="width: ${insight.confidence * 100}%"></div>
+                            </div>
+                            <span class="text-white/60 text-xs">${Math.round(insight.confidence * 100)}%</span>
+                        </div>
+                        <button onclick="applyInsight(${insight.id})" class="bg-white/20 text-white px-3 py-1 rounded text-xs hover:bg-white/30 transition-colors">
+                            ${insight.applied ? 'Aplicado' : 'Aplicar'}
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            // Engagement Predictions
+            document.getElementById('engagementPredictions').innerHTML = `
+                <div class="bg-white/10 rounded-xl p-4">
+                    <p class="text-white/90 text-sm mb-2">Seu próximo post tem 78% de chance de ter alto engajamento baseado no histórico.</p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-20 h-2 bg-white/20 rounded-full">
+                                <div class="h-2 bg-purple-400 rounded-full" style="width: 78%"></div>
+                            </div>
+                            <span class="text-white/60 text-xs">78%</span>
+                        </div>
+                        <button onclick="generateEngagementReport()" class="bg-white/20 text-white px-3 py-1 rounded text-xs hover:bg-white/30 transition-colors">
+                            Relatório
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function applyInsight(insightId) {
+            const insight = aiInsights.find(i => i.id === insightId);
+            if (insight) {
+                insight.applied = !insight.applied;
+                populateInsightCards();
+                updateInsightsOverview();
+                
+                if (insight.applied) {
+                    alert('Insight aplicado com sucesso!');
+                } else {
+                    alert('Insight removido.');
+                }
+            }
+        }
+
+        function generateEngagementReport() {
+            alert('Relatório de engajamento gerado! Em breve você receberá um relatório detalhado por email.');
+        }
+
+        function loadAISettings() {
+            // Load AI settings from localStorage or API
+            aiSettings = JSON.parse(localStorage.getItem('aiSettings')) || {
+                contentStyle: 'profissional',
+                targetAudience: 'empreendedores',
+                insightFrequency: 'weekly'
+            };
+
+            document.getElementById('contentStyle').value = aiSettings.contentStyle;
+            document.getElementById('targetAudience').value = aiSettings.targetAudience;
+            document.getElementById('insightFrequency').value = aiSettings.insightFrequency;
+        }
+
+        function saveAISettings() {
+            aiSettings = {
+                contentStyle: document.getElementById('contentStyle').value,
+                targetAudience: document.getElementById('targetAudience').value,
+                insightFrequency: document.getElementById('insightFrequency').value
+            };
+
+            localStorage.setItem('aiSettings', JSON.stringify(aiSettings));
+            alert('Configurações salvas com sucesso!');
+        }
+
+        function loadRecentActivity() {
+            const recentActivity = [
+                {
+                    action: 'Insight aplicado',
+                    description: 'Sugestão de hashtag otimizada aplicada ao post "Dicas de Negócio"',
+                    time: '2 horas atrás',
+                    type: 'success'
+                },
+                {
+                    action: 'Novo insight gerado',
+                    description: 'IA identificou padrão de engajamento em posts motivacionais',
+                    time: '1 dia atrás',
+                    type: 'info'
+                },
+                {
+                    action: 'Configuração atualizada',
+                    description: 'Estilo de conteúdo alterado para "Profissional"',
+                    time: '3 dias atrás',
+                    type: 'config'
+                }
+            ];
+
+            document.getElementById('recentActivity').innerHTML = recentActivity.map(activity => `
+                <div class="flex items-center space-x-4 bg-white/10 rounded-xl p-4">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center ${
+                        activity.type === 'success' ? 'bg-green-500/20 text-green-300' :
+                        activity.type === 'info' ? 'bg-blue-500/20 text-blue-300' :
+                        'bg-yellow-500/20 text-yellow-300'
+                    }">
+                        <i class="fas ${
+                            activity.type === 'success' ? 'fa-check' :
+                            activity.type === 'info' ? 'fa-brain' :
+                            'fa-cog'
+                        }"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="text-white font-semibold">${activity.action}</h4>
+                        <p class="text-white/60 text-sm">${activity.description}</p>
+                    </div>
+                    <span class="text-white/40 text-sm">${activity.time}</span>
+                </div>
+            `).join('');
+        }
+
+        async function logout() {
+            if (confirm('Tem certeza que deseja sair?')) {
+                try {
+                    const response = await fetch('/api/logout', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        window.location.href = '/';
+                    } else {
+                        window.location.href = '/';
+                    }
+                } catch (error) {
+                    console.error('Erro:', error);
+                    window.location.href = '/';
+                }
+            }
+        }
+    </script>
+</body>
+</html>
