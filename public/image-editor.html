@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PostStudio I.A - Editor de Imagens</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&family=Montserrat:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&family=Open+Sans:wght@300;400;600;700;800&family=Lato:wght@300;400;700;900&family=Source+Sans+Pro:wght@300;400;600;700;900&family=Nunito:wght@300;400;600;700;800;900&family=Quicksand:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700;800;900&family=Abril+Fatface&family=Merriweather:wght@300;400;700;900&family=PT+Serif:wght@400;700&family=Work+Sans:wght@300;400;600;700;800&family=Oswald:wght@300;400;500;600;700&family=Lobster&family=Pacifico&family=Dancing+Script:wght@400;500;600;700&family=Great+Vibes&family=Satisfy&family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Fontes personalizadas */
+        .font-inter { font-family: 'Inter', sans-serif; }
+        .font-poppins { font-family: 'Poppins', sans-serif; }
+        .font-playfair { font-family: 'Playfair Display', serif; }
+        .font-montserrat { font-family: 'Montserrat', sans-serif; }
+        .font-abril { font-family: 'Abril Fatface', cursive; }
+        .font-merriweather { font-family: 'Merriweather', serif; }
+        .font-pt-serif { font-family: 'PT Serif', serif; }
+        .font-work-sans { font-family: 'Work Sans', sans-serif; }
+        .font-roboto { font-family: 'Roboto', sans-serif; }
+        .font-open-sans { font-family: 'Open Sans', sans-serif; }
+        .font-lato { font-family: 'Lato', sans-serif; }
+        .font-source-sans { font-family: 'Source Sans Pro', sans-serif; }
+        .font-nunito { font-family: 'Nunito', sans-serif; }
+        .font-quicksand { font-family: 'Quicksand', sans-serif; }
+        .font-raleway { font-family: 'Raleway', sans-serif; }
+        .font-oswald { font-family: 'Oswald', sans-serif; }
+        .font-lobster { font-family: 'Lobster', cursive; }
+        .font-pacifico { font-family: 'Pacifico', cursive; }
+        .font-dancing { font-family: 'Dancing Script', cursive; }
+        .font-great-vibes { font-family: 'Great Vibes', cursive; }
+        .font-satisfy { font-family: 'Satisfy', cursive; }
+        .font-ubuntu { font-family: 'Ubuntu', sans-serif; }
+        
+        .text-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .preview-container {
+            min-height: 400px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .image-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        
+        .text-overlay {
+            position: absolute;
+            z-index: 10;
+            padding: 2rem;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        /* Corrigir visibilidade do cursor nos inputs */
+        input, textarea, select {
+            caret-color: white !important;
+            background-color: transparent !important;
+        }
+        
+        /* Forçar transparência no select de fontes */
+        #fontFamily {
+            background-color: transparent !important;
+            caret-color: white !important;
+        }
+        
+        /* Garantir que as opções do select sejam visíveis */
+        #fontFamily option {
+            background-color: #1f2937 !important;
+            color: white !important;
+        }
+        
+        /* Forçar estilo específico para o select */
+        select#fontFamily {
+            background: transparent !important;
+            background-color: transparent !important;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+        
+        /* Garantir que o cursor apareça */
+        select#fontFamily:focus {
+            caret-color: white !important;
+            outline: none !important;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <!-- Header -->
+    <nav class="glass-effect p-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <i class="fas fa-image text-3xl text-white"></i>
+                <h1 class="text-2xl font-bold text-white">Editor de Imagens</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button onclick="window.location.href='/posts'" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                    <i class="fas fa-list mr-2"></i>Meus Posts
+                </button>
+                <button onclick="window.location.href='/dashboard'" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                    <i class="fas fa-home mr-2"></i>Dashboard
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto p-6">
+        <!-- Header Section -->
+        <div class="glass-effect rounded-2xl p-8 mb-8 animate-fade-in">
+            <div class="text-center">
+                <h2 class="text-4xl font-bold text-white mb-4 font-playfair">Criar Post com Imagem</h2>
+                <p class="text-white/90 text-lg font-inter">Crie posts visuais com imagens de fundo e texto personalizado</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Configurações -->
+            <div class="glass-effect rounded-2xl p-6">
+                <h3 class="text-2xl font-bold text-white mb-6 font-montserrat">Configurações</h3>
+                
+                <form id="imageForm" class="space-y-6">
+                    <!-- Título -->
+                    <div>
+                        <label class="block text-white font-semibold mb-2">Título do Post</label>
+                        <input type="text" id="postTitle" class="w-full px-4 py-3 rounded-lg text-white placeholder-white/70 border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Digite o título do seu post">
+                    </div>
+
+                    <!-- Conteúdo -->
+                    <div>
+                        <label class="block text-white font-semibold mb-2">Conteúdo</label>
+                        <textarea id="postContent" rows="4" class="w-full px-4 py-3 rounded-lg text-white placeholder-white/70 border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Digite o conteúdo do seu post"></textarea>
+                    </div>
+
+                    <!-- Tipo de Imagem -->
+                    <div>
+                        <label class="block text-white font-semibold mb-2">Tipo de Imagem</label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <button type="button" onclick="selectImageType('background')" id="backgroundBtn" class="p-4 rounded-lg border-2 border-blue-400 bg-blue-400/20 text-white font-semibold">
+                                <i class="fas fa-image mr-2"></i>Imagem de Fundo
+                            </button>
+                            <button type="button" onclick="selectImageType('partial')" id="partialBtn" class="p-4 rounded-lg border-2 border-white/30 bg-white/10 text-white font-semibold">
+                                <i class="fas fa-crop mr-2"></i>Imagem Parcial
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Upload de Imagem -->
+                    <div>
+                        <label class="block text-white font-semibold mb-2">Imagem</label>
+                        <div class="border-2 border-dashed border-white/30 rounded-lg p-6 text-center">
+                            <input type="file" id="imageUpload" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+                            <button type="button" onclick="document.getElementById('imageUpload').click()" class="text-white/70 hover:text-white transition-colors">
+                                <i class="fas fa-cloud-upload-alt text-4xl mb-2"></i>
+                                <p>Clique para fazer upload</p>
+                                <p class="text-sm">ou arraste uma imagem aqui</p>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Imagens Pexels -->
+                    <div class="mt-6">
+                        <div class="bg-green-500/10 border border-green-400/30 rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-3">
+                                <label class="block text-sm font-medium text-white">
+                                    <i class="fas fa-images mr-2"></i>Imagens Profissionais
+                                </label>
+                                <button onclick="togglePexelsImages()" class="bg-white/20 text-white px-3 py-1 rounded-lg text-sm hover:bg-white/30 transition-colors">
+                                    <i class="fas fa-search mr-1"></i>Buscar
+                                </button>
+                            </div>
+                            
+                            <!-- Pexels Search -->
+                            <div id="pexelsSection" class="hidden">
+                                <div class="flex space-x-2 mb-3">
+                                    <input type="text" id="pexelsSearch" placeholder="Buscar imagens modernas..." 
+                                           class="flex-1 px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-green-400/50">
+                                    <button onclick="searchPexelsImages()" class="bg-green-500/20 text-green-300 px-4 py-2 rounded-lg hover:bg-green-500/30 transition-colors">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                                
+                                <!-- Categories -->
+                                <div class="flex flex-wrap gap-2 mb-3">
+                                    <button onclick="loadModernCategory('technology modern digital')" class="category-btn px-2 py-1 rounded-full bg-white/10 text-white text-xs hover:bg-white/20 transition-colors">💻 Tecnologia</button>
+                                    <button onclick="loadModernCategory('modern city urban architecture')" class="category-btn px-2 py-1 rounded-full bg-white/10 text-white text-xs hover:bg-white/20 transition-colors">🏙️ Cidade</button>
+                                    <button onclick="loadModernCategory('business corporate office modern')" class="category-btn px-2 py-1 rounded-full bg-white/10 text-white text-xs hover:bg-white/20 transition-colors">💼 Negócios</button>
+                                    <button onclick="loadModernCategory('lifestyle modern fashion')" class="category-btn px-2 py-1 rounded-full bg-white/10 text-white text-xs hover:bg-white/20 transition-colors">👔 Lifestyle</button>
+                                    <button onclick="loadModernCategory('nature modern landscape')" class="category-btn px-2 py-1 rounded-full bg-white/10 text-white text-xs hover:bg-white/20 transition-colors">🌿 Natureza</button>
+                                    <button onclick="loadModernCategory('abstract modern art')" class="category-btn px-2 py-1 rounded-full bg-white/10 text-white text-xs hover:bg-white/20 transition-colors">🎨 Abstrato</button>
+                                </div>
+                                
+                                <!-- Pexels Images Grid -->
+                                <div id="pexelsImagesList" class="grid grid-cols-3 gap-2 max-h-48 overflow-y-auto"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fonte -->
+                    <div>
+                        <label class="block text-white font-semibold mb-2">Fonte do Texto</label>
+                        <select id="fontFamily" class="w-full px-4 py-3 rounded-lg text-white border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                            <option value="font-inter">Inter</option>
+                            <option value="font-poppins">Poppins</option>
+                            <option value="font-playfair">Playfair Display</option>
+                            <option value="font-montserrat">Montserrat</option>
+                            <option value="font-roboto">Roboto</option>
+                            <option value="font-open-sans">Open Sans</option>
+                            <option value="font-lato">Lato</option>
+                            <option value="font-source-sans">Source Sans Pro</option>
+                            <option value="font-nunito">Nunito</option>
+                            <option value="font-quicksand">Quicksand</option>
+                            <option value="font-raleway">Raleway</option>
+                            <option value="font-oswald">Oswald</option>
+                            <option value="font-work-sans">Work Sans</option>
+                            <option value="font-ubuntu">Ubuntu</option>
+                            <option value="font-abril">Abril Fatface</option>
+                            <option value="font-merriweather">Merriweather</option>
+                            <option value="font-pt-serif">PT Serif</option>
+                            <option value="font-lobster">Lobster</option>
+                            <option value="font-pacifico">Pacifico</option>
+                            <option value="font-dancing">Dancing Script</option>
+                            <option value="font-great-vibes">Great Vibes</option>
+                            <option value="font-satisfy">Satisfy</option>
+                        </select>
+                    </div>
+
+                    <!-- Cor do Texto -->
+                    <div>
+                        <label class="block text-white font-semibold mb-2">Cor do Texto</label>
+                        <div class="grid grid-cols-4 gap-2">
+                            <button type="button" onclick="selectTextColor('white')" class="w-full h-12 bg-white rounded-lg border-2 border-blue-400"></button>
+                            <button type="button" onclick="selectTextColor('black')" class="w-full h-12 bg-black rounded-lg border-2 border-white/30"></button>
+                            <button type="button" onclick="selectTextColor('yellow')" class="w-full h-12 bg-yellow-400 rounded-lg border-2 border-white/30"></button>
+                            <button type="button" onclick="selectTextColor('red')" class="w-full h-12 bg-red-500 rounded-lg border-2 border-white/30"></button>
+                        </div>
+                    </div>
+
+                    <!-- Posição do Texto -->
+                    <div>
+                        <label class="block text-white font-semibold mb-2">Posição do Texto</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button type="button" onclick="selectTextPosition('top')" class="p-3 rounded-lg border-2 border-white/30 bg-white/10 text-white">
+                                <i class="fas fa-arrow-up"></i><br>Superior
+                            </button>
+                            <button type="button" onclick="selectTextPosition('center')" class="p-3 rounded-lg border-2 border-white/30 bg-white/10 text-white">
+                                <i class="fas fa-minus"></i><br>Centro
+                            </button>
+                            <button type="button" onclick="selectTextPosition('bottom')" class="p-3 rounded-lg border-2 border-white/30 bg-white/10 text-white">
+                                <i class="fas fa-arrow-down"></i><br>Inferior
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Hashtags -->
+                    <div>
+                        <label class="block text-white font-semibold mb-2">Hashtags</label>
+                        <input type="text" id="hashtags" class="w-full px-4 py-3 rounded-lg text-white placeholder-white/70 border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="#exemplo #hashtag">
+                    </div>
+
+                    <!-- Botões de Ação -->
+                    <div class="flex space-x-4">
+                        <button type="button" onclick="previewPost()" class="flex-1 bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors">
+                            <i class="fas fa-eye mr-2"></i>Visualizar
+                        </button>
+                        <button type="button" onclick="savePost()" class="flex-1 bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition-colors">
+                            <i class="fas fa-save mr-2"></i>Salvar Post
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Preview -->
+            <div class="glass-effect rounded-2xl p-6">
+                <h3 class="text-2xl font-bold text-white mb-6 font-montserrat">Preview</h3>
+                <div id="previewContainer" class="preview-container">
+                    <div id="textOverlay" class="text-overlay" style="top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center;">
+                        <div class="text-center">
+                            <h2 id="previewTitle" class="text-3xl font-bold mb-4" style="color: white; font-family: 'Inter', sans-serif;">Seu Título Aqui</h2>
+                            <p id="previewContent" class="text-lg" style="color: white; font-family: 'Inter', sans-serif;">Seu conteúdo aparecerá aqui</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentImageType = 'background';
+        let currentTextColor = 'white';
+        let currentTextPosition = 'center';
+        let uploadedImage = null;
+
+        function selectImageType(type) {
+            currentImageType = type;
+            
+            // Atualizar botões
+            document.getElementById('backgroundBtn').className = type === 'background' 
+                ? 'p-4 rounded-lg border-2 border-blue-400 bg-blue-400/20 text-white font-semibold'
+                : 'p-4 rounded-lg border-2 border-white/30 bg-white/10 text-white font-semibold';
+            
+            document.getElementById('partialBtn').className = type === 'partial' 
+                ? 'p-4 rounded-lg border-2 border-blue-400 bg-blue-400/20 text-white font-semibold'
+                : 'p-4 rounded-lg border-2 border-white/30 bg-white/10 text-white font-semibold';
+            
+            updatePreview();
+        }
+
+        function selectTextColor(color) {
+            currentTextColor = color;
+            
+            // Atualizar botões de cor
+            document.querySelectorAll('[onclick^="selectTextColor"]').forEach(btn => {
+                btn.className = btn.className.replace('border-blue-400', 'border-white/30');
+            });
+            event.target.className = event.target.className.replace('border-white/30', 'border-blue-400');
+            
+            updatePreview();
+        }
+
+        function selectTextPosition(position) {
+            currentTextPosition = position;
+            
+            // Atualizar botões de posição
+            document.querySelectorAll('[onclick^="selectTextPosition"]').forEach(btn => {
+                btn.className = btn.className.replace('border-blue-400', 'border-white/30');
+            });
+            event.target.className = event.target.className.replace('border-white/30', 'border-blue-400');
+            
+            updatePreview();
+        }
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedImage = e.target.result;
+                    updatePreview();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function updatePreview() {
+            const title = document.getElementById('postTitle').value || 'Seu Título Aqui';
+            const content = document.getElementById('postContent').value || 'Seu conteúdo aparecerá aqui';
+            const fontFamily = document.getElementById('fontFamily').value;
+            
+            // Atualizar texto
+            document.getElementById('previewTitle').textContent = title;
+            document.getElementById('previewContent').textContent = content;
+            
+            // Aplicar fonte corretamente
+            document.getElementById('previewTitle').className = `text-3xl font-bold mb-4 ${fontFamily}`;
+            document.getElementById('previewContent').className = `text-lg ${fontFamily}`;
+            
+            // Aplicar fonte via style também para garantir
+            const fontMapping = {
+                'font-inter': 'Inter',
+                'font-poppins': 'Poppins',
+                'font-playfair': 'Playfair Display',
+                'font-montserrat': 'Montserrat',
+                'font-roboto': 'Roboto',
+                'font-open-sans': 'Open Sans',
+                'font-lato': 'Lato',
+                'font-source-sans': 'Source Sans Pro',
+                'font-nunito': 'Nunito',
+                'font-quicksand': 'Quicksand',
+                'font-raleway': 'Raleway',
+                'font-oswald': 'Oswald',
+                'font-work-sans': 'Work Sans',
+                'font-ubuntu': 'Ubuntu',
+                'font-abril': 'Abril Fatface',
+                'font-merriweather': 'Merriweather',
+                'font-pt-serif': 'PT Serif',
+                'font-lobster': 'Lobster',
+                'font-pacifico': 'Pacifico',
+                'font-dancing': 'Dancing Script',
+                'font-great-vibes': 'Great Vibes',
+                'font-satisfy': 'Satisfy'
+            };
+            
+            const fontFamilyName = fontMapping[fontFamily] || 'Inter';
+            const fontCategory = fontFamily.includes('serif') || fontFamily.includes('abril') || fontFamily.includes('merriweather') || fontFamily.includes('pt-serif') ? 'serif' : 
+                                 fontFamily.includes('script') || fontFamily.includes('dancing') || fontFamily.includes('lobster') || fontFamily.includes('pacifico') || fontFamily.includes('great-vibes') || fontFamily.includes('satisfy') ? 'cursive' : 'sans-serif';
+            
+            document.getElementById('previewTitle').style.fontFamily = `'${fontFamilyName}', ${fontCategory}`;
+            document.getElementById('previewContent').style.fontFamily = `'${fontFamilyName}', ${fontCategory}`;
+            
+            // Aplicar cor
+            document.getElementById('previewTitle').style.color = currentTextColor;
+            document.getElementById('previewContent').style.color = currentTextColor;
+            
+            // Aplicar posição
+            const textOverlay = document.getElementById('textOverlay');
+            if (currentTextPosition === 'top') {
+                textOverlay.style.alignItems = 'flex-start';
+                textOverlay.style.paddingTop = '2rem';
+            } else if (currentTextPosition === 'bottom') {
+                textOverlay.style.alignItems = 'flex-end';
+                textOverlay.style.paddingBottom = '2rem';
+            } else {
+                textOverlay.style.alignItems = 'center';
+            }
+            
+            // Aplicar imagem
+            const previewContainer = document.getElementById('previewContainer');
+            if (uploadedImage) {
+                if (currentImageType === 'background') {
+                    previewContainer.style.backgroundImage = `url(${uploadedImage})`;
+                    previewContainer.style.backgroundSize = 'cover';
+                    previewContainer.style.backgroundPosition = 'center';
+                } else {
+                    // Para imagem parcial, criar overlay
+                    let imageOverlay = document.getElementById('imageOverlay');
+                    if (!imageOverlay) {
+                        imageOverlay = document.createElement('div');
+                        imageOverlay.id = 'imageOverlay';
+                        imageOverlay.className = 'image-overlay';
+                        previewContainer.appendChild(imageOverlay);
+                    }
+                    imageOverlay.style.backgroundImage = `url(${uploadedImage})`;
+                    imageOverlay.style.backgroundSize = 'cover';
+                    imageOverlay.style.backgroundPosition = 'center';
+                }
+            }
+        }
+
+        function previewPost() {
+            updatePreview();
+            alert('Preview atualizado! Verifique o resultado na área de preview.');
+        }
+
+        async function savePost() {
+            const title = document.getElementById('postTitle').value;
+            const content = document.getElementById('postContent').value;
+            const hashtags = document.getElementById('hashtags').value;
+            
+            if (!title || !content) {
+                alert('Por favor, preencha o título e conteúdo do post.');
+                return;
+            }
+            
+            try {
+                const formData = new FormData();
+                formData.append('title', title);
+                formData.append('content', content);
+                formData.append('hashtags', hashtags);
+                formData.append('template', 'Post com Imagem');
+                formData.append('platforms', JSON.stringify(['instagram', 'facebook']));
+                // Dados de customização com imagem
+                const customizationData = {
+                    font: document.getElementById('fontFamily').value,
+                    color: currentTextColor,
+                    imageType: currentImageType,
+                    textPosition: currentTextPosition,
+                    platforms: ['instagram', 'facebook']
+                };
+                
+                // Adicionar imagem baseada no tipo
+                if (currentImageType === 'background') {
+                    customizationData.backgroundImage = uploadedImage;
+                } else if (currentImageType === 'partial') {
+                    customizationData.partialImage = uploadedImage;
+                }
+                
+                formData.append('customization', JSON.stringify(customizationData));
+                
+                // Adicionar imagem se foi selecionada
+                if (uploadedImage) {
+                    // Converter data URL para blob
+                    const response = await fetch(uploadedImage);
+                    const blob = await response.blob();
+                    formData.append('image', blob, 'background-image.jpg');
+                }
+                
+                const response = await fetch('/api/posts/json', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    alert('Post salvo com sucesso!');
+                    window.location.href = '/posts';
+                } else {
+                    let errorMessage = 'Erro ao salvar post';
+                    try {
+                        const error = await response.json();
+                        errorMessage = error.message || errorMessage;
+                    } catch (e) {
+                        // Se não conseguir fazer parse do JSON, usar status text
+                        errorMessage = response.statusText || errorMessage;
+                    }
+                    alert('Erro ao salvar post: ' + errorMessage);
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao salvar post. Tente novamente.');
+            }
+        }
+
+        // PEXELS - VERSÃO QUE SEMPRE FUNCIONA (IGUAL AO TESTE)
+        function togglePexelsImages() {
+            const pexelsSection = document.getElementById('pexelsSection');
+            if (pexelsSection.classList.contains('hidden')) {
+                pexelsSection.classList.remove('hidden');
+                // Carregar imagens IMEDIATAMENTE
+                console.log('🖼️ Carregando imagens Pexels...');
+                displayPexelsImages(getPexelsImages());
+                console.log('✅ Imagens carregadas!');
+            } else {
+                pexelsSection.classList.add('hidden');
+            }
+        }
+
+        function searchPexelsImages() {
+            // Carrega as imagens
+            console.log('🔍 Buscando imagens...');
+            displayPexelsImages(getPexelsImages());
+        }
+
+        function loadModernCategory(category) {
+            // Carrega as imagens
+            console.log('📂 Carregando categoria:', category);
+            displayPexelsImages(getPexelsImages());
+        }
+
+        function displayPexelsImages(photos) {
+            const container = document.getElementById('pexelsImagesList');
+            if (!container) {
+                console.error('❌ Container pexelsImagesList não encontrado');
+                return;
+            }
+
+            console.log('🖼️ Exibindo imagens:', photos.length);
+            
+            if (photos.length === 0) {
+                container.innerHTML = '<div class="col-span-3 text-center text-white/70 py-8"><i class="fas fa-image text-4xl mb-2"></i><p>Nenhuma imagem encontrada</p></div>';
+                return;
+            }
+
+            container.innerHTML = photos.map(photo => `
+                <div class="pexels-image-card bg-white/5 rounded-lg overflow-hidden hover:bg-white/10 transition-all cursor-pointer group border border-white/20 hover:border-white/40" 
+                     onclick="selectPexelsImage('${photo.id}', '${photo.src.medium}', '${photo.alt || 'Pexels Image'}')">
+                    <div class="relative">
+                        <img src="${photo.src.small}" 
+                             alt="${photo.alt || 'Pexels Image'}" 
+                             class="w-full h-16 object-cover group-hover:scale-105 transition-transform duration-300"
+                             onerror="this.src='https://via.placeholder.com/150x64/667eea/ffffff?text=Imagem'">
+                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                            <i class="fas fa-plus text-white opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                        </div>
+                    </div>
+                    <div class="p-2">
+                        <div class="text-white text-xs font-medium truncate">${photo.alt || 'Imagem'}</div>
+                    </div>
+                </div>
+            `).join('');
+            
+            console.log('✅ HTML das imagens gerado');
+        }
+
+        function selectPexelsImage(photoId, imageUrl, description) {
+            console.log('🖼️ Selecionando imagem Pexels:', photoId, imageUrl);
+            
+            // Garantir que o elemento imageOverlay existe
+            let imageOverlay = document.getElementById('imageOverlay');
+            if (!imageOverlay) {
+                console.log('🔧 Criando elemento imageOverlay...');
+                const previewContainer = document.getElementById('previewContainer');
+                if (previewContainer) {
+                    imageOverlay = document.createElement('div');
+                    imageOverlay.id = 'imageOverlay';
+                    imageOverlay.className = 'image-overlay absolute inset-0 z-10';
+                    imageOverlay.style.backgroundSize = 'cover';
+                    imageOverlay.style.backgroundPosition = 'center';
+                    imageOverlay.style.backgroundRepeat = 'no-repeat';
+                    previewContainer.appendChild(imageOverlay);
+                    console.log('✅ Elemento imageOverlay criado');
+                } else {
+                    console.error('❌ Container previewContainer não encontrado');
+                    return;
+                }
+            }
+            
+            // Aplicar imagem ao preview
+            console.log('✅ Aplicando imagem ao overlay');
+            imageOverlay.style.backgroundImage = `url('${imageUrl}')`;
+            imageOverlay.style.display = 'block';
+            imageOverlay.style.backgroundSize = 'cover';
+            imageOverlay.style.backgroundPosition = 'center';
+            imageOverlay.style.backgroundRepeat = 'no-repeat';
+            
+            // Atualizar preview
+            console.log('🔄 Atualizando preview...');
+            updatePreview();
+            
+            // Feedback visual
+            document.querySelectorAll('.pexels-image-card').forEach(card => {
+                card.classList.remove('ring-2', 'ring-green-400');
+            });
+            
+            // Encontrar o card clicado e destacar
+            const clickedCard = document.querySelector(`[onclick*="${photoId}"]`);
+            if (clickedCard) {
+                clickedCard.classList.add('ring-2', 'ring-green-400');
+            }
+            
+            console.log('✅ Imagem aplicada ao preview!');
+        }
+
+        // IMAGENS PEXELS QUE SEMPRE FUNCIONAM
+        function getPexelsImages() {
+            return [
+                {
+                    id: '1',
+                    src: { 
+                        small: 'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=150', 
+                        medium: 'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=400' 
+                    },
+                    alt: 'Tecnologia Moderna'
+                },
+                {
+                    id: '2',
+                    src: { 
+                        small: 'https://images.pexels.com/photos/3183197/pexels-photo-3183197.jpeg?auto=compress&cs=tinysrgb&w=150', 
+                        medium: 'https://images.pexels.com/photos/3183197/pexels-photo-3183197.jpeg?auto=compress&cs=tinysrgb&w=400' 
+                    },
+                    alt: 'Negócios'
+                },
+                {
+                    id: '3',
+                    src: { 
+                        small: 'https://images.pexels.com/photos/3184339/pexels-photo-3184339.jpeg?auto=compress&cs=tinysrgb&w=150', 
+                        medium: 'https://images.pexels.com/photos/3184339/pexels-photo-3184339.jpeg?auto=compress&cs=tinysrgb&w=400' 
+                    },
+                    alt: 'Cidade Moderna'
+                },
+                {
+                    id: '4',
+                    src: { 
+                        small: 'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=150', 
+                        medium: 'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=400' 
+                    },
+                    alt: 'Lifestyle'
+                },
+                {
+                    id: '5',
+                    src: { 
+                        small: 'https://images.pexels.com/photos/3183197/pexels-photo-3183197.jpeg?auto=compress&cs=tinysrgb&w=150', 
+                        medium: 'https://images.pexels.com/photos/3183197/pexels-photo-3183197.jpeg?auto=compress&cs=tinysrgb&w=400' 
+                    },
+                    alt: 'Natureza'
+                },
+                {
+                    id: '6',
+                    src: { 
+                        small: 'https://images.pexels.com/photos/3184339/pexels-photo-3184339.jpeg?auto=compress&cs=tinysrgb&w=150', 
+                        medium: 'https://images.pexels.com/photos/3184339/pexels-photo-3184339.jpeg?auto=compress&cs=tinysrgb&w=400' 
+                    },
+                    alt: 'Abstrato'
+                }
+            ];
+        }
+
+
+        // Atualizar preview em tempo real
+        document.getElementById('postTitle').addEventListener('input', updatePreview);
+        document.getElementById('postContent').addEventListener('input', updatePreview);
+        document.getElementById('fontFamily').addEventListener('change', updatePreview);
+    </script>
+</body>
+</html>

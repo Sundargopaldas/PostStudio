@@ -459,20 +459,42 @@
                             <!-- Efeitos serão carregados aqui -->
                         </div>
                     </div>
+
+                    <!-- Posicionamento do Texto -->
+                    <div class="font-selector p-6">
+                        <h4 class="text-xl font-bold text-white mb-4 font-inter">
+                            <i class="fas fa-align-center mr-2"></i>Posicionamento do Texto
+                        </h4>
+                        <div class="grid grid-cols-3 gap-3">
+                            <button onclick="setTextPosition('top', this)" class="textPositionBtn bg-blue-500/20 hover:bg-blue-500/40 text-white px-4 py-3 rounded-lg transition-all transform hover:scale-105 border border-blue-400/30 hover:border-blue-400/60">
+                                <i class="fas fa-arrow-up text-lg mb-2"></i>
+                                <div class="text-sm font-medium">Em Cima</div>
+                            </button>
+                            <button onclick="setTextPosition('center', this)" class="textPositionBtn bg-green-500/20 hover:bg-green-500/40 text-white px-4 py-3 rounded-lg transition-all transform hover:scale-105 border border-green-400/30 hover:border-green-400/60">
+                                <i class="fas fa-align-center text-lg mb-2"></i>
+                                <div class="text-sm font-medium">No Meio</div>
+                            </button>
+                            <button onclick="setTextPosition('bottom', this)" class="textPositionBtn bg-purple-500/20 hover:bg-purple-500/40 text-white px-4 py-3 rounded-lg transition-all transform hover:scale-105 border border-purple-400/30 hover:border-purple-400/60">
+                                <i class="fas fa-arrow-down text-lg mb-2"></i>
+                                <div class="text-sm font-medium">Em Baixo</div>
+                            </button>
+                        </div>
+                    </div>
+
                 </div>
 
                 <!-- Preview do Post -->
                 <div class="space-y-6">
                     <h4 class="text-xl font-bold text-white mb-4 font-inter">
-                        <i class="fas fa-eye mr-2"></i>Preview do Post (1:1 Instagram)
+                        <i class="fas fa-eye mr-2"></i>Preview
                     </h4>
                     <div id="postPreview" class="custom-post-preview">
                         <div id="canvasBox" class="relative mx-auto" style="width: 100%; max-width: 640px;">
-                            <div id="canvas" class="rounded-xl overflow-hidden shadow-lg bg-gray-100" style="position: relative; width: 100%; padding-top: 100%; background-position: center; background-size: cover; background-repeat: no-repeat;">
+                            <div id="canvas" class="rounded-xl overflow-hidden shadow-lg" style="position: relative; width: 100%; height: 400px; background-position: center; background-size: cover; background-repeat: no-repeat;">
                                 <!-- Conteúdo textual sobreposto -->
                                 <div id="previewContent" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px;">
-                            <h3 id="previewTitle" class="text-2xl font-bold mb-4 text-white">Seu Título Aqui</h3>
-                            <p id="previewText" class="text-white leading-relaxed">Seu conteúdo aparecerá aqui com a fonte e estilo selecionados...</p>
+                            <h3 id="previewTitle" class="text-2xl font-bold mb-4">Seu Título Aqui</h3>
+                            <p id="previewText" class="leading-relaxed">Seu conteúdo aparecerá aqui com a fonte e estilo selecionados...</p>
                                 </div>
                             </div>
                         </div>
@@ -694,7 +716,9 @@
         let selectedColor = '#ef4444'; // Vermelho por padrão para teste
         let selectedBackground = 'gradient-1';
         let selectedTextEffect = 'normal';
+        let selectedTextPosition = 'center'; // Posicionamento do texto
         let selectedBackgroundImage = null; // imagem de fundo personalizada
+        let selectedPartialImage = null; // imagem parcial do Pexels
         let customizationSettings = {
             font: 'font-inter',
             color: '#ef4444', // Vermelho por padrão para teste
@@ -1126,6 +1150,14 @@
             console.log('✅ Cor nas configurações:', customizationSettings.color);
             console.log('🔧 Configurações completas:', customizationSettings);
             
+            // DEBUG: Verificar elementos de preview
+            const previewTitle = document.getElementById('previewTitle');
+            const previewText = document.getElementById('previewText');
+            console.log('🔍 Elementos de preview encontrados:', {
+                previewTitle: !!previewTitle,
+                previewText: !!previewText
+            });
+            
             // Atualizar preview
             updatePreview();
         }
@@ -1201,42 +1233,67 @@
             }
             
             // Aplicar cor
+            console.log('🎨 Aplicando cor ao preview:', selectedColor);
             previewTitle.style.color = selectedColor;
             previewText.style.color = selectedColor;
+            
+            // DEBUG: Verificar se a cor foi aplicada
+            console.log('✅ Cor aplicada ao título:', previewTitle.style.color);
+            console.log('✅ Cor aplicada ao texto:', previewText.style.color);
             
             // Aplicar background no canvas (1:1), mantendo padding interno
             const canvas = document.getElementById('canvas');
             if (canvas) {
-                // Se background for classe Tailwind (começa com 'bg-'), aplica como classe; caso contrário, aplica como classe utilitária
+                // Aplicar classe de background
                 canvas.className = `rounded-xl overflow-hidden shadow-lg ${selectedBackground}`;
                 
-            // Aplicar imagem de fundo se selecionada
-            if (selectedBackgroundImage) {
-                canvas.style.backgroundImage = `url(${selectedBackgroundImage})`;
-                canvas.style.backgroundSize = 'cover';
-                canvas.style.backgroundPosition = 'center';
-                canvas.style.backgroundRepeat = 'no-repeat';
-                
-                // Adicionar indicador visual de imagem de fundo
-                const existingIndicator = document.getElementById('backgroundIndicator');
-                if (!existingIndicator) {
-                    const indicator = document.createElement('div');
-                    indicator.id = 'backgroundIndicator';
-                    indicator.className = 'absolute top-2 right-2 bg-purple-500/80 text-white text-xs px-2 py-1 rounded-full flex items-center space-x-1';
-                    indicator.innerHTML = '<i class="fas fa-image"></i><span>Fundo</span>';
-                    canvas.appendChild(indicator);
-                }
-            } else {
-                canvas.style.backgroundImage = '';
-                
-                // Remover indicador se não há imagem de fundo
-                const existingIndicator = document.getElementById('backgroundIndicator');
-                if (existingIndicator) {
-                    existingIndicator.remove();
+                // Aplicar imagem de fundo se selecionada
+                console.log('🖼️ Verificando imagem de fundo:', selectedBackgroundImage);
+                if (selectedBackgroundImage) {
+                    console.log('🖼️ Aplicando imagem de fundo:', selectedBackgroundImage);
+                    canvas.style.backgroundImage = `url(${selectedBackgroundImage})`;
+                    canvas.style.backgroundSize = 'cover';
+                    canvas.style.backgroundPosition = 'center';
+                    canvas.style.backgroundRepeat = 'no-repeat';
+                    
+                    // Remover indicador de imagem de fundo se existir
+                    const existingIndicator = document.getElementById('backgroundIndicator');
+                    if (existingIndicator) {
+                        existingIndicator.remove();
+                    }
+                } else {
+                    console.log('🖼️ Nenhuma imagem de fundo selecionada');
+                    canvas.style.backgroundImage = '';
+                    canvas.style.backgroundSize = '';
+                    canvas.style.backgroundPosition = '';
+                    canvas.style.backgroundRepeat = '';
+                    
+                    // Remover indicador se não há imagem de fundo
+                    const existingIndicator = document.getElementById('backgroundIndicator');
+                    if (existingIndicator) {
+                        existingIndicator.remove();
+                    }
                 }
             }
+            // Aplicar posicionamento do texto
+            let justifyContent = '';
+            switch(selectedTextPosition) {
+                case 'top':
+                    justifyContent = 'flex-start';
+                    break;
+                case 'center':
+                    justifyContent = 'center';
+                    break;
+                case 'bottom':
+                    justifyContent = 'flex-end';
+                    break;
+                default:
+                    justifyContent = 'center';
             }
-            previewContent.className = `p-6 rounded-xl`;
+            
+            // Aplicar posicionamento via style inline para sobrescrever o CSS existente
+            previewContent.style.justifyContent = justifyContent;
+            console.log('📝 Posicionamento aplicado:', selectedTextPosition, '->', justifyContent);
 
             
             // Aplicar efeito de texto
@@ -1248,19 +1305,54 @@
                 previewText.classList.remove('text-glow', 'text-3d', 'text-gradient');
             }
             
-            // Adicionar indicador de imagem parcial se houver
+            // Remover indicador de imagem parcial se existir
             const existingPartialIndicator = document.getElementById('partialImageIndicator');
-            if (uploadedImages.length > 0) {
-                if (!existingPartialIndicator) {
-                    const partialIndicator = document.createElement('div');
-                    partialIndicator.id = 'partialImageIndicator';
-                    partialIndicator.className = 'absolute top-2 left-2 bg-blue-500/80 text-white text-xs px-2 py-1 rounded-full flex items-center space-x-1';
-                    partialIndicator.innerHTML = '<i class="fas fa-image"></i><span>Parcial</span>';
-                    canvas.appendChild(partialIndicator);
+            if (existingPartialIndicator) {
+                existingPartialIndicator.remove();
+            }
+
+            // Exibir imagem parcial do Pexels se selecionada
+            console.log('🖼️ Verificando imagem parcial:', selectedPartialImage);
+            console.log('🖼️ Canvas encontrado:', !!canvas);
+            const existingPartialImage = document.getElementById('partialImagePreview');
+            console.log('🖼️ Imagem parcial existente:', !!existingPartialImage);
+            
+            if (selectedPartialImage) {
+                console.log('🖼️ Aplicando imagem parcial:', selectedPartialImage);
+                if (!existingPartialImage) {
+                    console.log('🖼️ Criando nova imagem parcial...');
+                    const partialImageDiv = document.createElement('div');
+                    partialImageDiv.id = 'partialImagePreview';
+                    partialImageDiv.className = 'mt-4 w-full';
+                    partialImageDiv.style.position = 'absolute';
+                    partialImageDiv.style.bottom = '24px';
+                    partialImageDiv.style.left = '50%';
+                    partialImageDiv.style.transform = 'translateX(-50%)';
+                    partialImageDiv.style.width = '80%';
+                    partialImageDiv.style.maxWidth = '400px';
+                    partialImageDiv.innerHTML = `
+                        <img src="${selectedPartialImage}" alt="Imagem parcial" class="w-full h-56 object-cover rounded-xl border border-white/20 shadow-lg">
+                    `;
+                    canvas.appendChild(partialImageDiv);
+                    console.log('✅ Imagem parcial adicionada ao preview');
+                    console.log('✅ Canvas children:', canvas.children.length);
+                } else {
+                    console.log('🖼️ Atualizando imagem parcial existente...');
+                    // Atualizar imagem existente
+                    const img = existingPartialImage.querySelector('img');
+                    if (img) {
+                        img.src = selectedPartialImage;
+                        console.log('✅ Imagem parcial atualizada no preview');
+                    } else {
+                        console.error('❌ Imagem não encontrada no elemento existente');
+                    }
                 }
             } else {
-                if (existingPartialIndicator) {
-                    existingPartialIndicator.remove();
+                console.log('🖼️ Nenhuma imagem parcial selecionada');
+                // Remover imagem parcial se não selecionada
+                if (existingPartialImage) {
+                    console.log('🖼️ Removendo imagem parcial existente');
+                    existingPartialImage.remove();
                 }
             }
             
@@ -1348,11 +1440,31 @@
             document.getElementById('postForm').appendChild(testDiv);
         }
 
-        // Upload de imagens
+        // Upload de imagens - NOVA VERSÃO SIMPLES
         function handleImageUpload(event) {
+            console.log('📁 Upload de imagens iniciado');
             const files = Array.from(event.target.files);
-            uploadedImages = [...uploadedImages, ...files];
-            displayImagePreviews();
+            console.log('📁 Arquivos selecionados:', files.length);
+            
+            // Limpar array anterior
+            uploadedImages = [];
+            
+            // Processar cada arquivo
+            files.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // Adicionar à lista
+                    uploadedImages.push({
+                        file: file,
+                        url: e.target.result,
+                        index: index
+                    });
+                    
+                    // Mostrar preview imediatamente
+                    showUploadedImagePreview(e.target.result, index);
+                };
+                reader.readAsDataURL(file);
+            });
         }
 
         // Função para lidar com upload de vídeo
@@ -1362,9 +1474,51 @@
 
         // Video functionality moved to /create-video page
 
-        // Exibir preview das imagens
-        function displayImagePreviews() {
+        // NOVA FUNÇÃO SIMPLES PARA UPLOAD
+        function showUploadedImagePreview(imageUrl, index) {
+            console.log('🖼️ Mostrando preview de upload:', imageUrl);
+            console.log('🖼️ Index:', index);
+            
             const previewContainer = document.getElementById('imagePreview');
+            if (!previewContainer) {
+                console.error('❌ Container não encontrado');
+                return;
+            }
+            
+            console.log('🖼️ Container encontrado:', !!previewContainer);
+            
+            // Criar div da imagem
+            const imageDiv = document.createElement('div');
+            imageDiv.className = 'relative';
+            imageDiv.innerHTML = `
+                <img src="${imageUrl}" class="w-full h-32 object-cover rounded-lg border border-white/20" alt="Imagem de upload">
+                <div class="absolute inset-0 bg-black/50 flex items-center justify-center rounded-lg">
+                    <span class="text-white text-sm font-medium">Upload ${index + 1}</span>
+                </div>
+                <div class="absolute bottom-2 left-2 right-2 flex space-x-1">
+                    <button onclick="useUploadedImageAsBackground('${imageUrl}')" class="flex-1 bg-purple-500/80 hover:bg-purple-500 text-white text-xs px-2 py-1 rounded transition-colors">
+                        <i class="fas fa-image mr-1"></i>Fundo
+                    </button>
+                    <button onclick="useUploadedImageAsPartial('${imageUrl}')" class="flex-1 bg-blue-500/80 hover:bg-blue-500 text-white text-xs px-2 py-1 rounded transition-colors">
+                        <i class="fas fa-crop mr-1"></i>Parcial
+                    </button>
+                </div>
+                <button type="button" onclick="removeUploadedImage(${index})" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            previewContainer.appendChild(imageDiv);
+            console.log('✅ Preview de upload adicionado');
+            console.log('✅ Total de elementos no container:', previewContainer.children.length);
+        }
+
+        // Exibir preview das imagens - MANTIDA PARA COMPATIBILIDADE
+        function displayImagePreviews() {
+            console.log('🖼️ displayImagePreviews chamada');
+            const previewContainer = document.getElementById('imagePreview');
+            console.log('🖼️ Container encontrado:', !!previewContainer);
+            console.log('🖼️ Imagens carregadas:', uploadedImages.length);
             
             // Se há imagens carregadas, limpar o container e mostrar as novas
             if (uploadedImages.length > 0) {
@@ -1381,11 +1535,37 @@
                             <div class="absolute inset-0 bg-black/50 flex items-center justify-center rounded-lg">
                                 <span class="text-white text-sm font-medium">Nova imagem</span>
                             </div>
+                            <div class="absolute bottom-2 left-2 right-2 flex space-x-1">
+                                <button data-action="background" data-image-url="${e.target.result}" class="flex-1 bg-purple-500/80 hover:bg-purple-500 text-white text-xs px-2 py-1 rounded transition-colors">
+                                    <i class="fas fa-image mr-1"></i>Fundo
+                                </button>
+                                <button data-action="partial" data-image-url="${e.target.result}" class="flex-1 bg-blue-500/80 hover:bg-blue-500 text-white text-xs px-2 py-1 rounded transition-colors">
+                                    <i class="fas fa-crop mr-1"></i>Parcial
+                                </button>
+                            </div>
                             <button type="button" onclick="removeImage(${index})" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600">
                                 <i class="fas fa-times"></i>
                             </button>
                         `;
                         previewContainer.appendChild(previewDiv);
+                        
+                        // Adicionar event listeners para os botões
+                        const backgroundBtn = previewDiv.querySelector('[data-action="background"]');
+                        const partialBtn = previewDiv.querySelector('[data-action="partial"]');
+                        
+                        if (backgroundBtn) {
+                            backgroundBtn.addEventListener('click', function() {
+                                const imageUrl = this.dataset.imageUrl;
+                                selectUploadedImageAsBackground(imageUrl);
+                            });
+                        }
+                        
+                        if (partialBtn) {
+                            partialBtn.addEventListener('click', function() {
+                                const imageUrl = this.dataset.imageUrl;
+                                selectUploadedImageAsPartial(imageUrl);
+                            });
+                        }
                     };
                     reader.readAsDataURL(file);
                 });
@@ -1835,8 +2015,7 @@
             if (!container) return;
 
             container.innerHTML = photos.map(photo => `
-                <div class="pexels-image-card bg-white/5 rounded-lg overflow-hidden hover:bg-white/10 transition-all cursor-pointer group border border-white/20 hover:border-white/40" 
-                     onclick="selectPexelsImage('${photo.id}', '${photo.src.medium}', '${photo.alt || 'Pexels Image'}')">
+                <div class="pexels-image-card bg-white/5 rounded-lg overflow-hidden hover:bg-white/10 transition-all group border border-white/20 hover:border-white/40">
                     <div class="relative">
                         <img src="${photo.src.small}" 
                              alt="${photo.alt || 'Pexels Image'}" 
@@ -1846,30 +2025,441 @@
                         </div>
                     </div>
                     <div class="p-2">
-                        <div class="text-white text-xs font-medium truncate">${photo.alt || 'Imagem'}</div>
+                        <div class="text-white text-xs font-medium truncate mb-2">${photo.alt || 'Imagem'}</div>
+                        <div class="flex space-x-1">
+                            <button onclick="selectPexelsImageAsBackground('${photo.id}', '${photo.src.medium}', 'Pexels Image')" 
+                                    class="flex-1 bg-purple-500/20 hover:bg-purple-500/40 text-white text-xs px-2 py-1 rounded transition-colors">
+                                <i class="fas fa-image mr-1"></i>Fundo
+                            </button>
+                            <button onclick="selectPexelsImageAsPartial('${photo.id}', '${photo.src.medium}', 'Pexels Image')" 
+                                    class="flex-1 bg-blue-500/20 hover:bg-blue-500/40 text-white text-xs px-2 py-1 rounded transition-colors">
+                                <i class="fas fa-crop mr-1"></i>Parcial
+                            </button>
+                        </div>
                     </div>
                 </div>
             `).join('');
         }
 
-        // Select Pexels Image
-        function selectPexelsImage(photoId, imageUrl, description) {
+        // Select Pexels Image as Background
+        function selectPexelsImageAsBackground(photoId, imageUrl, description) {
+            console.log('🖼️ Selecionando imagem como fundo:', { photoId, imageUrl, description });
+            
             selectedBackgroundImage = imageUrl;
-            console.log('🖼️ Imagem selecionada:', { photoId, imageUrl, description });
+            selectedPartialImage = null;
             
             // Remove previous selection
             document.querySelectorAll('.pexels-image-card').forEach(card => {
-                card.classList.remove('ring-2', 'ring-green-400', 'bg-green-500/20');
+                card.classList.remove('ring-2', 'ring-green-400', 'ring-purple-400', 'ring-blue-400', 'bg-green-500/20', 'bg-purple-500/20', 'bg-blue-500/20');
             });
             
             // Add selection to clicked image
-            const selectedCard = document.querySelector(`[onclick*="${photoId}"]`);
+            const selectedCard = document.querySelector(`[onclick*="selectPexelsImageAsBackground('${photoId}'"]`);
             if (selectedCard) {
-                selectedCard.classList.add('ring-2', 'ring-green-400', 'bg-green-500/20');
+                selectedCard.classList.add('ring-2', 'ring-purple-400', 'bg-purple-500/20');
             }
             
             // Update preview
             updatePreview();
+            showNotification('Imagem selecionada como fundo!', 'success');
+        }
+
+        // Select Pexels Image as Partial
+        function selectPexelsImageAsPartial(photoId, imageUrl, description) {
+            console.log('🖼️ Selecionando imagem como parcial:', { photoId, imageUrl, description });
+            
+            selectedPartialImage = imageUrl;
+            selectedBackgroundImage = null;
+            
+            // Remove previous selection
+            document.querySelectorAll('.pexels-image-card').forEach(card => {
+                card.classList.remove('ring-2', 'ring-green-400', 'ring-purple-400', 'ring-blue-400', 'bg-green-500/20', 'bg-purple-500/20', 'bg-blue-500/20');
+            });
+            
+            // Add selection to clicked image
+            const selectedCard = document.querySelector(`[onclick*="selectPexelsImageAsPartial('${photoId}'"]`);
+            if (selectedCard) {
+                selectedCard.classList.add('ring-2', 'ring-blue-400', 'bg-blue-500/20');
+            }
+            
+            // Update preview
+            updatePreview();
+            showNotification('Imagem selecionada como parcial!', 'success');
+        }
+
+        // Select Pexels Image (legacy function for compatibility)
+        function selectPexelsImage(photoId, imageUrl, description) {
+            selectPexelsImageAsBackground(photoId, imageUrl, description);
+        }
+
+        // NOVAS FUNÇÕES SIMPLES PARA UPLOAD
+        function useUploadedImageAsBackground(imageUrl) {
+            console.log('🖼️ Usando imagem de upload como fundo:', imageUrl);
+            
+            selectedBackgroundImage = imageUrl;
+            selectedPartialImage = null;
+            
+            updatePreview();
+            showNotification('Imagem de upload como fundo!', 'success');
+        }
+
+        function useUploadedImageAsPartial(imageUrl) {
+            console.log('🖼️ FUNÇÃO CHAMADA - Usando imagem de upload como parcial:', imageUrl);
+            console.log('🖼️ Variáveis ANTES:', { selectedBackgroundImage, selectedPartialImage });
+            
+            selectedPartialImage = imageUrl;
+            selectedBackgroundImage = null;
+            
+            console.log('🖼️ Variáveis DEPOIS:', { selectedBackgroundImage, selectedPartialImage });
+            console.log('🖼️ Chamando updatePreview...');
+            
+            updatePreview();
+            showNotification('Imagem de upload como parcial!', 'success');
+            
+            console.log('🖼️ updatePreview chamado, verificando resultado...');
+            setTimeout(() => {
+                const partialImage = document.getElementById('partialImagePreview');
+                console.log('🖼️ Imagem parcial no DOM após updatePreview:', !!partialImage);
+                if (partialImage) {
+                    console.log('🖼️ Imagem parcial encontrada:', partialImage);
+                }
+            }, 500);
+        }
+
+        function removeUploadedImage(index) {
+            console.log('🗑️ Removendo imagem de upload:', index);
+            uploadedImages.splice(index, 1);
+            
+            // Recriar preview
+            const previewContainer = document.getElementById('imagePreview');
+            if (previewContainer) {
+                previewContainer.innerHTML = '';
+                uploadedImages.forEach((item, idx) => {
+                    showUploadedImagePreview(item.url, idx);
+                });
+            }
+        }
+
+        // FUNÇÕES ANTIGAS MANTIDAS PARA COMPATIBILIDADE
+        function selectUploadedImageAsBackground(imageUrl) {
+            console.log('🖼️ Selecionando imagem de upload como fundo:', imageUrl);
+            
+            selectedBackgroundImage = imageUrl;
+            selectedPartialImage = null;
+            
+            // Update preview
+            updatePreview();
+            showNotification('Imagem de upload selecionada como fundo!', 'success');
+        }
+
+        function selectUploadedImageAsPartial(imageUrl) {
+            console.log('🖼️ Selecionando imagem de upload como parcial:', imageUrl);
+            
+            selectedPartialImage = imageUrl;
+            selectedBackgroundImage = null;
+            
+            // Update preview
+            updatePreview();
+            showNotification('Imagem de upload selecionada como parcial!', 'success');
+        }
+
+        // Função de teste para upload
+        function testUpload() {
+            console.log('🧪 TESTE UPLOAD');
+            console.log('🧪 uploadedImages:', uploadedImages);
+            console.log('🧪 displayImagePreviews existe?', typeof displayImagePreviews);
+            
+            // Simular upload de uma imagem
+            const testImageUrl = 'https://images.pexels.com/photos/1234567/pexels-photo-1234567.jpeg?auto=compress&cs=tinysrgb&w=800';
+            
+            // Adicionar imagem de teste
+            const previewContainer = document.getElementById('imagePreview');
+            if (previewContainer) {
+                previewContainer.innerHTML = `
+                    <div class="relative">
+                        <img src="${testImageUrl}" class="w-full h-32 object-cover rounded-lg border border-white/20" alt="Imagem de teste">
+                        <div class="absolute inset-0 bg-black/50 flex items-center justify-center rounded-lg">
+                            <span class="text-white text-sm font-medium">Imagem de teste</span>
+                        </div>
+                        <div class="absolute bottom-2 left-2 right-2 flex space-x-1">
+                            <button onclick="selectUploadedImageAsBackground('${testImageUrl}')" class="flex-1 bg-purple-500/80 hover:bg-purple-500 text-white text-xs px-2 py-1 rounded transition-colors">
+                                <i class="fas fa-image mr-1"></i>Fundo
+                            </button>
+                            <button onclick="selectUploadedImageAsPartial('${testImageUrl}')" class="flex-1 bg-blue-500/80 hover:bg-blue-500 text-white text-xs px-2 py-1 rounded transition-colors">
+                                <i class="fas fa-crop mr-1"></i>Parcial
+                            </button>
+                        </div>
+                    </div>
+                `;
+                console.log('✅ Imagem de teste adicionada');
+            }
+        }
+
+        // Função para forçar upload funcionar
+        function forceUpload() {
+            console.log('🚀 FORÇANDO UPLOAD');
+            
+            // Limpar tudo primeiro
+            uploadedImages = [];
+            const previewContainer = document.getElementById('imagePreview');
+            if (previewContainer) {
+                previewContainer.innerHTML = '';
+            }
+            
+            // Adicionar imagem de teste diretamente
+            const testImageUrl = 'https://images.pexels.com/photos/1234567/pexels-photo-1234567.jpeg?auto=compress&cs=tinysrgb&w=800';
+            
+            if (previewContainer) {
+                const div = document.createElement('div');
+                div.className = 'relative';
+                div.innerHTML = `
+                    <img src="${testImageUrl}" class="w-full h-32 object-cover rounded-lg border border-white/20" alt="Imagem forçada">
+                    <div class="absolute inset-0 bg-black/50 flex items-center justify-center rounded-lg">
+                        <span class="text-white text-sm font-medium">Imagem forçada</span>
+                    </div>
+                    <div class="absolute bottom-2 left-2 right-2 flex space-x-1">
+                        <button class="flex-1 bg-purple-500/80 hover:bg-purple-500 text-white text-xs px-2 py-1 rounded transition-colors" onclick="selectedBackgroundImage='${testImageUrl}'; selectedPartialImage=null; updatePreview(); showNotification('Imagem como fundo!', 'success');">
+                            <i class="fas fa-image mr-1"></i>Fundo
+                        </button>
+                        <button class="flex-1 bg-blue-500/80 hover:bg-blue-500 text-white text-xs px-2 py-1 rounded transition-colors" onclick="selectedPartialImage='${testImageUrl}'; selectedBackgroundImage=null; updatePreview(); showNotification('Imagem como parcial!', 'success');">
+                            <i class="fas fa-crop mr-1"></i>Parcial
+                        </button>
+                    </div>
+                `;
+                previewContainer.appendChild(div);
+                console.log('✅ Imagem forçada adicionada');
+            }
+        }
+
+        // Função de teste específica para imagem parcial
+        function testPartialImage() {
+            console.log('🧪 TESTANDO IMAGEM PARCIAL');
+            
+            const testImageUrl = 'https://images.pexels.com/photos/1234567/pexels-photo-1234567.jpeg?auto=compress&cs=tinysrgb&w=800';
+            
+            console.log('🧪 Definindo imagem parcial:', testImageUrl);
+            selectedPartialImage = testImageUrl;
+            selectedBackgroundImage = null;
+            
+            console.log('🧪 Variáveis definidas:', { selectedPartialImage, selectedBackgroundImage });
+            
+            console.log('🧪 Chamando updatePreview...');
+            updatePreview();
+            
+            console.log('🧪 Verificando se apareceu no DOM...');
+            setTimeout(() => {
+                const partialImage = document.getElementById('partialImagePreview');
+                console.log('🧪 Imagem parcial no DOM:', !!partialImage);
+                if (partialImage) {
+                    console.log('🧪 Imagem parcial encontrada:', partialImage);
+                    console.log('🧪 Imagem src:', partialImage.querySelector('img')?.src);
+                }
+            }, 1000);
+        }
+
+        // Função para definir posicionamento do texto
+        function setTextPosition(position, buttonElement) {
+            console.log('📝 FUNÇÃO CHAMADA - Definindo posição do texto:', position);
+            console.log('📝 selectedTextPosition ANTES:', selectedTextPosition);
+            
+            selectedTextPosition = position;
+            console.log('📝 selectedTextPosition DEPOIS:', selectedTextPosition);
+            
+            // Remover seleção anterior
+            document.querySelectorAll('.textPositionBtn').forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-white', 'bg-white/20');
+            });
+            
+            // Adicionar seleção ao botão clicado
+            buttonElement.classList.add('ring-2', 'ring-white', 'bg-white/20');
+            
+            console.log('📝 Chamando updatePreview...');
+            // Atualizar preview
+            updatePreview();
+            showNotification(`Texto posicionado: ${position === 'top' ? 'Em Cima' : position === 'center' ? 'No Meio' : 'Em Baixo'}`, 'success');
+            
+            console.log('📝 Verificando resultado...');
+            setTimeout(() => {
+                const previewContent = document.getElementById('previewContent');
+                if (previewContent) {
+                    console.log('📝 PreviewContent justifyContent:', previewContent.style.justifyContent);
+                }
+            }, 100);
+        }
+
+
+
+        // Função de teste para debug
+        function testPexelsPreview() {
+            console.log('🧪 Testando preview do Pexels...');
+            console.log('🧪 selectedBackgroundImage:', selectedBackgroundImage);
+            console.log('🧪 selectedPartialImage:', selectedPartialImage);
+            
+            // Testar com uma imagem real do Pexels
+            selectedBackgroundImage = 'https://images.pexels.com/photos/1234567/pexels-photo-1234567.jpeg?auto=compress&cs=tinysrgb&w=800';
+            selectedPartialImage = null;
+            
+            console.log('🧪 Após definir background:', selectedBackgroundImage);
+            updatePreview();
+        }
+
+        // Função de teste para imagem parcial
+        function testPexelsPartial() {
+            console.log('🧪 Testando imagem parcial...');
+            selectedPartialImage = 'https://images.pexels.com/photos/1234567/pexels-photo-1234567.jpeg?auto=compress&cs=tinysrgb&w=800';
+            selectedBackgroundImage = null;
+            
+            console.log('🧪 Após definir partial:', selectedPartialImage);
+            updatePreview();
+        }
+
+        // Função de teste direto para debug
+        function debugPexelsSelection() {
+            console.log('🔍 Debug - Variáveis atuais:');
+            console.log('🔍 selectedBackgroundImage:', window.selectedBackgroundImage);
+            console.log('🔍 selectedPartialImage:', window.selectedPartialImage);
+            console.log('🔍 updatePreview existe?', typeof updatePreview);
+            
+            // Verificar elementos DOM
+            const canvas = document.getElementById('canvas');
+            const previewContent = document.getElementById('previewContent');
+            console.log('🔍 Canvas encontrado?', !!canvas);
+            console.log('🔍 PreviewContent encontrado?', !!previewContent);
+            
+            // Testar com uma imagem real
+            const testImage = 'https://images.pexels.com/photos/1234567/pexels-photo-1234567.jpeg?auto=compress&cs=tinysrgb&w=800';
+            
+            console.log('🔍 Testando imagem de fundo...');
+            window.selectedBackgroundImage = testImage;
+            window.selectedPartialImage = null;
+            updatePreview();
+            
+            setTimeout(() => {
+                console.log('🔍 Testando imagem parcial...');
+                window.selectedPartialImage = testImage;
+                window.selectedBackgroundImage = null;
+                updatePreview();
+            }, 2000);
+        }
+
+        // Função de teste simples para verificar DOM
+        function testPreviewDOM() {
+            console.log('🧪 Testando estrutura do preview...');
+            
+            const canvas = document.getElementById('canvas');
+            const previewContent = document.getElementById('previewContent');
+            
+            if (!canvas) {
+                console.error('❌ Canvas não encontrado!');
+                return;
+            }
+            
+            if (!previewContent) {
+                console.error('❌ PreviewContent não encontrado!');
+                return;
+            }
+            
+            console.log('✅ Canvas encontrado:', canvas);
+            console.log('✅ PreviewContent encontrado:', previewContent);
+            console.log('✅ Canvas style:', canvas.style.cssText);
+            console.log('✅ PreviewContent style:', previewContent.style.cssText);
+            
+            // Testar adicionar imagem diretamente
+            const testDiv = document.createElement('div');
+            testDiv.innerHTML = '<div style="background: red; height: 50px; width: 100%; margin: 10px 0;">TESTE VISUAL</div>';
+            previewContent.appendChild(testDiv);
+            
+            console.log('✅ Elemento de teste adicionado');
+        }
+
+        // Função de teste direto para imagens
+        function testImageDirectly() {
+            console.log('🧪 Testando imagem diretamente...');
+            
+            const canvas = document.getElementById('canvas');
+            if (!canvas) {
+                console.error('❌ Canvas não encontrado!');
+                return;
+            }
+            
+            // Usar uma imagem real do Pexels
+            const testImageUrl = 'https://images.pexels.com/photos/1234567/pexels-photo-1234567.jpeg?auto=compress&cs=tinysrgb&w=800';
+            
+            console.log('🧪 Aplicando imagem diretamente:', testImageUrl);
+            canvas.style.backgroundImage = `url(${testImageUrl})`;
+            canvas.style.backgroundSize = 'cover';
+            canvas.style.backgroundPosition = 'center';
+            canvas.style.backgroundRepeat = 'no-repeat';
+            
+            // Verificar se foi aplicada
+            console.log('🧪 Background aplicado:', canvas.style.backgroundImage);
+            console.log('🧪 Canvas style completo:', canvas.style.cssText);
+            
+            // Testar se a imagem carrega
+            const img = new Image();
+            img.onload = () => console.log('✅ Imagem carregada com sucesso!');
+            img.onerror = () => console.error('❌ Erro ao carregar imagem!');
+            img.src = testImageUrl;
+        }
+
+        // Função de teste SUPER SIMPLES
+        function testSimple() {
+            console.log('🧪 TESTE SUPER SIMPLES');
+            
+            // Definir variáveis
+            selectedBackgroundImage = 'https://images.pexels.com/photos/1234567/pexels-photo-1234567.jpeg?auto=compress&cs=tinysrgb&w=800';
+            selectedPartialImage = null;
+            
+            console.log('🧪 Variáveis definidas:', { selectedBackgroundImage, selectedPartialImage });
+            
+            // Aplicar diretamente no canvas
+            const canvas = document.getElementById('canvas');
+            if (canvas) {
+                canvas.style.backgroundImage = `url(${selectedBackgroundImage})`;
+                canvas.style.backgroundSize = 'cover';
+                canvas.style.backgroundPosition = 'center';
+                canvas.style.backgroundRepeat = 'no-repeat';
+                console.log('🧪 Canvas atualizado diretamente');
+            }
+            
+            // Chamar updatePreview
+            console.log('🧪 Chamando updatePreview...');
+            updatePreview();
+        }
+
+        // Função de teste para o novo preview
+        function testNewPreview() {
+            console.log('🧪 TESTANDO NOVO PREVIEW');
+            
+            const canvas = document.getElementById('canvas');
+            if (!canvas) {
+                console.error('❌ Canvas não encontrado!');
+                return;
+            }
+            
+            console.log('🧪 Canvas encontrado:', canvas);
+            console.log('🧪 Canvas style atual:', canvas.style.cssText);
+            
+            // Testar com imagem
+            const testImage = 'https://images.pexels.com/photos/1234567/pexels-photo-1234567.jpeg?auto=compress&cs=tinysrgb&w=800';
+            
+            // Aplicar imagem diretamente
+            canvas.style.backgroundImage = `url(${testImage})`;
+            canvas.style.backgroundSize = 'cover';
+            canvas.style.backgroundPosition = 'center';
+            canvas.style.backgroundRepeat = 'no-repeat';
+            
+            console.log('🧪 Imagem aplicada:', canvas.style.backgroundImage);
+            console.log('🧪 Canvas style final:', canvas.style.cssText);
+            
+            // Verificar se a imagem carrega
+            const img = new Image();
+            img.onload = () => {
+                console.log('✅ Imagem carregada com sucesso!');
+                console.log('✅ Dimensões:', img.width, 'x', img.height);
+            };
+            img.onerror = () => console.error('❌ Erro ao carregar imagem!');
+            img.src = testImage;
         }
 
         // Video functionality moved to /create-video page
@@ -1979,6 +2569,12 @@
                 // O servidor manterá a imagem de fundo existente
             } else {
                 console.log('ℹ️ Nenhuma imagem de fundo para enviar');
+            }
+
+            // Adicionar imagem parcial se selecionada
+            if (selectedPartialImage) {
+                console.log('🖼️ Enviando imagem parcial do Pexels:', selectedPartialImage);
+                formData.append('pexelsPartialImage', selectedPartialImage);
             }
             // Forçar normalização da fonte antes de enviar
             if (customizationSettings && customizationSettings.font) {

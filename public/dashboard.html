@@ -6,7 +6,7 @@
     <title>PostStudio I.A - Dashboard</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&family=Montserrat:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&family=Open+Sans:wght@300;400;600;700;800&family=Lato:wght@300;400;700;900&family=Source+Sans+Pro:wght@300;400;600;700;900&family=Nunito:wght@300;400;600;700;800;900&family=Quicksand:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700;800;900&family=Abril+Fatface&family=Merriweather:wght@300;400;700;900&family=PT+Serif:wght@400;700&family=Work+Sans:wght@300;400;600;700;800&family=Oswald:wght@300;400;500;600;700&family=Lobster&family=Pacifico&family=Dancing+Script:wght@400;500;600;700&family=Great+Vibes&family=Satisfy&family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
         .gradient-bg {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -100,12 +100,15 @@
                 <div class="mt-4 flex justify-center">
                     <div class="w-24 h-1 bg-gradient-to-r from-pink-400 to-purple-400 rounded-full"></div>
                 </div>
-                <div class="flex justify-center space-x-4">
+                <div class="flex flex-wrap justify-center gap-4">
                     <button onclick="window.location.href='/create-post'" class="bg-white text-gray-800 px-6 py-3 rounded-lg font-semibold hover:bg-white/90 transition-all transform hover:scale-105">
-                        <i class="fas fa-plus mr-2"></i>Criar Post Estático
+                        <i class="fas fa-plus mr-2"></i>Criar Post
                     </button>
-                    <button onclick="window.location.href='/create-video'" class="bg-white/20 text-white px-6 py-3 rounded-lg font-semibold hover:bg-white/30 transition-all transform hover:scale-105">
-                        <i class="fas fa-video mr-2"></i>Criar Vídeo Dinâmico
+                    <button onclick="window.location.href='/video-editor-pro.html'" class="bg-white/20 text-white px-6 py-3 rounded-lg font-semibold hover:bg-white/30 transition-all transform hover:scale-105">
+                        <i class="fas fa-video mr-2"></i>Editor de Vídeo Profissional
+                    </button>
+                    <button onclick="window.location.href='/videos'" class="bg-white/20 text-white px-6 py-3 rounded-lg font-semibold hover:bg-white/30 transition-all transform hover:scale-105">
+                        <i class="fas fa-play-circle mr-2"></i>Meus Vídeos
                     </button>
                     <button onclick="window.location.href='/settings'" class="bg-white/20 text-white px-6 py-3 rounded-lg font-semibold hover:bg-white/30 transition-all transform hover:scale-105">
                         <i class="fas fa-cog mr-2"></i>Configurações

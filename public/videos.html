@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PostStudio I.A - Meus Vídeos</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Estilo para o player de vídeo */
+        .video-player {
+            position: relative;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .video-controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .play-button {
+            background: #667eea;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .play-button:hover {
+            background: #5a6fd8;
+            transform: scale(1.1);
+        }
+        
+        .progress-bar {
+            flex: 1;
+            height: 6px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #667eea;
+            border-radius: 3px;
+            transition: width 0.1s ease;
+        }
+        
+        .time-display {
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        /* Estilo para legendas */
+        .caption-overlay {
+            position: absolute;
+            bottom: 80px;
+            left: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .caption-overlay.show {
+            opacity: 1;
+        }
+        
+        /* Estilo para narração */
+        .narration-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(102, 126, 234, 0.9);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .narration-indicator.show {
+            opacity: 1;
+        }
+        
+        /* Indicadores de status */
+        .status-indicator {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .status-video { background: rgba(59, 130, 246, 0.9); }
+        .status-caption { background: rgba(16, 185, 129, 0.9); }
+        .status-narration { background: rgba(245, 158, 11, 0.9); }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-white mb-4">
+                <i class="fas fa-video mr-3"></i>Meus Vídeos
+            </h1>
+            <p class="text-white/80 text-lg">Vídeos com legenda, áudio e narração</p>
+        </div>
+
+        <!-- Botões de ação -->
+        <div class="flex justify-center gap-4 mb-8">
+            <button onclick="window.location.href='/video-editor-pro.html'" class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors">
+                <i class="fas fa-plus mr-2"></i>Novo Vídeo
+            </button>
+            <button onclick="window.location.href='/posts'" class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors">
+                <i class="fas fa-images mr-2"></i>Ver Posts
+            </button>
+            <button onclick="window.location.href='/dashboard'" class="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors">
+                <i class="fas fa-home mr-2"></i>Dashboard
+            </button>
+        </div>
+
+        <!-- Lista de vídeos -->
+        <div id="videosContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Vídeos serão carregados aqui -->
+        </div>
+
+        <!-- Mensagem quando não há vídeos -->
+        <div id="noVideosMessage" class="text-center py-12 hidden">
+            <div class="glass-effect rounded-2xl p-8">
+                <i class="fas fa-video text-6xl text-white/50 mb-4"></i>
+                <h3 class="text-2xl font-bold text-white mb-2">Nenhum vídeo encontrado</h3>
+                <p class="text-white/80 mb-6">Crie seu primeiro vídeo profissional com legenda e narração!</p>
+                <button onclick="window.location.href='/video-editor-pro.html'" class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors">
+                    <i class="fas fa-plus mr-2"></i>Criar Primeiro Vídeo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variáveis globais
+        let videos = [];
+        let currentPlayingVideo = null;
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🎬 Carregando página de vídeos...');
+            loadVideos();
+        });
+
+        // Carregar vídeos
+        async function loadVideos() {
+            try {
+                console.log('📡 Carregando vídeos...');
+                const response = await fetch('/api/posts');
+                
+                if (response.ok) {
+                    const allPosts = await response.json();
+                    console.log('📊 Todos os posts:', allPosts);
+                    
+                    // Filtrar apenas vídeos
+                    videos = allPosts.filter(post => {
+                        if (!post.customization) return false;
+                        
+                        try {
+                            const customization = JSON.parse(post.customization);
+                            return customization.video && (
+                                customization.videoCaption || 
+                                customization.narration
+                            );
+                        } catch (e) {
+                            return false;
+                        }
+                    });
+                    
+                    console.log('🎬 Vídeos filtrados:', videos);
+                    displayVideos();
+                } else {
+                    console.error('❌ Erro ao carregar posts:', response.status);
+                }
+            } catch (error) {
+                console.error('❌ Erro ao carregar vídeos:', error);
+            }
+        }
+
+        // Exibir vídeos
+        function displayVideos() {
+            const container = document.getElementById('videosContainer');
+            const noVideosMessage = document.getElementById('noVideosMessage');
+            
+            if (videos.length === 0) {
+                container.innerHTML = '';
+                noVideosMessage.classList.remove('hidden');
+                return;
+            }
+            
+            noVideosMessage.classList.add('hidden');
+            
+            container.innerHTML = videos.map(video => {
+                const customization = JSON.parse(video.customization);
+                const hasCaption = !!customization.videoCaption;
+                const hasNarration = !!customization.narration;
+                
+                return `
+                    <div class="glass-effect rounded-2xl p-6 video-card" data-video-id="${video.id}">
+                        <div class="video-player">
+                            <video 
+                                id="video-${video.id}" 
+                                class="w-full h-64 object-cover"
+                                controls
+                                muted
+                                data-video-caption="${customization.videoCaption || ''}"
+                                data-video-caption-font="${customization.videoCaptionFont || 'Arial'}"
+                                data-video-caption-size="${customization.videoCaptionSize || '20'}"
+                            >
+                                <source src="${customization.video}" type="video/mp4">
+                                Seu navegador não suporta vídeos.
+                            </video>
+                            
+                            <!-- Controles customizados -->
+                            <div class="video-controls">
+                                <button id="playPause-${video.id}" class="play-button">
+                                    <i class="fas fa-play"></i>
+                                </button>
+                                
+                                <div class="progress-bar" id="progressBar-${video.id}">
+                                    <div class="progress-fill" id="progressFill-${video.id}"></div>
+                                </div>
+                                
+                                <div class="time-display">
+                                    <span id="currentTime-${video.id}">0:00</span> / <span id="duration-${video.id}">0:00</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Overlay de legenda -->
+                            <div class="caption-overlay" id="captionOverlay-${video.id}">
+                                <span id="captionText-${video.id}">${customization.videoCaption || ''}</span>
+                            </div>
+                            
+                            <!-- Indicador de narração -->
+                            <div class="narration-indicator" id="narrationIndicator-${video.id}">
+                                <i class="fas fa-microphone mr-2"></i>Narração Ativa
+                            </div>
+                            
+                            <!-- Indicadores de status -->
+                            <div class="status-indicator status-video">
+                                <i class="fas fa-video mr-1"></i>Vídeo
+                            </div>
+                            ${hasCaption ? '<div class="status-indicator status-caption" style="top: 60px;"><i class="fas fa-closed-captioning mr-1"></i>Legenda</div>' : ''}
+                            ${hasNarration ? '<div class="status-indicator status-narration" style="top: 100px;"><i class="fas fa-microphone mr-1"></i>Narração</div>' : ''}
+                        </div>
+                        
+                        <!-- Informações do vídeo -->
+                        <div class="mt-4">
+                            <h3 class="text-lg font-bold text-white mb-2">${video.title}</h3>
+                            <p class="text-white/80 text-sm mb-3">${video.content}</p>
+                            
+                            <!-- Botões de ação -->
+                            <div class="flex gap-2">
+                                <button onclick="playVideo(${video.id})" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm">
+                                    <i class="fas fa-play mr-1"></i>Reproduzir
+                                </button>
+                                ${hasNarration ? `<button onclick="playNarration(${video.id})" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors text-sm">
+                                    <i class="fas fa-microphone mr-1"></i>Narração
+                                </button>` : ''}
+                                <button onclick="deleteVideo(${video.id})" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors text-sm">
+                                    <i class="fas fa-trash mr-1"></i>Excluir
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Configurar event listeners para cada vídeo
+            videos.forEach(video => {
+                setupVideoEvents(video.id);
+            });
+        }
+
+        // Configurar eventos do vídeo
+        function setupVideoEvents(videoId) {
+            const video = document.getElementById(`video-${videoId}`);
+            const playPauseBtn = document.getElementById(`playPause-${videoId}`);
+            const progressBar = document.getElementById(`progressBar-${videoId}`);
+            const progressFill = document.getElementById(`progressFill-${videoId}`);
+            const currentTimeDisplay = document.getElementById(`currentTime-${videoId}`);
+            const durationDisplay = document.getElementById(`duration-${videoId}`);
+            
+            if (!video) return;
+            
+            // Event listeners
+            video.addEventListener('loadedmetadata', () => {
+                durationDisplay.textContent = formatTime(video.duration);
+            });
+            
+            video.addEventListener('timeupdate', () => {
+                const progress = (video.currentTime / video.duration) * 100;
+                progressFill.style.width = progress + '%';
+                currentTimeDisplay.textContent = formatTime(video.currentTime);
+                
+                // Mostrar legenda se necessário
+                updateCaptionDisplay(videoId);
+            });
+            
+            video.addEventListener('play', () => {
+                playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                // Reproduzir narração se existir
+                playNarration(videoId);
+            });
+            
+            video.addEventListener('pause', () => {
+                playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                // Pausar narração se existir
+                pauseNarration(videoId);
+            });
+            
+            // Controles
+            playPauseBtn.addEventListener('click', () => {
+                if (video.paused) {
+                    video.play();
+                } else {
+                    video.pause();
+                }
+            });
+            
+            progressBar.addEventListener('click', (e) => {
+                const rect = progressBar.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const percentage = x / rect.width;
+                video.currentTime = percentage * video.duration;
+            });
+        }
+
+        // Reproduzir vídeo
+        function playVideo(videoId) {
+            const video = document.getElementById(`video-${videoId}`);
+            if (video) {
+                // Parar vídeo atual se estiver tocando
+                if (currentPlayingVideo && currentPlayingVideo !== videoId) {
+                    const currentVideo = document.getElementById(`video-${currentPlayingVideo}`);
+                    if (currentVideo) {
+                        currentVideo.pause();
+                    }
+                }
+                
+                currentPlayingVideo = videoId;
+                video.play();
+            }
+        }
+
+        // Reproduzir narração
+        async function playNarration(videoId) {
+            try {
+                const video = videos.find(v => v.id === videoId);
+                if (!video) return;
+                
+                const customization = JSON.parse(video.customization);
+                const narration = customization.narration;
+                
+                if (!narration) return;
+                
+                console.log('🎤 Reproduzindo narração do vídeo:', videoId);
+                
+                // Mostrar indicador de narração
+                const indicator = document.getElementById(`narrationIndicator-${videoId}`);
+                if (indicator) {
+                    indicator.classList.add('show');
+                }
+                
+                // Se tem áudio salvo, reproduzir
+                if (narration.hasAudio && narration.audioUrl) {
+                    const audio = new Audio(narration.audioUrl);
+                    audio.volume = 0.8;
+                    audio.play();
+                } else if (narration.text && narration.voiceId) {
+                    // Gerar narração em tempo real
+                    const response = await fetch('/api/generate-narration', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            text: narration.text,
+                            voiceId: narration.voiceId,
+                            speed: 1.0,
+                            volume: 0.8
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        const audioBlob = await response.blob();
+                        const audioUrl = URL.createObjectURL(audioBlob);
+                        const audio = new Audio(audioUrl);
+                        audio.volume = 0.8;
+                        audio.play();
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Erro ao reproduzir narração:', error);
+            }
+        }
+
+        // Pausar narração
+        function pauseNarration(videoId) {
+            const indicator = document.getElementById(`narrationIndicator-${videoId}`);
+            if (indicator) {
+                indicator.classList.remove('show');
+            }
+        }
+
+        // Atualizar exibição da legenda
+        function updateCaptionDisplay(videoId) {
+            const video = document.getElementById(`video-${videoId}`);
+            const captionOverlay = document.getElementById(`captionOverlay-${videoId}`);
+            
+            if (video && captionOverlay && !video.paused) {
+                captionOverlay.classList.add('show');
+            } else if (captionOverlay) {
+                captionOverlay.classList.remove('show');
+            }
+        }
+
+        // Excluir vídeo
+        async function deleteVideo(videoId) {
+            if (!confirm('Tem certeza que deseja excluir este vídeo?')) return;
+            
+            try {
+                const response = await fetch(`/api/posts/${videoId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    console.log('✅ Vídeo excluído com sucesso');
+                    loadVideos(); // Recarregar lista
+                } else {
+                    console.error('❌ Erro ao excluir vídeo');
+                    alert('Erro ao excluir vídeo');
+                }
+            } catch (error) {
+                console.error('❌ Erro ao excluir vídeo:', error);
+                alert('Erro ao excluir vídeo');
+            }
+        }
+
+        // Formatar tempo
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return mins + ':' + (secs < 10 ? '0' : '') + secs;
+        }
+    </script>
+</body>
+</html>

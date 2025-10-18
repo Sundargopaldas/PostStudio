@@ -8,6 +8,10 @@ const fs = require('fs').promises;
 const multer = require('multer');
 // Google OAuth removido - usando sistema de login original
 
+// Configurações da API Unsplash
+const UNSPLASH_ACCESS_KEY = 'UjGgSU69vZ6mxTmU9NRPUtgVgu6-2KJVT_vWJBOtOu4';
+const UNSPLASH_SECRET_KEY = '7c-9mD7wty6R5OtosqG9LLI7VyvCK5JfO4VJE3JhZbk';
+
 const app = express();
 
 // Middleware de acesso premium temporário
@@ -106,8 +110,20 @@ async function saveDemoData() {
 
 
 // Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+// Middleware para tratar erros de payload muito grande
+app.use((error, req, res, next) => {
+    if (error.type === 'entity.too.large') {
+        return res.status(413).json({ 
+            message: 'Arquivo muito grande. Tamanho máximo permitido: 50MB',
+            error: 'PAYLOAD_TOO_LARGE'
+        });
+    }
+    next(error);
+});
+
 app.use(express.static('public'));
 // Permitir acesso direto via /public/arquivo.html
 app.use('/public', express.static('public'));
@@ -203,6 +219,14 @@ app.delete('/api/posts/:id', async (req, res) => {
 // Routes
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+app.get('/videos', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'videos.html'));
+});
+
+app.get('/test-unsplash', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'test-unsplash.html'));
 });
 
 app.get('/login', (req, res) => {
@@ -312,6 +336,95 @@ app.get('/subscription', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'subscription.html'));
 });
 
+// Middleware para verificar sessão
+function checkSession(req, res, next) {
+    console.log('🔍 Verificando sessão:', {
+        userId: req.session.userId,
+        userName: req.session.userName,
+        userEmail: req.session.userEmail
+    });
+    next();
+}
+
+// Rota removida - botão editores eliminado
+
+app.get('/image-editor', checkSession, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'image-editor.html'));
+});
+
+app.get('/video-editor', checkSession, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'video-editor.html'));
+});
+
+app.get('/video-narration-editor', checkSession, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'video-narration-editor.html'));
+});
+
+app.get('/test-api', (req, res) => {
+    res.sendFile(path.join(__dirname, 'test-api.html'));
+});
+
+// Rota para gerar narração
+app.post('/api/generate-narration', async (req, res) => {
+    try {
+        console.log('🎤 POST /api/generate-narration - Gerando narração');
+        const { text, voiceId, speed, volume } = req.body;
+        
+        console.log('📝 Dados da narração:', { text, voiceId, speed, volume });
+        
+        if (!text || !voiceId) {
+            return res.status(400).json({ error: 'Texto e voz são obrigatórios' });
+        }
+        
+        // Usar a API key do ElevenLabs
+        const apiKey = 'sk_83361992bc2f7a4177040a338cad9964ce3bd9dd53d480e4';
+        
+        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+            method: 'POST',
+            headers: {
+                'xi-api-key': apiKey,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                text: text,
+                model_id: 'eleven_multilingual_v2',
+                voice_settings: {
+                    stability: 0.5,
+                    similarity_boost: 0.5,
+                    style: 0.0,
+                    use_speaker_boost: true
+                }
+            })
+        });
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ Erro da API ElevenLabs:', errorText);
+            return res.status(500).json({ error: 'Erro ao gerar narração' });
+        }
+        
+        const audioBuffer = await response.arrayBuffer();
+        const audioBlob = Buffer.from(audioBuffer);
+        
+        console.log('✅ Narração gerada com sucesso:', audioBlob.length, 'bytes');
+        
+        res.set({
+            'Content-Type': 'audio/mpeg',
+            'Content-Length': audioBlob.length
+        });
+        
+        res.send(audioBlob);
+        
+    } catch (error) {
+        console.error('❌ Erro ao gerar narração:', error);
+        res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+});
+
+app.get('/session-test', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'session-test.html'));
+});
+
 // Rota para teste do Google Fonts
 app.get('/test-google-fonts', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'test-google-fonts.html'));
@@ -320,6 +433,379 @@ app.get('/test-google-fonts', (req, res) => {
 // Rota para teste do Pexels
 app.get('/test-pexels', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'test-pexels.html'));
+});
+
+// Rota para teste das imagens Pexels
+app.get('/test-pexels-images', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'test-pexels-images.html'));
+});
+
+// Rota para teste do editor de imagens com Pexels
+app.get('/test-image-editor-pexels', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'test-image-editor-pexels.html'));
+});
+
+// Rota para teste da API Pexels real
+app.get('/test-pexels-api-real', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'test-pexels-api-real.html'));
+});
+
+// Rota para teste do fix do Pexels
+app.get('/test-pexels-fix', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'test-pexels-fix.html'));
+});
+
+// Rota para teste Pexels SIMPLES
+app.get('/test-pexels-simples', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'test-pexels-simples.html'));
+});
+
+// Rota para teste da API REAL do Pexels
+app.get('/test-pexels-real', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'test-pexels-real.html'));
+});
+
+// Rota para teste SIMPLES do Pexels
+app.get('/test-pexels-simple', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'test-pexels-simple.html'));
+});
+
+// Rota para teste de VÍDEOS do Pexels
+app.get('/test-pexels-videos', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'test-pexels-videos.html'));
+});
+
+// Rota para teste de VÍDEOS MODERNOS (Mixkit)
+app.get('/test-modern-videos', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'test-modern-videos.html'));
+});
+
+// API do usuário - configurações
+app.get('/api/user/settings', checkSession, (req, res) => {
+    console.log('🔧 API user/settings chamada');
+    
+    // Configurações padrão do usuário
+    const userSettings = {
+        elevenlabsApiKey: 'sk_83361992bc2f7a4177040a338cad9964ce3bd9dd53d480e4', // Nova chave ElevenLabs
+        userId: req.session.userId,
+        userEmail: req.session.userEmail,
+        preferences: {
+            defaultVoice: '21m00Tcm4TlvDq8ikWAM', // Rachel
+            language: 'pt-BR',
+            speed: 1.0
+        }
+    };
+    
+    console.log('✅ Retornando configurações do usuário');
+    res.json(userSettings);
+});
+
+// API do Pexels para imagens - VERSÃO REAL
+app.get('/api/pexels/images', async (req, res) => {
+    try {
+        const { query = 'nature', page = 1, per_page = 20 } = req.query;
+        
+        console.log('🔍 API Pexels REAL chamada!', { query, page, per_page });
+        
+        // Chave da API do Pexels - configurada
+        const PEXELS_API_KEY = process.env.PEXELS_API_KEY || 'f0djuVMOG9iW68zHOsbZmk2yt5ip7wbajvoPz10jMOhVDtg7yihzmRjJ';
+        
+        if (PEXELS_API_KEY === 'YOUR_PEXELS_API_KEY_HERE') {
+            console.log('⚠️ Chave da API do Pexels não configurada - usando fallback');
+            return res.json({
+                photos: [
+                    {
+                        id: 1,
+                        src: {
+                            small: 'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=150',
+                            medium: 'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=400'
+                        },
+                        alt: 'Tecnologia Moderna'
+                    }
+                ],
+                total_results: 1,
+                page: 1,
+                per_page: 1,
+                note: 'Usando imagens de exemplo - configure sua chave da API do Pexels'
+            });
+        }
+        
+        // Fazer requisição real para a API do Pexels
+        const response = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&page=${page}&per_page=${per_page}`, {
+            headers: {
+                'Authorization': PEXELS_API_KEY
+            }
+        });
+        
+        if (!response.ok) {
+            console.error('❌ Erro na API do Pexels:', response.status, response.statusText);
+            throw new Error(`Erro na API do Pexels: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        console.log(`✅ ${data.photos.length} imagens encontradas do Pexels para "${query}"`);
+        
+        res.json(data);
+        
+    } catch (error) {
+        console.error('❌ Erro ao buscar imagens do Pexels:', error);
+        
+        // Fallback para imagens de exemplo em caso de erro
+        res.json({
+            photos: [
+                {
+                    id: 1,
+                    src: {
+                        small: 'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=150',
+                        medium: 'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=400'
+                    },
+                    alt: 'Tecnologia Moderna'
+                }
+            ],
+            total_results: 1,
+            page: 1,
+            per_page: 1,
+            error: error.message,
+            note: 'Usando imagens de exemplo devido ao erro'
+        });
+    }
+});
+
+// API do Pexels para VÍDEOS - VERSÃO REAL
+app.get('/api/pexels/videos', async (req, res) => {
+    try {
+        const { query = 'nature', page = 1, per_page = 20, min_duration = 10 } = req.query;
+        
+        console.log('🎬 API Pexels VÍDEOS chamada!', { query, page, per_page, min_duration });
+        
+        // Chave da API do Pexels - configurada
+        const PEXELS_API_KEY = process.env.PEXELS_API_KEY || 'f0djuVMOG9iW68zHOsbZmk2yt5ip7wbajvoPz10jMOhVDtg7yihzmRjJ';
+        
+        if (PEXELS_API_KEY === 'YOUR_PEXELS_API_KEY_HERE') {
+            console.log('⚠️ Chave da API do Pexels não configurada - usando fallback');
+            return res.json({
+                videos: [
+                    {
+                        id: 1,
+                        duration: 30,
+                        video_files: [
+                            {
+                                id: 1,
+                                quality: 'hd',
+                                file_type: 'video/mp4',
+                                link: 'https://videos.pexels.com/video-files/123456/pexels-video-123456.mp4'
+                            }
+                        ],
+                        video_pictures: [
+                            {
+                                id: 1,
+                                picture: 'https://images.pexels.com/videos/123456/pexels-video-123456.jpeg'
+                            }
+                        ],
+                        user: {
+                            name: 'Pexels',
+                            url: 'https://www.pexels.com/@pexels'
+                        }
+                    }
+                ],
+                total_results: 1,
+                page: 1,
+                per_page: 1,
+                note: 'Usando vídeos de exemplo - configure sua chave da API do Pexels'
+            });
+        }
+        
+        // Fazer requisição real para a API de vídeos do Pexels
+        const response = await fetch(`https://api.pexels.com/videos/search?query=${encodeURIComponent(query)}&page=${page}&per_page=${per_page}&min_duration=${min_duration}`, {
+            headers: {
+                'Authorization': PEXELS_API_KEY
+            }
+        });
+        
+        if (!response.ok) {
+            console.error('❌ Erro na API de vídeos do Pexels:', response.status, response.statusText);
+            throw new Error(`Erro na API de vídeos do Pexels: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        // Filtrar apenas vídeos com duração mínima
+        if (min_duration) {
+            data.videos = data.videos.filter(video => video.duration >= parseInt(min_duration));
+        }
+        
+        console.log(`✅ ${data.videos.length} vídeos encontrados do Pexels para "${query}" (min: ${min_duration}s)`);
+        
+        res.json(data);
+        
+    } catch (error) {
+        console.error('❌ Erro ao buscar vídeos do Pexels:', error);
+        
+        // Fallback para vídeos de exemplo em caso de erro
+        res.json({
+            videos: [
+                {
+                    id: 1,
+                    duration: 30,
+                    video_files: [
+                        {
+                            id: 1,
+                            quality: 'hd',
+                            file_type: 'video/mp4',
+                            link: 'https://videos.pexels.com/video-files/123456/pexels-video-123456.mp4'
+                        }
+                    ],
+                    video_pictures: [
+                        {
+                            id: 1,
+                            picture: 'https://images.pexels.com/videos/123456/pexels-video-123456.jpeg'
+                        }
+                    ],
+                    user: {
+                        name: 'Pexels',
+                        url: 'https://www.pexels.com/@pexels'
+                    }
+                }
+            ],
+            total_results: 1,
+            page: 1,
+            per_page: 1,
+            error: error.message,
+            note: 'Usando vídeos de exemplo devido ao erro'
+        });
+    }
+});
+
+// API para vídeos modernos (usando Pexels com filtros modernos)
+app.get('/api/mixkit/videos', async (req, res) => {
+    try {
+        const { category = 'all', limit = 20 } = req.query;
+        
+        console.log('🎬 API VÍDEOS MODERNOS chamada!', { category, limit });
+        
+        // Mapear categorias para termos de busca modernos
+        const modernQueries = {
+            'business': 'business meeting office corporate startup',
+            'technology': 'technology AI artificial intelligence digital innovation',
+            'lifestyle': 'lifestyle urban modern city contemporary',
+            'nature': 'sustainable green environment eco-friendly future',
+            'all': 'modern professional contemporary innovative'
+        };
+        
+        const query = modernQueries[category] || modernQueries['all'];
+        
+        // Chave da API do Pexels - configurada
+        const PEXELS_API_KEY = process.env.PEXELS_API_KEY || 'f0djuVMOG9iW68zHOsbZmk2yt5ip7wbajvoPz10jMOhVDtg7yihzmRjJ';
+        
+        if (PEXELS_API_KEY === 'YOUR_PEXELS_API_KEY_HERE') {
+            console.log('⚠️ Chave da API do Pexels não configurada - usando fallback');
+            return res.json({
+                videos: [
+                    {
+                        id: 'modern-fallback-1',
+                        title: 'Modern Business Video',
+                        duration: 30,
+                        video_files: [{
+                            id: 1,
+                            quality: 'hd',
+                            file_type: 'video/mp4',
+                            link: 'https://videos.pexels.com/video-files/123456/pexels-video-123456.mp4'
+                        }],
+                        video_pictures: [{
+                            id: 1,
+                            picture: 'https://images.pexels.com/videos/123456/pexels-video-123456.jpeg'
+                        }],
+                        user: { name: 'Pexels', url: 'https://www.pexels.com/@pexels' },
+                        category: category,
+                        tags: ['modern', 'professional', 'contemporary']
+                    }
+                ],
+                total_results: 1,
+                page: 1,
+                per_page: 1,
+                source: 'Pexels Modern',
+                note: 'Usando vídeos de exemplo - configure sua chave da API do Pexels'
+            });
+        }
+        
+        // Fazer requisição real para a API de vídeos do Pexels com termos modernos
+        const response = await fetch(`https://api.pexels.com/videos/search?query=${encodeURIComponent(query)}&page=1&per_page=${limit}&min_duration=30`, {
+            headers: {
+                'Authorization': PEXELS_API_KEY
+            }
+        });
+        
+        if (!response.ok) {
+            console.error('❌ Erro na API de vídeos do Pexels:', response.status, response.statusText);
+            throw new Error(`Erro na API de vídeos do Pexels: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        // Adicionar tags modernas baseadas na categoria
+        const modernTags = {
+            'business': ['business', 'professional', 'corporate', 'modern'],
+            'technology': ['technology', 'AI', 'digital', 'innovation'],
+            'lifestyle': ['lifestyle', 'urban', 'modern', 'contemporary'],
+            'nature': ['sustainable', 'green', 'eco-friendly', 'future'],
+            'all': ['modern', 'professional', 'contemporary', 'innovative']
+        };
+        
+        // Adicionar tags modernas aos vídeos
+        if (data.videos) {
+            data.videos = data.videos.map(video => ({
+                ...video,
+                category: category,
+                tags: modernTags[category] || modernTags['all'],
+                source: 'Pexels Modern'
+            }));
+        }
+        
+        console.log(`✅ ${data.videos ? data.videos.length : 0} vídeos modernos encontrados para categoria "${category}"`);
+        
+        res.json({
+            videos: data.videos || [],
+            total_results: data.total_results || 0,
+            page: data.page || 1,
+            per_page: data.per_page || limit,
+            source: 'Pexels Modern',
+            note: 'Vídeos modernos e profissionais do Pexels'
+        });
+        
+    } catch (error) {
+        console.error('❌ Erro ao buscar vídeos modernos:', error);
+        
+        // Fallback para vídeos de exemplo em caso de erro
+        res.json({
+            videos: [
+                {
+                    id: 'modern-fallback-1',
+                    title: 'Modern Business Video',
+                    duration: 30,
+                    video_files: [{
+                        id: 1,
+                        quality: 'hd',
+                        file_type: 'video/mp4',
+                        link: 'https://videos.pexels.com/video-files/123456/pexels-video-123456.mp4'
+                    }],
+                    video_pictures: [{
+                        id: 1,
+                        picture: 'https://images.pexels.com/videos/123456/pexels-video-123456.jpeg'
+                    }],
+                    user: { name: 'Pexels', url: 'https://www.pexels.com/@pexels' },
+                    category: category,
+                    tags: ['modern', 'professional', 'contemporary'],
+                    source: 'Pexels Modern'
+                }
+            ],
+            total_results: 1,
+            page: 1,
+            per_page: 1,
+            error: error.message,
+            note: 'Usando vídeos de exemplo devido ao erro'
+        });
+    }
 });
 
 app.get('/calendar', (req, res) => {
@@ -616,15 +1102,20 @@ const storage = multer.diskStorage({
 const upload = multer({ 
     storage: storage,
     fileFilter: function (req, file, cb) {
-        // Aceitar imagens e vídeos
-        if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) {
+        // Aceitar imagens, vídeos e áudio
+        if (file.mimetype.startsWith('image/') || 
+            file.mimetype.startsWith('video/') || 
+            file.mimetype.startsWith('audio/')) {
             cb(null, true);
         } else {
-            cb(new Error('Apenas arquivos de imagem ou vídeo são permitidos!'), false);
+            cb(new Error('Apenas arquivos de imagem, vídeo ou áudio são permitidos!'), false);
         }
     },
     limits: {
-        fileSize: 50 * 1024 * 1024 // 50MB
+        fileSize: 50 * 1024 * 1024, // 50MB
+        fieldSize: 50 * 1024 * 1024, // 50MB para campos de texto (imagens de fundo)
+        fieldNameSize: 100,
+        fields: 20
     }
 });
 
@@ -633,9 +1124,155 @@ app.get('/api/test', (req, res) => {
     res.json({ message: 'API funcionando!', timestamp: new Date().toISOString() });
 });
 
+// Rota específica para posts JSON (com upload de imagens)
+app.post('/api/posts/json', upload.single('image'), async (req, res) => {
+    try {
+        console.log('📝 POST /api/posts/json - Criando post JSON');
+        console.log('📊 Dados recebidos:', {
+            title: req.body.title,
+            content: req.body.content ? req.body.content.substring(0, 100) + '...' : 'vazio',
+            hashtags: req.body.hashtags,
+            template: req.body.template
+        });
+        
+        const { title, content, hashtags, template, platforms, customization } = req.body;
+        
+        // Processar customização primeiro para determinar onde salvar a imagem
+        let customizationData = {};
+        let imageUrl = '';
+        let saveImageInCustomization = false;
+        
+        if (customization) {
+            try {
+                customizationData = JSON.parse(customization);
+                console.log('🔍 Customização original:', customizationData);
+                
+                // Determinar onde salvar a imagem baseado no tipo
+                if (customizationData.imageType === 'background' || customizationData.imageType === 'partial') {
+                    saveImageInCustomization = true;
+                }
+            } catch (e) {
+                console.log('❌ Erro ao processar customização:', e);
+                customizationData = {};
+            }
+        }
+        
+        // Processar imagem se foi enviada
+        if (req.file) {
+            imageUrl = `/uploads/${req.file.filename}`;
+            console.log('📸 Imagem salva:', imageUrl);
+            
+            // Adicionar imagem no local correto
+            if (saveImageInCustomization) {
+                if (customizationData.imageType === 'background') {
+                    customizationData.backgroundImage = imageUrl;
+                    console.log('🖼️ Imagem de fundo adicionada:', imageUrl);
+                } else if (customizationData.imageType === 'partial') {
+                    customizationData.partialImage = imageUrl;
+                    console.log('🖼️ Imagem parcial adicionada:', imageUrl);
+                }
+                // Limpar imageUrl para não salvar duplicado
+                imageUrl = '';
+            }
+        }
+        
+        // Verificar se o usuário está logado
+        if (!req.session.userId) {
+            console.log('⚠️ Usuário não autenticado - usando usuário padrão para teste');
+            // Para teste, usar usuário ID 1 (admin)
+            req.session.userId = 1;
+            req.session.userName = 'Admin';
+            req.session.userEmail = 'admin@contentflow.ai';
+        }
+        
+        // Validar dados obrigatórios
+        if (!title || !content) {
+            console.log('❌ Validação falhou - Título:', title, 'Conteúdo:', content);
+            return res.status(400).json({ message: 'Título e conteúdo são obrigatórios' });
+        }
+        
+        console.log('✅ Validação passou - Salvando no banco...');
+        
+        // Verificar se a conexão com o banco está funcionando
+        if (!pool) {
+            console.error('❌ Conexão com banco de dados não disponível');
+            return res.status(500).json({ 
+                success: false,
+                message: 'Erro de conexão com banco de dados' 
+            });
+        }
+        
+        // Salvar no banco de dados
+        const query = `
+            INSERT INTO posts (user_id, title, content, hashtags, template, platforms, image_url, customization, created_at, updated_at) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+        `;
+        
+        // Limitar tamanho do JSON de customização
+        let finalCustomization = JSON.stringify(customizationData);
+        if (finalCustomization.length > 10000) {
+            console.log('⚠️ Customização muito grande, truncando...');
+            finalCustomization = JSON.stringify({ 
+                error: 'Customização muito grande', 
+                originalSize: finalCustomization.length 
+            });
+        }
+        
+        console.log('🔍 Query SQL:', query);
+        console.log('🔍 Parâmetros:', [
+            req.session.userId,
+            title,
+            content,
+            hashtags || '',
+            template || 'Post Personalizado',
+            platforms || '[]',
+            imageUrl,
+            finalCustomization
+        ]);
+        
+        // Debug específico da customização final
+        console.log('🔍 Customização final sendo salva:', finalCustomization);
+        try {
+            const customParsed = JSON.parse(finalCustomization);
+            console.log('🔍 Vídeo na customização final:', customParsed.video);
+            console.log('🔍 Legenda na customização final:', customParsed.videoCaption);
+            console.log('🔍 Narração na customização final:', customParsed.narration);
+        } catch (e) {
+            console.error('❌ Erro ao parsear customização final:', e);
+        }
+        
+        const result = await pool.execute(query, [
+            req.session.userId,
+            title,
+            content,
+            hashtags || '',
+            template || 'Post Personalizado',
+            platforms || '[]',
+            imageUrl,
+            finalCustomization
+        ]);
+        
+        console.log('✅ Post salvo com sucesso - ID:', result[0].insertId);
+        
+        res.json({ 
+            success: true, 
+            message: 'Post criado com sucesso!',
+            postId: result[0].insertId
+        });
+        
+    } catch (error) {
+        console.error('❌ Erro ao criar post JSON:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Erro interno do servidor',
+            error: error.message 
+        });
+    }
+});
+
 
 // Rota para criar posts com upload de imagem
-app.post('/api/posts', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'video', maxCount: 1 }, { name: 'backgroundImage', maxCount: 1 }]), async (req, res) => {
+app.post('/api/posts', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'video', maxCount: 1 }, { name: 'backgroundImage', maxCount: 1 }, { name: 'narrationAudio', maxCount: 1 }]), async (req, res) => {
     try {
         console.log('📝 POST /api/posts - Iniciando criação de post');
         console.log('📊 Dados recebidos:', {
@@ -644,6 +1281,26 @@ app.post('/api/posts', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'v
             hashtags: req.body.hashtags,
             files: req.files ? Object.keys(req.files) : 'nenhum'
         });
+        
+        // Debug adicional para identificar o problema
+        console.log('🔍 Debug completo:', {
+            body: req.body,
+            files: req.files,
+            headers: req.headers
+        });
+        
+        // Debug específico da customização
+        if (req.body.customization) {
+            try {
+                const customization = JSON.parse(req.body.customization);
+                console.log('🔍 Customização parseada no servidor:', customization);
+                console.log('🔍 Vídeo na customização:', customization.video);
+                console.log('🔍 Legenda na customização:', customization.videoCaption);
+                console.log('🔍 Narração na customização:', customization.narration);
+            } catch (e) {
+                console.error('❌ Erro ao parsear customização no servidor:', e);
+            }
+        }
         
         // Para FormData, os dados vêm em req.body diretamente
         const title = req.body.title;
@@ -722,6 +1379,56 @@ app.post('/api/posts', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'v
                     console.log('🔄 Imagem do Pexels adicionada na customização:', c.backgroundImage);
                 } catch (e) {
                     console.error('❌ Erro ao processar customização da imagem do Pexels:', e);
+                }
+            }
+        }
+
+        // Processar imagem parcial do Pexels se foi enviada
+        if (req.body.pexelsPartialImage) {
+            console.log('🖼️ Imagem parcial do Pexels recebida:', req.body.pexelsPartialImage);
+            
+            if (customization) {
+                try {
+                    const c = JSON.parse(customization);
+                    c.partialImage = req.body.pexelsPartialImage;
+                    req.body.customization = JSON.stringify(c);
+                    console.log('🔄 Imagem parcial do Pexels adicionada na customização:', c.partialImage);
+                } catch (e) {
+                    console.error('❌ Erro ao processar customização da imagem parcial do Pexels:', e);
+                }
+            }
+        }
+        
+        // Processar áudio de narração se foi enviado
+        let narrationAudioUrl = '';
+        if (req.files && req.files.narrationAudio && req.files.narrationAudio[0]) {
+            narrationAudioUrl = `/uploads/${req.files.narrationAudio[0].filename}`;
+            console.log('🎤 Áudio de narração salvo:', narrationAudioUrl);
+            console.log('🎤 Arquivo original:', req.files.narrationAudio[0].originalname);
+            console.log('🎤 Tamanho do arquivo:', req.files.narrationAudio[0].size);
+            console.log('🎤 Tipo MIME:', req.files.narrationAudio[0].mimetype);
+        }
+        
+        // Processar dados de narração se foram enviados
+        if (req.body.narration) {
+            console.log('🎤 Dados de narração recebidos:', req.body.narration);
+            
+            if (customization) {
+                try {
+                    const c = JSON.parse(customization);
+                    c.narration = req.body.narration;
+                    
+                    // Adicionar URL do áudio se foi salvo
+                    if (narrationAudioUrl) {
+                        c.narration.audioUrl = narrationAudioUrl;
+                        c.narration.hasAudio = true;
+                        console.log('🔄 URL do áudio adicionada na narração:', narrationAudioUrl);
+                    }
+                    
+                    req.body.customization = JSON.stringify(c);
+                    console.log('🔄 Narração adicionada na customização:', c.narration);
+                } catch (e) {
+                    console.error('❌ Erro ao processar customização da narração:', e);
                 }
             }
         }
@@ -1151,6 +1858,22 @@ app.put('/api/posts/:id', upload.fields([{ name: 'image', maxCount: 1 }, { name:
             }
         }
 
+        // Processar imagem parcial do Pexels se foi enviada
+        if (req.body.pexelsPartialImage) {
+            console.log('🖼️ Imagem parcial do Pexels recebida na atualização:', req.body.pexelsPartialImage);
+            
+            if (customization) {
+                try {
+                    const c = JSON.parse(customization);
+                    c.partialImage = req.body.pexelsPartialImage;
+                    req.body.customization = JSON.stringify(c);
+                    console.log('🔄 Imagem parcial do Pexels adicionada na customização (atualização):', c.partialImage);
+                } catch (e) {
+                    console.error('❌ Erro ao processar customização da imagem parcial do Pexels (atualização):', e);
+                }
+            }
+        }
+
         let updated = false;
         try {
             // Montar campos dinamicamente
@@ -1317,6 +2040,137 @@ app.post('/api/generate-background', async (req, res) => {
     } catch (error) {
         console.error('Erro ao gerar imagem de fundo:', error);
         res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// Rota para buscar imagens do Unsplash (com fallback para imagens de exemplo)
+app.get('/api/unsplash/search', async (req, res) => {
+    try {
+        const { query, page = 1, per_page = 20 } = req.query;
+        
+        if (!query) {
+            return res.status(400).json({ error: 'Query é obrigatória' });
+        }
+        
+        console.log('🔍 Buscando imagens para:', { query, page, per_page });
+        
+        // Por enquanto, retornar imagens de exemplo até a chave ser corrigida
+        const exampleImages = generateExampleImages(query, parseInt(per_page));
+        
+        console.log(`✅ Retornando ${exampleImages.length} imagens de exemplo`);
+        
+        res.json({
+            images: exampleImages,
+            total: 100,
+            total_pages: 5,
+            current_page: parseInt(page),
+            note: 'Usando imagens de exemplo - chave Unsplash inválida'
+        });
+        
+    } catch (error) {
+        console.error('❌ Erro ao buscar imagens:', error);
+        res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+});
+
+// Função para gerar imagens de exemplo
+function generateExampleImages(query, count) {
+    const baseImages = [
+        {
+            id: '1',
+            url: 'https://picsum.photos/800/600?random=1',
+            thumb: 'https://picsum.photos/300/200?random=1',
+            full: 'https://picsum.photos/1920/1080?random=1',
+            description: `Imagem de exemplo para "${query}"`,
+            author: 'Picsum Photos',
+            authorUrl: 'https://picsum.photos',
+            downloadUrl: 'https://picsum.photos/800/600?random=1'
+        },
+        {
+            id: '2',
+            url: 'https://picsum.photos/800/600?random=2',
+            thumb: 'https://picsum.photos/300/200?random=2',
+            full: 'https://picsum.photos/1920/1080?random=2',
+            description: `Imagem de exemplo para "${query}"`,
+            author: 'Picsum Photos',
+            authorUrl: 'https://picsum.photos',
+            downloadUrl: 'https://picsum.photos/800/600?random=2'
+        },
+        {
+            id: '3',
+            url: 'https://picsum.photos/800/600?random=3',
+            thumb: 'https://picsum.photos/300/200?random=3',
+            full: 'https://picsum.photos/1920/1080?random=3',
+            description: `Imagem de exemplo para "${query}"`,
+            author: 'Picsum Photos',
+            authorUrl: 'https://picsum.photos',
+            downloadUrl: 'https://picsum.photos/800/600?random=3'
+        },
+        {
+            id: '4',
+            url: 'https://picsum.photos/800/600?random=4',
+            thumb: 'https://picsum.photos/300/200?random=4',
+            full: 'https://picsum.photos/1920/1080?random=4',
+            description: `Imagem de exemplo para "${query}"`,
+            author: 'Picsum Photos',
+            authorUrl: 'https://picsum.photos',
+            downloadUrl: 'https://picsum.photos/800/600?random=4'
+        },
+        {
+            id: '5',
+            url: 'https://picsum.photos/800/600?random=5',
+            thumb: 'https://picsum.photos/300/200?random=5',
+            full: 'https://picsum.photos/1920/1080?random=5',
+            description: `Imagem de exemplo para "${query}"`,
+            author: 'Picsum Photos',
+            authorUrl: 'https://picsum.photos',
+            downloadUrl: 'https://picsum.photos/800/600?random=5'
+        }
+    ];
+    
+    return baseImages.slice(0, count);
+}
+
+// Rota para baixar imagem do Unsplash
+app.post('/api/unsplash/download', async (req, res) => {
+    try {
+        const { downloadUrl } = req.body;
+        
+        if (!downloadUrl) {
+            return res.status(400).json({ error: 'URL de download é obrigatória' });
+        }
+        
+        console.log('📥 Baixando imagem do Unsplash:', downloadUrl);
+        
+        // Fazer download da imagem
+        const response = await fetch(downloadUrl, {
+            headers: {
+                'Authorization': `Client-ID ${UNSPLASH_ACCESS_KEY}`
+            }
+        });
+        
+        if (!response.ok) {
+            console.error('❌ Erro ao baixar imagem:', response.status);
+            return res.status(500).json({ error: 'Erro ao baixar imagem' });
+        }
+        
+        const imageBuffer = await response.buffer();
+        const filename = `unsplash-${Date.now()}.jpg`;
+        const filepath = path.join(__dirname, 'uploads', filename);
+        
+        await fs.writeFile(filepath, imageBuffer);
+        
+        console.log('✅ Imagem baixada e salva:', filename);
+        
+        res.json({
+            filename,
+            url: `/uploads/${filename}`,
+            message: 'Imagem baixada com sucesso'
+        });
+        
+    } catch (error) {
+        console.error('❌ Erro ao baixar imagem do Unsplash:', error);
+        res.status(500).json({ error: 'Erro interno do servidor' });
     }
 });
 

@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PostStudio I.A - Editor de Vídeos com Narração</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&family=Montserrat:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&family=Open+Sans:wght@300;400;600;700;800&family=Lato:wght@300;400;700;900&family=Source+Sans+Pro:wght@300;400;600;700;900&family=Nunito:wght@300;400;600;700;800;900&family=Quicksand:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700;800;900&family=Abril+Fatface&family=Merriweather:wght@300;400;700;900&family=PT+Serif:wght@400;700&family=Work+Sans:wght@300;400;600;700;800&family=Oswald:wght@300;400;500;600;700&family=Lobster&family=Pacifico&family=Dancing+Script:wght@400;500;600;700&family=Great+Vibes&family=Satisfy&family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Fontes personalizadas */
+        .font-inter { font-family: 'Inter', sans-serif; }
+        .font-poppins { font-family: 'Poppins', sans-serif; }
+        .font-playfair { font-family: 'Playfair Display', serif; }
+        .font-montserrat { font-family: 'Montserrat', sans-serif; }
+        .font-abril { font-family: 'Abril Fatface', cursive; }
+        .font-merriweather { font-family: 'Merriweather', serif; }
+        .font-pt-serif { font-family: 'PT Serif', serif; }
+        .font-work-sans { font-family: 'Work Sans', sans-serif; }
+        .font-roboto { font-family: 'Roboto', sans-serif; }
+        .font-open-sans { font-family: 'Open Sans', sans-serif; }
+        .font-lato { font-family: 'Lato', sans-serif; }
+        .font-source-sans { font-family: 'Source Sans Pro', sans-serif; }
+        .font-nunito { font-family: 'Nunito', sans-serif; }
+        .font-quicksand { font-family: 'Quicksand', sans-serif; }
+        .font-raleway { font-family: 'Raleway', sans-serif; }
+        .font-oswald { font-family: 'Oswald', sans-serif; }
+        .font-lobster { font-family: 'Lobster', cursive; }
+        .font-pacifico { font-family: 'Pacifico', cursive; }
+        .font-dancing { font-family: 'Dancing Script', cursive; }
+        .font-great-vibes { font-family: 'Great Vibes', cursive; }
+        .font-satisfy { font-family: 'Satisfy', cursive; }
+        .font-ubuntu { font-family: 'Ubuntu', sans-serif; }
+        
+        .text-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .video-preview {
+            width: 100%;
+            height: 300px;
+            background: #000;
+            border-radius: 1rem;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .video-preview video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .narration-status {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .voice-option {
+            transition: all 0.3s ease;
+        }
+        
+        .voice-option:hover {
+            transform: translateY(-2px);
+        }
+        
+        .voice-option.selected {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+        }
+        
+        .loading-spinner {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Corrigir visibilidade do cursor nos inputs */
+        input, textarea, select {
+            caret-color: white !important;
+            background-color: transparent !important;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <!-- Header -->
+    <nav class="glass-effect p-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <i class="fas fa-microphone text-3xl text-white"></i>
+                <h1 class="text-2xl font-bold text-white">Vídeos com Narração</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button onclick="window.location.href='/posts'" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                    <i class="fas fa-list mr-2"></i>Meus Posts
+                </button>
+                <button onclick="window.location.href='/dashboard'" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                    <i class="fas fa-home mr-2"></i>Dashboard
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto p-6">
+        <!-- Header Section -->
+        <div class="glass-effect rounded-2xl p-8 mb-8 animate-fade-in">
+            <div class="text-center">
+                <h2 class="text-4xl font-bold text-white mb-4 font-playfair">Criar Vídeo com Narração</h2>
+                <p class="text-white/90 text-lg font-inter">Crie vídeos com narração profissional usando ElevenLabs</p>
+                <div id="narrationStatus" class="mt-4 text-sm text-white/80"></div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Configurações -->
+            <div class="glass-effect rounded-2xl p-6">
+                <h3 class="text-2xl font-bold text-white mb-6 font-montserrat">Configurações</h3>
+                
+                <form id="narrationForm" class="space-y-6">
+                    <!-- Título -->
+                    <div>
+                        <label class="block text-white font-semibold mb-2">Título do Post</label>
+                        <input type="text" id="postTitle" class="w-full px-4 py-3 rounded-lg bg-white/20 text-white placeholder-white/70 border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Digite o título do seu post">
+                    </div>
+
+                    <!-- Conteúdo -->
+                    <div>
+                        <label class="block text-white font-semibold mb-2">Conteúdo</label>
+                        <textarea id="postContent" rows="4" class="w-full px-4 py-3 rounded-lg bg-white/20 text-white placeholder-white/70 border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Digite o conteúdo do seu post"></textarea>
+                    </div>
+
+                    <!-- Tipo de Vídeo -->
+                    <div>
+                        <label class="block text-white font-semibold mb-2">Fonte do Vídeo</label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <button type="button" onclick="selectVideoSource('upload')" id="uploadBtn" class="p-4 rounded-lg border-2 border-blue-400 bg-blue-400/20 text-white font-semibold">
+                                <i class="fas fa-upload mr-2"></i>Upload Pessoal
+                            </button>
+                            <button type="button" onclick="selectVideoSource('pexels')" id="pexelsBtn" class="p-4 rounded-lg border-2 border-white/30 bg-white/10 text-white font-semibold">
+                                <i class="fas fa-video mr-2"></i>Pexels
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Upload de Vídeo -->
+                    <div id="uploadSection">
+                        <label class="block text-white font-semibold mb-2">Vídeo</label>
+                        <div class="border-2 border-dashed border-white/30 rounded-lg p-6 text-center">
+                            <input type="file" id="videoUpload" accept="video/*" class="hidden" onchange="handleVideoUpload(event)">
+                            <button type="button" onclick="document.getElementById('videoUpload').click()" class="text-white/70 hover:text-white transition-colors">
+                                <i class="fas fa-cloud-upload-alt text-4xl mb-2"></i>
+                                <p>Clique para fazer upload</p>
+                                <p class="text-sm">ou arraste um vídeo aqui</p>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Busca Pexels -->
+                    <div id="pexelsSection" class="hidden">
+                        <label class="block text-white font-semibold mb-2">Buscar Vídeos no Pexels</label>
+                        <div class="flex space-x-2">
+                            <input type="text" id="pexelsSearch" class="flex-1 px-4 py-3 rounded-lg bg-white/20 text-white placeholder-white/70 border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Digite palavras-chave...">
+                            <button type="button" onclick="searchPexelsVideos()" class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                        <div id="pexelsResults" class="mt-4 grid grid-cols-2 gap-4"></div>
+                    </div>
+
+                    <!-- Texto para Narração -->
+                    <div>
+                        <label class="block text-white font-semibold mb-2">Texto para Narração</label>
+                        <textarea id="narrationText" rows="4" class="w-full px-4 py-3 rounded-lg bg-white/20 text-white placeholder-white/70 border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Digite o texto que será narrado"></textarea>
+                        <p class="text-white/60 text-sm mt-2">Este texto será convertido em narração usando IA</p>
+                    </div>
+
+                    <!-- Seleção de Voz -->
+                    <div>
+                        <label class="block text-white font-semibold mb-2">Voz da Narração</label>
+                        <div id="voiceOptions" class="grid grid-cols-1 gap-2 max-h-40 overflow-y-auto">
+                            <div class="text-white/60 text-center py-4">
+                                <i class="fas fa-spinner loading-spinner mr-2"></i>
+                                Carregando vozes...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Configurações de Voz -->
+                    <div>
+                        <label class="block text-white font-semibold mb-2">Configurações da Voz</label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-white/80 text-sm mb-1">Velocidade</label>
+                                <select id="voiceSpeed" class="w-full px-3 py-2 rounded-lg bg-white/20 text-white border border-white/30">
+                                    <option value="0.8">Lenta (0.8x)</option>
+                                    <option value="1.0" selected>Normal (1.0x)</option>
+                                    <option value="1.2">Rápida (1.2x)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-white/80 text-sm mb-1">Estabilidade</label>
+                                <select id="voiceStability" class="w-full px-3 py-2 rounded-lg bg-white/20 text-white border border-white/30">
+                                    <option value="0.3">Baixa</option>
+                                    <option value="0.5" selected>Média</option>
+                                    <option value="0.7">Alta</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Legendas -->
+                    <div>
+                        <label class="block text-white font-semibold mb-2">Legendas</label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <button type="button" onclick="toggleCaptions(true)" id="captionsOnBtn" class="p-4 rounded-lg border-2 border-blue-400 bg-blue-400/20 text-white font-semibold">
+                                <i class="fas fa-closed-captioning mr-2"></i>Com Legendas
+                            </button>
+                            <button type="button" onclick="toggleCaptions(false)" id="captionsOffBtn" class="p-4 rounded-lg border-2 border-white/30 bg-white/10 text-white font-semibold">
+                                <i class="fas fa-eye-slash mr-2"></i>Sem Legendas
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Configurações de Legenda -->
+                    <div id="captionSettings" class="space-y-4">
+                        <div>
+                            <label class="block text-white font-semibold mb-2">Fonte da Legenda</label>
+                            <select id="captionFont" class="w-full px-4 py-3 rounded-lg bg-white/20 text-white border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                                <option value="font-inter">Inter</option>
+                                <option value="font-poppins">Poppins</option>
+                                <option value="font-playfair">Playfair Display</option>
+                                <option value="font-montserrat">Montserrat</option>
+                                <option value="font-roboto">Roboto</option>
+                                <option value="font-lato">Lato</option>
+                                <option value="font-abril">Abril Fatface</option>
+                                <option value="font-lobster">Lobster</option>
+                                <option value="font-dancing">Dancing Script</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-white font-semibold mb-2">Cor da Legenda</label>
+                            <div class="grid grid-cols-4 gap-2">
+                                <button type="button" onclick="selectCaptionColor('white')" class="w-full h-12 bg-white rounded-lg border-2 border-blue-400"></button>
+                                <button type="button" onclick="selectCaptionColor('yellow')" class="w-full h-12 bg-yellow-400 rounded-lg border-2 border-white/30"></button>
+                                <button type="button" onclick="selectCaptionColor('red')" class="w-full h-12 bg-red-500 rounded-lg border-2 border-white/30"></button>
+                                <button type="button" onclick="selectCaptionColor('blue')" class="w-full h-12 bg-blue-500 rounded-lg border-2 border-white/30"></button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-white font-semibold mb-2">Posição da Legenda</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                <button type="button" onclick="selectCaptionPosition('top')" class="p-3 rounded-lg border-2 border-white/30 bg-white/10 text-white">
+                                    <i class="fas fa-arrow-up"></i><br>Superior
+                                </button>
+                                <button type="button" onclick="selectCaptionPosition('center')" class="p-3 rounded-lg border-2 border-white/30 bg-white/10 text-white">
+                                    <i class="fas fa-minus"></i><br>Centro
+                                </button>
+                                <button type="button" onclick="selectCaptionPosition('bottom')" class="p-3 rounded-lg border-2 border-blue-400 bg-blue-400/20 text-white">
+                                    <i class="fas fa-arrow-down"></i><br>Inferior
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hashtags -->
+                    <div>
+                        <label class="block text-white font-semibold mb-2">Hashtags</label>
+                        <input type="text" id="hashtags" class="w-full px-4 py-3 rounded-lg bg-white/20 text-white placeholder-white/70 border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="#exemplo #hashtag">
+                    </div>
+
+                    <!-- Botões de Ação -->
+                    <div class="flex space-x-4">
+                        <button type="button" onclick="generateNarration()" id="generateBtn" class="flex-1 bg-purple-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-600 transition-colors">
+                            <i class="fas fa-microphone mr-2"></i>Gerar Narração
+                        </button>
+                        <button type="button" onclick="previewPost()" class="flex-1 bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors">
+                            <i class="fas fa-eye mr-2"></i>Visualizar
+                        </button>
+                        <button type="button" onclick="savePost()" class="flex-1 bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition-colors">
+                            <i class="fas fa-save mr-2"></i>Salvar Post
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Preview -->
+            <div class="glass-effect rounded-2xl p-6">
+                <h3 class="text-2xl font-bold text-white mb-6 font-montserrat">Preview</h3>
+                <div id="previewContainer" class="video-preview">
+                    <div class="flex items-center justify-center h-full text-white/70">
+                        <div class="text-center">
+                            <i class="fas fa-video text-4xl mb-4"></i>
+                            <p>Selecione um vídeo e gere a narração</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="narrationControls" class="mt-4 hidden">
+                    <div class="flex space-x-2">
+                        <button onclick="playNarration()" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                            <i class="fas fa-play mr-2"></i>Reproduzir
+                        </button>
+                        <button onclick="stopNarration()" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors">
+                            <i class="fas fa-stop mr-2"></i>Parar
+                        </button>
+                        <button onclick="downloadNarration()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                            <i class="fas fa-download mr-2"></i>Baixar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="elevenlabs-narration.js"></script>
+    <script>
+        let currentVideoSource = 'upload';
+        let currentVideo = null;
+        let captionsEnabled = true;
+        let currentCaptionColor = 'white';
+        let currentCaptionPosition = 'bottom';
+        let selectedPexelsVideo = null;
+        let selectedVoice = null;
+        let generatedNarration = null;
+
+        // Inicializar quando a página carregar
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🚀 Inicializando página de narração...');
+            
+            // Aguardar inicialização do ElevenLabs
+            const checkInitialization = setInterval(() => {
+                if (window.ElevenLabsNarration && window.ElevenLabsNarration.isReady()) {
+                    clearInterval(checkInitialization);
+                    loadVoices();
+                    updateStatus();
+                }
+            }, 500);
+        });
+
+        function updateStatus() {
+            const status = window.ElevenLabsNarration.getStatus();
+            const statusElement = document.getElementById('narrationStatus');
+            
+            if (status.initialized) {
+                statusElement.innerHTML = `
+                    <div class="bg-green-500/20 text-green-400 px-4 py-2 rounded-lg">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        ElevenLabs conectado - ${status.voicesCount} vozes disponíveis
+                    </div>
+                `;
+            } else {
+                statusElement.innerHTML = `
+                    <div class="bg-yellow-500/20 text-yellow-400 px-4 py-2 rounded-lg">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        Inicializando sistema de narração...
+                    </div>
+                `;
+            }
+        }
+
+        function loadVoices() {
+            const voices = window.ElevenLabsNarration.getVoices();
+            const container = document.getElementById('voiceOptions');
+            
+            container.innerHTML = '';
+            
+            voices.forEach((voice, index) => {
+                const voiceElement = document.createElement('div');
+                voiceElement.className = 'voice-option p-3 rounded-lg border border-white/30 bg-white/10 text-white cursor-pointer';
+                voiceElement.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="font-semibold">${voice.name}</div>
+                            <div class="text-sm text-white/60">${voice.category}</div>
+                        </div>
+                        <button onclick="selectVoice('${voice.voice_id}', ${index})" class="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600">
+                            Selecionar
+                        </button>
+                    </div>
+                `;
+                container.appendChild(voiceElement);
+            });
+        }
+
+        function selectVoice(voiceId, index) {
+            selectedVoice = voiceId;
+            
+            // Atualizar seleção visual
+            document.querySelectorAll('.voice-option').forEach((el, i) => {
+                el.classList.remove('selected');
+                if (i === index) {
+                    el.classList.add('selected');
+                }
+            });
+            
+            console.log('🎤 Voz selecionada:', voiceId);
+        }
+
+        function selectVideoSource(source) {
+            currentVideoSource = source;
+            
+            // Atualizar botões
+            document.getElementById('uploadBtn').className = source === 'upload' 
+                ? 'p-4 rounded-lg border-2 border-blue-400 bg-blue-400/20 text-white font-semibold'
+                : 'p-4 rounded-lg border-2 border-white/30 bg-white/10 text-white font-semibold';
+            
+            document.getElementById('pexelsBtn').className = source === 'pexels' 
+                ? 'p-4 rounded-lg border-2 border-blue-400 bg-blue-400/20 text-white font-semibold'
+                : 'p-4 rounded-lg border-2 border-white/30 bg-white/10 text-white font-semibold';
+            
+            // Mostrar/ocultar seções
+            if (source === 'upload') {
+                document.getElementById('uploadSection').classList.remove('hidden');
+                document.getElementById('pexelsSection').classList.add('hidden');
+            } else {
+                document.getElementById('uploadSection').classList.add('hidden');
+                document.getElementById('pexelsSection').classList.remove('hidden');
+            }
+        }
+
+        function toggleCaptions(enabled) {
+            captionsEnabled = enabled;
+            
+            // Atualizar botões
+            document.getElementById('captionsOnBtn').className = enabled 
+                ? 'p-4 rounded-lg border-2 border-blue-400 bg-blue-400/20 text-white font-semibold'
+                : 'p-4 rounded-lg border-2 border-white/30 bg-white/10 text-white font-semibold';
+            
+            document.getElementById('captionsOffBtn').className = !enabled 
+                ? 'p-4 rounded-lg border-2 border-blue-400 bg-blue-400/20 text-white font-semibold'
+                : 'p-4 rounded-lg border-2 border-white/30 bg-white/10 text-white font-semibold';
+            
+            // Mostrar/ocultar configurações de legenda
+            if (enabled) {
+                document.getElementById('captionSettings').classList.remove('hidden');
+            } else {
+                document.getElementById('captionSettings').classList.add('hidden');
+            }
+        }
+
+        function selectCaptionColor(color) {
+            currentCaptionColor = color;
+            
+            // Atualizar botões de cor
+            document.querySelectorAll('[onclick^="selectCaptionColor"]').forEach(btn => {
+                btn.className = btn.className.replace('border-blue-400', 'border-white/30');
+            });
+            event.target.className = event.target.className.replace('border-white/30', 'border-blue-400');
+        }
+
+        function selectCaptionPosition(position) {
+            currentCaptionPosition = position;
+            
+            // Atualizar botões de posição
+            document.querySelectorAll('[onclick^="selectCaptionPosition"]').forEach(btn => {
+                btn.className = btn.className.replace('border-blue-400', 'border-white/30');
+            });
+            event.target.className = event.target.className.replace('border-white/30', 'border-blue-400');
+        }
+
+        function handleVideoUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentVideo = e.target.result;
+                    updatePreview();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        async function searchPexelsVideos() {
+            const query = document.getElementById('pexelsSearch').value;
+            if (!query) {
+                alert('Digite uma palavra-chave para buscar vídeos.');
+                return;
+            }
+            
+            // Implementar busca do Pexels aqui
+            console.log('🔍 Buscando vídeos:', query);
+        }
+
+        async function generateNarration() {
+            const text = document.getElementById('narrationText').value;
+            
+            if (!text || text.trim() === '') {
+                alert('Digite o texto para narração.');
+                return;
+            }
+            
+            if (!selectedVoice) {
+                alert('Selecione uma voz para a narração.');
+                return;
+            }
+            
+            if (!currentVideo) {
+                alert('Selecione um vídeo primeiro.');
+                return;
+            }
+            
+            try {
+                // Mostrar loading
+                const generateBtn = document.getElementById('generateBtn');
+                const originalText = generateBtn.innerHTML;
+                generateBtn.innerHTML = '<i class="fas fa-spinner loading-spinner mr-2"></i>Gerando...';
+                generateBtn.disabled = true;
+                
+                // Gerar narração
+                const options = {
+                    stability: parseFloat(document.getElementById('voiceStability').value),
+                    similarityBoost: 0.5,
+                    style: 0.0,
+                    useSpeakerBoost: true
+                };
+                
+                generatedNarration = await window.ElevenLabsNarration.generateNarration(text, selectedVoice, options);
+                
+                if (generatedNarration.success) {
+                    console.log('✅ Narração gerada com sucesso');
+                    
+                    // Mostrar controles
+                    document.getElementById('narrationControls').classList.remove('hidden');
+                    
+                    // Atualizar preview
+                    updatePreview();
+                    
+                    alert('Narração gerada com sucesso! Use os controles para testar.');
+                } else {
+                    throw new Error('Falha ao gerar narração');
+                }
+                
+            } catch (error) {
+                console.error('❌ Erro ao gerar narração:', error);
+                alert('Erro ao gerar narração: ' + error.message);
+            } finally {
+                // Restaurar botão
+                const generateBtn = document.getElementById('generateBtn');
+                generateBtn.innerHTML = '<i class="fas fa-microphone mr-2"></i>Gerar Narração';
+                generateBtn.disabled = false;
+            }
+        }
+
+        function playNarration() {
+            if (generatedNarration) {
+                window.ElevenLabsNarration.playNarration(generatedNarration.audioUrl);
+            }
+        }
+
+        function stopNarration() {
+            window.ElevenLabsNarration.stopNarration();
+        }
+
+        function downloadNarration() {
+            if (generatedNarration) {
+                window.ElevenLabsNarration.downloadNarration(generatedNarration.audioBlob, 'narracao.mp3');
+            }
+        }
+
+        function updatePreview() {
+            const previewContainer = document.getElementById('previewContainer');
+            
+            if (currentVideo) {
+                previewContainer.innerHTML = `
+                    <video controls class="w-full h-full object-cover" id="previewVideo">
+                        <source src="${currentVideo}" type="video/mp4">
+                        Seu navegador não suporta vídeos.
+                    </video>
+                    ${captionsEnabled ? `
+                        <div class="narration-caption" style="
+                            position: absolute;
+                            ${currentCaptionPosition === 'top' ? 'top: 1rem;' : ''}
+                            ${currentCaptionPosition === 'center' ? 'top: 50%; transform: translateY(-50%);' : ''}
+                            ${currentCaptionPosition === 'bottom' ? 'bottom: 1rem;' : ''}
+                            left: 1rem;
+                            right: 1rem;
+                            background: rgba(0, 0, 0, 0.8);
+                            color: ${currentCaptionColor};
+                            padding: 1rem;
+                            border-radius: 0.5rem;
+                            text-align: center;
+                            font-family: ${document.getElementById('captionFont').value.replace('font-', '')};
+                            z-index: 10;
+                        ">
+                            ${document.getElementById('narrationText').value || 'Texto da narração aparecerá aqui'}
+                        </div>
+                    ` : ''}
+                    ${generatedNarration ? `
+                        <div class="narration-status">
+                            <i class="fas fa-microphone mr-2"></i>
+                            Narração pronta
+                        </div>
+                    ` : ''}
+                `;
+                
+                // Configurar vídeo com narração se disponível
+                if (generatedNarration) {
+                    const videoElement = document.getElementById('previewVideo');
+                    if (videoElement) {
+                        window.ElevenLabsNarration.createVideoWithNarration(
+                            videoElement, 
+                            generatedNarration.audioUrl,
+                            document.getElementById('narrationText').value,
+                            {
+                                position: currentCaptionPosition,
+                                color: currentCaptionColor,
+                                font: document.getElementById('captionFont').value.replace('font-', ''),
+                                fontSize: '1rem'
+                            }
+                        );
+                    }
+                }
+            } else {
+                previewContainer.innerHTML = `
+                    <div class="flex items-center justify-center h-full text-white/70">
+                        <div class="text-center">
+                            <i class="fas fa-video text-4xl mb-4"></i>
+                            <p>Selecione um vídeo e gere a narração</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function previewPost() {
+            updatePreview();
+            alert('Preview atualizado! Verifique o resultado na área de preview.');
+        }
+
+        async function savePost() {
+            const title = document.getElementById('postTitle').value;
+            const content = document.getElementById('postContent').value;
+            const hashtags = document.getElementById('hashtags').value;
+            
+            if (!title || !content) {
+                alert('Por favor, preencha o título e conteúdo do post.');
+                return;
+            }
+            
+            if (!currentVideo) {
+                alert('Por favor, selecione um vídeo.');
+                return;
+            }
+            
+            if (!generatedNarration) {
+                alert('Por favor, gere a narração primeiro.');
+                return;
+            }
+            
+            try {
+                const postData = {
+                    title: title,
+                    content: content,
+                    hashtags: hashtags,
+                    template: 'Vídeo com Narração',
+                    customization: JSON.stringify({
+                        video: currentVideo,
+                        narrationAudio: generatedNarration.audioUrl,
+                        videoCaption: captionsEnabled ? document.getElementById('narrationText').value : '',
+                        videoCaptionFont: document.getElementById('captionFont').value,
+                        videoCaptionColor: currentCaptionColor,
+                        videoCaptionPosition: currentCaptionPosition,
+                        narrationVoice: selectedVoice,
+                        platforms: ['instagram', 'facebook', 'youtube', 'tiktok']
+                    }),
+                    platforms: JSON.stringify(['instagram', 'facebook', 'youtube', 'tiktok'])
+                };
+                
+                const response = await fetch('/api/posts/json', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(postData)
+                });
+                
+                if (response.ok) {
+                    alert('Post salvo com sucesso!');
+                    window.location.href = '/posts';
+                } else {
+                    let errorMessage = 'Erro ao salvar post';
+                    try {
+                        const error = await response.json();
+                        errorMessage = error.message || errorMessage;
+                    } catch (e) {
+                        const errorText = await response.text();
+                        errorMessage = errorText || errorMessage;
+                    }
+                    alert('Erro ao salvar post: ' + errorMessage);
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao salvar post. Tente novamente.');
+            }
+        }
+
+        // Inicializar com legendas habilitadas
+        toggleCaptions(true);
+    </script>
+</body>
+</html>

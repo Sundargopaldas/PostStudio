@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Som ElevenLabs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="text-to-speech.js"></script>
+    <style>
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-white mb-4">
+                <i class="fas fa-volume-up text-green-400 mr-3"></i>
+                Teste Som ElevenLabs
+            </h1>
+            <p class="text-white/80 text-lg">Verificando se o áudio está sendo gerado corretamente</p>
+        </div>
+
+        <!-- Status -->
+        <div class="glass-effect rounded-2xl p-6 mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-2">
+                        <i class="fas fa-cog text-blue-400 mr-2"></i>
+                        Status do Sistema
+                    </h2>
+                    <p class="text-white/80">Testando geração de áudio</p>
+                </div>
+                <div id="status" class="text-right">
+                    <div class="text-yellow-400 font-bold text-lg">Iniciando...</div>
+                    <div class="text-white/60 text-sm">Aguarde</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Teste de Áudio -->
+        <div class="glass-effect rounded-2xl p-6 mb-8">
+            <h3 class="text-xl font-bold text-white mb-4">
+                <i class="fas fa-microphone mr-2"></i>
+                Teste de Geração de Áudio
+            </h3>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-white/80 mb-2">Texto para Narração:</label>
+                    <textarea id="testText" class="w-full p-3 rounded-lg bg-white/10 text-white placeholder-white/60 border border-white/20 focus:border-blue-400 focus:outline-none" rows="3" placeholder="Digite um texto para testar...">Olá! Este é um teste de áudio da ElevenLabs. Se você está ouvindo isso, o sistema está funcionando corretamente.</textarea>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-white/80 mb-2">Voz:</label>
+                        <select id="voiceSelect" class="w-full p-3 rounded-lg bg-white/10 text-white border border-white/20 focus:border-blue-400 focus:outline-none">
+                            <option value="">Carregando vozes...</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-white/80 mb-2">Velocidade:</label>
+                        <select id="speedSelect" class="w-full p-3 rounded-lg bg-white/10 text-white border border-white/20 focus:border-blue-400 focus:outline-none">
+                            <option value="0.8">Lenta (0.8x)</option>
+                            <option value="1.0" selected>Normal (1.0x)</option>
+                            <option value="1.2">Rápida (1.2x)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="flex space-x-4">
+                    <button onclick="testAudioGeneration()" class="flex-1 bg-green-500 text-white py-3 px-6 rounded-lg hover:bg-green-600 transition-colors font-semibold">
+                        <i class="fas fa-play mr-2"></i>
+                        Testar Áudio
+                    </button>
+                    <button onclick="downloadAudio()" class="flex-1 bg-blue-500 text-white py-3 px-6 rounded-lg hover:bg-blue-600 transition-colors font-semibold">
+                        <i class="fas fa-download mr-2"></i>
+                        Baixar Áudio
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resultado -->
+        <div class="glass-effect rounded-2xl p-6">
+            <h3 class="text-xl font-bold text-white mb-4">
+                <i class="fas fa-check-circle mr-2"></i>
+                Resultado do Teste
+            </h3>
+            
+            <div id="testResult" class="space-y-2">
+                <div class="text-white/60">Aguardando teste...</div>
+            </div>
+            
+            <!-- Player de Áudio -->
+            <div id="audioPlayer" class="mt-4 hidden">
+                <audio controls class="w-full">
+                    Seu navegador não suporta áudio.
+                </audio>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let ttsManager;
+        let currentAudioBlob = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                console.log('🚀 Inicializando teste de áudio...');
+                ttsManager = new TextToSpeechManager();
+                await loadVoices();
+                updateStatus('Sistema inicializado!', 'success');
+            } catch (error) {
+                console.error('❌ Erro ao inicializar:', error);
+                updateStatus('Erro ao inicializar: ' + error.message, 'error');
+            }
+        });
+
+        async function loadVoices() {
+            try {
+                console.log('🔄 Carregando vozes...');
+                await ttsManager.loadVoices();
+                
+                const voiceSelect = document.getElementById('voiceSelect');
+                voiceSelect.innerHTML = '<option value="">Selecione uma voz...</option>';
+                
+                ttsManager.voices.forEach((voice, index) => {
+                    const option = document.createElement('option');
+                    option.value = voice.voice_id;
+                    option.textContent = `${voice.name} (${voice.category || 'geral'})`;
+                    voiceSelect.appendChild(option);
+                    
+                    if (index === 0) {
+                        voiceSelect.value = voice.voice_id;
+                    }
+                });
+                
+                console.log('✅ Vozes carregadas:', ttsManager.voices.length);
+                updateTestResult(`✅ ${ttsManager.voices.length} vozes carregadas!`, 'success');
+                
+            } catch (error) {
+                console.error('❌ Erro ao carregar vozes:', error);
+                updateTestResult('❌ Erro ao carregar vozes: ' + error.message, 'error');
+            }
+        }
+
+        async function testAudioGeneration() {
+            const text = document.getElementById('testText').value;
+            const voiceId = document.getElementById('voiceSelect').value;
+            const speed = document.getElementById('speedSelect').value;
+            
+            if (!text.trim()) {
+                alert('Digite um texto para o teste!');
+                return;
+            }
+            
+            if (!voiceId) {
+                alert('Selecione uma voz!');
+                return;
+            }
+            
+            try {
+                console.log('🎤 Testando geração de áudio...');
+                updateTestResult('🔄 Gerando áudio...', 'loading');
+                
+                const options = {
+                    stability: 0.5,
+                    similarityBoost: 0.5,
+                    style: 0.0,
+                    useSpeakerBoost: true,
+                    speed: parseFloat(speed)
+                };
+                
+                console.log('🔧 Opções:', options);
+                console.log('🎤 Voz:', voiceId);
+                console.log('📝 Texto:', text);
+                
+                const audioBlob = await ttsManager.generateSpeech(text, voiceId, options);
+                currentAudioBlob = audioBlob;
+                
+                console.log('✅ Áudio gerado com sucesso!');
+                console.log('📊 Tamanho:', audioBlob.size, 'bytes');
+                console.log('🎵 Tipo:', audioBlob.type);
+                
+                updateTestResult('✅ Áudio gerado com sucesso! Reproduzindo...', 'success');
+                
+                // Criar player de áudio
+                const audioUrl = URL.createObjectURL(audioBlob);
+                const audioPlayer = document.getElementById('audioPlayer');
+                const audio = audioPlayer.querySelector('audio');
+                audio.src = audioUrl;
+                audioPlayer.classList.remove('hidden');
+                
+                // Reproduzir automaticamente
+                audio.play().then(() => {
+                    console.log('✅ Áudio reproduzindo!');
+                    updateTestResult('✅ Áudio reproduzindo com sucesso!', 'success');
+                }).catch(error => {
+                    console.error('❌ Erro ao reproduzir:', error);
+                    updateTestResult('⚠️ Áudio gerado, mas não pôde reproduzir automaticamente. Clique no player.', 'warning');
+                });
+                
+            } catch (error) {
+                console.error('❌ Erro ao gerar áudio:', error);
+                updateTestResult('❌ Erro ao gerar áudio: ' + error.message, 'error');
+            }
+        }
+
+        function downloadAudio() {
+            if (!currentAudioBlob) {
+                alert('Nenhum áudio gerado ainda!');
+                return;
+            }
+            
+            try {
+                const url = URL.createObjectURL(currentAudioBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'teste-audio-elevenlabs.mp3';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                updateTestResult('✅ Áudio baixado com sucesso!', 'success');
+            } catch (error) {
+                console.error('❌ Erro ao baixar áudio:', error);
+                updateTestResult('❌ Erro ao baixar áudio: ' + error.message, 'error');
+            }
+        }
+
+        function updateStatus(message, type) {
+            const status = document.getElementById('status');
+            const icon = type === 'loading' ? 'fas fa-spinner fa-spin' : 
+                        type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-triangle';
+            const color = type === 'loading' ? 'text-blue-400' : 
+                         type === 'success' ? 'text-green-400' : 'text-red-400';
+            
+            status.innerHTML = `
+                <div class="${color} font-bold text-lg">${message}</div>
+                <div class="text-white/60 text-sm">${new Date().toLocaleTimeString()}</div>
+            `;
+        }
+
+        function updateTestResult(message, type) {
+            const result = document.getElementById('testResult');
+            const icon = type === 'loading' ? 'fas fa-spinner fa-spin' : 
+                        type === 'success' ? 'fas fa-check-circle' : 
+                        type === 'warning' ? 'fas fa-exclamation-triangle' : 'fas fa-times-circle';
+            const color = type === 'loading' ? 'text-blue-400' : 
+                         type === 'success' ? 'text-green-400' : 
+                         type === 'warning' ? 'text-yellow-400' : 'text-red-400';
+            
+            result.innerHTML = `
+                <div class="flex items-center ${color}">
+                    <i class="${icon} mr-2"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

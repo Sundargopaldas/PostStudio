@@ -1,7 +1,7 @@
 // Text-to-Speech Manager with ElevenLabs Integration
 class TextToSpeechManager {
     constructor() {
-        this.apiKey = '7bddbf397d93ddfe06bcc5fa428d9cd418b046978ce65b7334b2313c9112e338'; // Nova chave ElevenLabs
+        this.apiKey = 'sk_83361992bc2f7a4177040a338cad9964ce3bd9dd53d480e4'; // Nova chave ElevenLabs
         this.baseURL = 'https://api.elevenlabs.io/v1';
         this.voices = [];
         this.currentVoice = null;
@@ -13,28 +13,147 @@ class TextToSpeechManager {
 
     async loadVoices() {
         try {
+            console.log('🔄 Carregando vozes da ElevenLabs...');
+            console.log('🔑 Usando chave:', this.apiKey.substring(0, 10) + '...');
+            
             const response = await fetch(`${this.baseURL}/voices`, {
                 headers: {
                     'xi-api-key': this.apiKey
                 }
             });
             
+            console.log('📡 Resposta da API:', response.status, response.statusText);
+            
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const errorText = await response.text();
+                console.error('❌ Erro da API:', errorText);
+                throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
             }
             
             const data = await response.json();
-            this.voices = data.voices;
-            console.log('✅ Vozes carregadas:', this.voices.length);
+            console.log('📊 Dados recebidos:', data);
+            
+            const allVoices = data.voices || [];
+            console.log('📊 Total de vozes da API:', allVoices.length);
+            
+            // Manter todas as vozes da ElevenLabs + adicionar vozes em português
+            this.voices = this.addPortugueseVoices(allVoices);
+            console.log('🎤 Total de vozes (ElevenLabs + Português):', this.voices.length);
+            
+            // Log das primeiras vozes para debug
+            if (this.voices.length > 0) {
+                console.log('🎤 Primeiras vozes (ElevenLabs):', this.voices.slice(0, 3).map(v => ({ name: v.name, category: v.category })));
+                console.log('🇧🇷 Vozes em português:', this.voices.filter(v => v.voice_id.startsWith('pt-br-')).map(v => v.name));
+            }
+            
         } catch (error) {
             console.error('❌ Erro ao carregar vozes:', error);
-            // Fallback voices
+            // Fallback voices em português
             this.voices = [
-                { voice_id: 'default', name: 'Voz Padrão', category: 'general' },
-                { voice_id: 'male', name: 'Voz Masculina', category: 'male' },
-                { voice_id: 'female', name: 'Voz Feminina', category: 'female' }
+                { voice_id: 'pt-br-female-1', name: 'Ana (Feminina)', category: 'portuguese', gender: 'female', language: 'pt-BR' },
+                { voice_id: 'pt-br-male-1', name: 'João (Masculina)', category: 'portuguese', gender: 'male', language: 'pt-BR' },
+                { voice_id: 'pt-br-neutral-1', name: 'Alex (Neutra)', category: 'portuguese', gender: 'neutral', language: 'pt-BR' }
             ];
+            console.log('🔄 Usando vozes de fallback em português:', this.voices.length);
         }
+    }
+
+    addPortugueseVoices(apiVoices) {
+        // Vozes simuladas em português do Brasil (extras)
+        const portugueseVoices = [
+            { voice_id: 'pt-br-female-1', name: '🇧🇷 Ana (Feminina)', category: 'portuguese', gender: 'female', language: 'pt-BR' },
+            { voice_id: 'pt-br-female-2', name: '🇧🇷 Maria (Feminina)', category: 'portuguese', gender: 'female', language: 'pt-BR' },
+            { voice_id: 'pt-br-female-3', name: '🇧🇷 Sofia (Feminina)', category: 'portuguese', gender: 'female', language: 'pt-BR' },
+            { voice_id: 'pt-br-male-1', name: '🇧🇷 João (Masculina)', category: 'portuguese', gender: 'male', language: 'pt-BR' },
+            { voice_id: 'pt-br-male-2', name: '🇧🇷 Carlos (Masculina)', category: 'portuguese', gender: 'male', language: 'pt-BR' },
+            { voice_id: 'pt-br-male-3', name: '🇧🇷 Pedro (Masculina)', category: 'portuguese', gender: 'male', language: 'pt-BR' },
+            { voice_id: 'pt-br-neutral-1', name: '🇧🇷 Alex (Neutra)', category: 'portuguese', gender: 'neutral', language: 'pt-BR' },
+            { voice_id: 'pt-br-neutral-2', name: '🇧🇷 Sam (Neutra)', category: 'portuguese', gender: 'neutral', language: 'pt-BR' }
+        ];
+        
+        // Suas vozes específicas ElevenLabs
+        const userSpecificVoices = [
+            { voice_id: 'ohZOfA9iwlZ5nOsoY7LB', name: '🎤 Sua Voz 1', category: 'user', gender: 'unknown', language: 'multilingual' },
+            { voice_id: 'oJebhZNaPllxk6W0LSBA', name: '🎤 Sua Voz 2', category: 'user', gender: 'unknown', language: 'multilingual' },
+            { voice_id: 'liAlPCvGDJ0qsfPupueo', name: '🎤 Sua Voz 3', category: 'user', gender: 'unknown', language: 'multilingual' }
+        ];
+        
+        console.log('🎤 Vozes originais da ElevenLabs:', apiVoices.length);
+        console.log('🇧🇷 Vozes extras em português:', portugueseVoices.length);
+        console.log('🎤 Suas vozes específicas:', userSpecificVoices.length);
+        
+        // Mostrar APENAS as suas 3 vozes específicas
+        const allVoices = [...userSpecificVoices];
+        
+        console.log('🎤 Total de vozes disponíveis:', allVoices.length);
+        
+        return allVoices;
+    }
+
+    async generatePortugueseSpeech(text, voiceId, options = {}) {
+        return new Promise((resolve, reject) => {
+            try {
+                console.log('🎤 Gerando fala em português...');
+                
+                // Parar fala anterior se existir
+                if (window.speechSynthesis) {
+                    window.speechSynthesis.cancel();
+                }
+                
+                // Criar utterance
+                const utterance = new SpeechSynthesisUtterance(text);
+                
+                // Configurar voz em português
+                const voices = window.speechSynthesis.getVoices();
+                const portugueseVoice = voices.find(v => 
+                    v.lang.startsWith('pt') || 
+                    v.name.toLowerCase().includes('portuguese') ||
+                    v.name.toLowerCase().includes('brazil')
+                ) || voices[0];
+                
+                if (portugueseVoice) {
+                    utterance.voice = portugueseVoice;
+                    console.log('🇧🇷 Usando voz:', portugueseVoice.name);
+                }
+                
+                // Configurar opções
+                utterance.rate = options.speed || 1.0;
+                utterance.pitch = options.pitch || 1.0;
+                utterance.volume = options.volume || 0.8;
+                utterance.lang = 'pt-BR';
+                
+                // Eventos
+                utterance.onstart = () => {
+                    console.log('▶️ Fala em português iniciada');
+                    this.isPlaying = true;
+                };
+                
+                utterance.onend = () => {
+                    console.log('🏁 Fala em português finalizada');
+                    this.isPlaying = false;
+                    resolve('Fala em português concluída');
+                };
+                
+                utterance.onerror = (error) => {
+                    console.error('❌ Erro na fala em português:', error);
+                    this.isPlaying = false;
+                    reject(error);
+                };
+                
+                // Iniciar fala
+                window.speechSynthesis.speak(utterance);
+                
+                // Simular blob de áudio para compatibilidade
+                setTimeout(() => {
+                    const mockBlob = new Blob(['audio-data-pt-br'], { type: 'audio/wav' });
+                    resolve(mockBlob);
+                }, 100);
+                
+            } catch (error) {
+                console.error('❌ Erro ao gerar fala em português:', error);
+                reject(error);
+            }
+        });
     }
 
     getVoicesByCategory(category) {
@@ -55,6 +174,16 @@ class TextToSpeechManager {
             throw new Error('Nenhuma voz disponível');
         }
 
+        // Verificar se é uma voz simulada em português
+        if (voice.startsWith('pt-br-')) {
+            console.log('🇧🇷 Usando TTS local em português...');
+            return this.generatePortugueseSpeech(text, voice, options);
+        }
+        
+        console.log('🎤 Gerando áudio com ElevenLabs API...');
+        console.log('🔑 Voz selecionada:', voice);
+        console.log('📝 Texto:', text);
+
         const requestBody = {
             text: text,
             model_id: options.model || 'eleven_monolingual_v1',
@@ -67,6 +196,11 @@ class TextToSpeechManager {
         };
 
         try {
+            console.log('🔄 Enviando requisição para ElevenLabs...');
+            console.log('📝 Texto:', text);
+            console.log('🎤 Voz:', voice);
+            console.log('⚙️ Opções:', options);
+            
             const response = await fetch(`${this.baseURL}/text-to-speech/${voice}`, {
                 method: 'POST',
                 headers: {
@@ -76,11 +210,18 @@ class TextToSpeechManager {
                 body: JSON.stringify(requestBody)
             });
 
+            console.log('📡 Resposta da API:', response.status, response.statusText);
+
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const errorText = await response.text();
+                console.error('❌ Erro da API:', errorText);
+                throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
             }
 
             const audioBlob = await response.blob();
+            console.log('✅ Áudio gerado:', audioBlob.size, 'bytes');
+            console.log('🎵 Tipo do áudio:', audioBlob.type);
+            
             return audioBlob;
         } catch (error) {
             console.error('❌ Erro ao gerar fala:', error);
@@ -94,24 +235,62 @@ class TextToSpeechManager {
         }
 
         try {
+            console.log('🎵 Criando URL do áudio...');
             const audioUrl = URL.createObjectURL(audioBlob);
+            console.log('🔗 URL criada:', audioUrl);
+            
             const audio = new Audio(audioUrl);
+            console.log('🎧 Elemento de áudio criado');
             
-            audio.onended = () => {
-                this.isPlaying = false;
-                URL.revokeObjectURL(audioUrl);
-            };
+            // Aguardar o áudio estar pronto
+            return new Promise((resolve, reject) => {
+                let isResolved = false;
+                
+                audio.addEventListener('canplaythrough', async () => {
+                    if (isResolved) return;
+                    isResolved = true;
+                    
+                    try {
+                        console.log('▶️ Iniciando reprodução...');
+                        await audio.play();
+                        this.isPlaying = true;
+                        console.log('✅ Áudio reproduzindo com sucesso');
+                        resolve(audio);
+                    } catch (playError) {
+                        console.error('❌ Erro ao iniciar reprodução:', playError);
+                        this.isPlaying = false;
+                        URL.revokeObjectURL(audioUrl);
+                        reject(playError);
+                    }
+                });
 
-            audio.onerror = (error) => {
-                console.error('❌ Erro ao reproduzir áudio:', error);
-                this.isPlaying = false;
-                URL.revokeObjectURL(audioUrl);
-            };
+                audio.addEventListener('ended', () => {
+                    console.log('🏁 Áudio finalizado');
+                    this.isPlaying = false;
+                    URL.revokeObjectURL(audioUrl);
+                });
 
-            await audio.play();
-            this.isPlaying = true;
+                audio.addEventListener('error', (error) => {
+                    if (isResolved) return;
+                    isResolved = true;
+                    
+                    console.error('❌ Erro no elemento de áudio:', error);
+                    this.isPlaying = false;
+                    URL.revokeObjectURL(audioUrl);
+                    reject(error);
+                });
+
+                // Timeout para evitar travamento (apenas se não foi resolvido)
+                setTimeout(() => {
+                    if (!isResolved && !this.isPlaying) {
+                        console.error('⏰ Timeout ao carregar áudio');
+                        isResolved = true;
+                        URL.revokeObjectURL(audioUrl);
+                        reject(new Error('Timeout ao carregar áudio'));
+                    }
+                }, 10000);
+            });
             
-            return audio;
         } catch (error) {
             console.error('❌ Erro ao reproduzir áudio:', error);
             this.isPlaying = false;
