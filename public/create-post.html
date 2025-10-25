@@ -169,6 +169,36 @@
             font-size: 12px;
             opacity: 0.8;
         }
+
+        /* Botões de presets de tamanho */
+        .size-preset-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 16px 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .size-preset-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .size-preset-btn:active {
+            transform: translateY(-1px) scale(0.98);
+        }
         
         .animate-slide-up {
             animation: slideUp 0.8s ease-out;
@@ -632,6 +662,30 @@
                     </h3>
                     <div id="template-list" class="grid grid-cols-2 gap-3">
                         <!-- botões serão gerados aqui -->
+                    </div>
+                </div>
+
+                <!-- Presets de Tamanho -->
+                <div class="p-6">
+                    <h3 class="text-xl font-bold text-white mb-4 font-inter">
+                        <i class="fas fa-expand-arrows-alt mr-2"></i>Presets de Tamanho
+                    </h3>
+                    <div class="grid grid-cols-3 gap-3">
+                        <button onclick="resizeCanvas(1080, 1080)" class="size-preset-btn bg-blue-500/20 hover:bg-blue-500/40 text-white px-4 py-3 rounded-lg transition-all transform hover:scale-105 border border-blue-400/30 hover:border-blue-400/60">
+                            <div class="text-2xl mb-2">📱</div>
+                            <div class="text-sm font-medium">1:1 Post</div>
+                            <div class="text-xs opacity-80">1080×1080</div>
+                        </button>
+                        <button onclick="resizeCanvas(1080, 1920)" class="size-preset-btn bg-green-500/20 hover:bg-green-500/40 text-white px-4 py-3 rounded-lg transition-all transform hover:scale-105 border border-green-400/30 hover:border-green-400/60">
+                            <div class="text-2xl mb-2">📲</div>
+                            <div class="text-sm font-medium">9:16 Story</div>
+                            <div class="text-xs opacity-80">1080×1920</div>
+                        </button>
+                        <button onclick="resizeCanvas(1920, 1080)" class="size-preset-btn bg-purple-500/20 hover:bg-purple-500/40 text-white px-4 py-3 rounded-lg transition-all transform hover:scale-105 border border-purple-400/30 hover:border-purple-400/60">
+                            <div class="text-2xl mb-2">🖥️</div>
+                            <div class="text-sm font-medium">16:9 YouTube</div>
+                            <div class="text-xs opacity-80">1920×1080</div>
+                        </button>
                     </div>
                 </div>
 
@@ -2783,6 +2837,45 @@
             });
             
             console.log('📋 Botões de templates renderizados:', templates.length);
+        }
+
+        // Função para redimensionar o canvas
+        function resizeCanvas(width, height) {
+            const canvas = document.getElementById('canvas');
+            if (!canvas) {
+                console.error('❌ Canvas não encontrado');
+                showNotification('Erro: Canvas não encontrado', 'error');
+                return;
+            }
+            
+            // Calcular proporção para manter o canvas visível
+            const maxWidth = 640; // Largura máxima do container
+            const maxHeight = 480; // Altura máxima do container
+            
+            let newWidth = width;
+            let newHeight = height;
+            
+            // Ajustar proporção se necessário
+            if (width > maxWidth || height > maxHeight) {
+                const scaleX = maxWidth / width;
+                const scaleY = maxHeight / height;
+                const scale = Math.min(scaleX, scaleY);
+                
+                newWidth = Math.round(width * scale);
+                newHeight = Math.round(height * scale);
+            }
+            
+            // Aplicar novo tamanho
+            canvas.style.width = newWidth + 'px';
+            canvas.style.height = newHeight + 'px';
+            
+            console.log('📐 Canvas redimensionado:', {
+                original: { width, height },
+                applied: { width: newWidth, height: newHeight },
+                scale: newWidth / width
+            });
+            
+            showNotification(`Canvas redimensionado para ${width}×${height}px`, 'success');
         }
 
         // Função para adicionar formas
