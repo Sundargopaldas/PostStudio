@@ -486,6 +486,18 @@
                         <h4 class="text-xl font-bold text-white mb-4 font-inter">
                             <i class="fas fa-shapes mr-2"></i>Ferramentas de Formas
                         </h4>
+                        
+                        <!-- Seletor de Cor -->
+                        <div class="mb-6">
+                            <label class="block text-white text-sm font-medium mb-2">
+                                <i class="fas fa-palette mr-2"></i>Cor da Forma
+                            </label>
+                            <div class="flex items-center space-x-3">
+                                <input type="color" id="shapeColorPicker" value="#3b82f6" class="w-12 h-10 rounded border-2 border-gray-300 cursor-pointer">
+                                <span id="shapeColorValue" class="text-white text-sm font-mono">#3b82f6</span>
+                            </div>
+                        </div>
+                        
                         <div class="grid grid-cols-3 gap-3">
                             <button onclick="addShape('circle')" class="shapeBtn bg-red-500/20 hover:bg-red-500/40 text-white px-4 py-3 rounded-lg transition-all transform hover:scale-105 border border-red-400/30 hover:border-red-400/60">
                                 <div class="text-2xl mb-2">🔴</div>
@@ -2553,6 +2565,23 @@
             }, 100);
         }
 
+        // Variável global para cor das formas
+        let selectedShapeColor = '#3b82f6';
+        
+        // Inicializar seletor de cor
+        document.addEventListener('DOMContentLoaded', function() {
+            const colorPicker = document.getElementById('shapeColorPicker');
+            const colorValue = document.getElementById('shapeColorValue');
+            
+            if (colorPicker && colorValue) {
+                colorPicker.addEventListener('input', function() {
+                    selectedShapeColor = this.value;
+                    colorValue.textContent = this.value;
+                    console.log('🎨 Cor das formas alterada para:', selectedShapeColor);
+                });
+            }
+        });
+
         // Função para adicionar formas
         function addShape(shapeType) {
             console.log('🔴 Função addShape chamada para:', shapeType);
@@ -2599,7 +2628,7 @@
                 position: absolute;
                 width: 100px;
                 height: 100px;
-                background-color: #3b82f6;
+                background-color: ${selectedShapeColor};
                 border-radius: 50%;
                 cursor: move;
                 border: 2px solid rgba(255, 255, 255, 0.3);
@@ -2669,7 +2698,7 @@
                 position: absolute;
                 width: 150px;
                 height: 100px;
-                background-color: #10b981;
+                background-color: ${selectedShapeColor};
                 border-radius: 8px;
                 cursor: move;
                 border: 2px solid rgba(255, 255, 255, 0.3);
@@ -2736,7 +2765,7 @@
                 position: absolute;
                 width: 200px;
                 height: 2px;
-                background-color: #6b7280;
+                background-color: ${selectedShapeColor};
                 cursor: move;
                 border-radius: 1px;
                 box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
