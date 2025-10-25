@@ -2566,14 +2566,13 @@
             } else if (shapeType === 'rectangle') {
                 console.log('🔴 Chamando addRectangle()...');
                 addRectangle();
+            } else if (shapeType === 'line') {
+                console.log('🔴 Chamando addLine()...');
+                addLine();
             } else {
                 console.log('🔴 Outras formas - mostrando mensagem de desenvolvimento');
                 // Feedback visual temporário para outras formas
-                const shapeNames = {
-                    'line': 'Linha'
-                };
-                
-                showNotification(`${shapeNames[shapeType]} selecionado (funcionalidade em desenvolvimento)`, 'info');
+                showNotification('Forma não reconhecida (funcionalidade em desenvolvimento)', 'info');
                 console.log('📝 TODO: Implementar funcionalidade para', shapeType);
             }
         }
@@ -2716,6 +2715,50 @@
             
             console.log('✅ Retângulo com texto adicionado ao canvas');
             showNotification('Retângulo com texto adicionado com sucesso!', 'success');
+        }
+
+        // Função para adicionar linha ao canvas
+        function addLine() {
+            console.log('📏 Adicionando linha ao canvas...');
+            
+            const canvas = document.getElementById('canvas');
+            if (!canvas) {
+                console.error('❌ Canvas não encontrado');
+                showNotification('Erro: Canvas não encontrado', 'error');
+                return;
+            }
+            
+            // Criar elemento div para a linha
+            const line = document.createElement('div');
+            line.className = 'draggable-element';
+            line.id = 'line-' + Date.now();
+            line.style.cssText = `
+                position: absolute;
+                width: 200px;
+                height: 2px;
+                background-color: #6b7280;
+                cursor: move;
+                border-radius: 1px;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+                z-index: 10;
+            `;
+            
+            // Posicionar no centro do canvas
+            const canvasRect = canvas.getBoundingClientRect();
+            const centerX = canvasRect.width / 2 - 100; // 100px = metade da largura da linha
+            const centerY = canvasRect.height / 2 - 1; // 1px = metade da altura da linha
+            
+            line.style.left = centerX + 'px';
+            line.style.top = centerY + 'px';
+            
+            // Adicionar ao canvas
+            canvas.appendChild(line);
+            
+            // Tornar draggable
+            makeDraggable(line);
+            
+            console.log('✅ Linha adicionada ao canvas');
+            showNotification('Linha adicionada com sucesso!', 'success');
         }
 
         // Função para tornar elemento draggable
