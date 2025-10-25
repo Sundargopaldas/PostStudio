@@ -2553,21 +2553,232 @@
             }, 100);
         }
 
-        // Função para adicionar formas (sem funcionalidade ainda)
+        // Função para adicionar formas
         function addShape(shapeType) {
             console.log('🔴 Função addShape chamada para:', shapeType);
+            console.log('🔴 Tipo é circle?', shapeType === 'circle');
             
-            // Feedback visual temporário
-            const shapeNames = {
-                'circle': 'Círculo',
-                'rectangle': 'Retângulo', 
-                'line': 'Linha'
+            // Chamar função específica baseada no tipo
+            if (shapeType === 'circle') {
+                console.log('🔴 Chamando addCircle()...');
+                addCircle();
+            } else {
+                console.log('🔴 Outras formas - mostrando mensagem de desenvolvimento');
+                // Feedback visual temporário para outras formas
+                const shapeNames = {
+                    'rectangle': 'Retângulo', 
+                    'line': 'Linha'
+                };
+                
+                showNotification(`${shapeNames[shapeType]} selecionado (funcionalidade em desenvolvimento)`, 'info');
+                console.log('📝 TODO: Implementar funcionalidade para', shapeType);
+            }
+        }
+
+        // Função para adicionar círculo ao canvas
+        function addCircle() {
+            console.log('🔴 Adicionando círculo ao canvas...');
+            
+            const canvas = document.getElementById('canvas');
+            if (!canvas) {
+                console.error('❌ Canvas não encontrado');
+                showNotification('Erro: Canvas não encontrado', 'error');
+                return;
+            }
+            
+            // Texto padrão para o círculo
+            const circleText = 'Texto';
+            
+            // Criar elemento div para o círculo
+            const circle = document.createElement('div');
+            circle.className = 'draggable-element';
+            circle.id = 'circle-' + Date.now();
+            circle.style.cssText = `
+                position: absolute;
+                width: 100px;
+                height: 100px;
+                background-color: #3b82f6;
+                border-radius: 50%;
+                cursor: move;
+                border: 2px solid rgba(255, 255, 255, 0.3);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                z-index: 10;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+            `;
+            
+            // Adicionar texto ao círculo
+            const textElement = document.createElement('div');
+            textElement.style.cssText = `
+                color: white;
+                font-size: 12px;
+                font-weight: bold;
+                text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+                word-wrap: break-word;
+                max-width: 90px;
+                line-height: 1.2;
+                pointer-events: none;
+            `;
+            textElement.textContent = circleText || 'Texto';
+            circle.appendChild(textElement);
+            
+            // Posicionar no centro do canvas
+            const canvasRect = canvas.getBoundingClientRect();
+            const centerX = canvasRect.width / 2 - 50; // 50px = metade da largura do círculo
+            const centerY = canvasRect.height / 2 - 50; // 50px = metade da altura do círculo
+            
+            circle.style.left = centerX + 'px';
+            circle.style.top = centerY + 'px';
+            
+            // Adicionar ao canvas
+            canvas.appendChild(circle);
+            
+            // Tornar draggable
+            makeDraggable(circle);
+            
+            // Adicionar funcionalidade de edição de texto
+            addTextEditFunctionality(circle, textElement);
+            
+            console.log('✅ Círculo com texto adicionado ao canvas');
+            showNotification('Círculo com texto adicionado com sucesso!', 'success');
+        }
+
+        // Função para tornar elemento draggable
+        function makeDraggable(element) {
+            let isDragging = false;
+            let startX, startY, initialX, initialY;
+            
+            element.addEventListener('mousedown', function(e) {
+                // Verificar se não está editando texto
+                if (element.querySelector('input')) {
+                    return; // Não iniciar drag se estiver editando
+                }
+                
+                isDragging = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                
+                // Usar posições atuais do elemento
+                initialX = parseInt(element.style.left) || 0;
+                initialY = parseInt(element.style.top) || 0;
+                
+                element.style.cursor = 'grabbing';
+                element.style.zIndex = '1000'; // Garantir que fica por cima
+                e.preventDefault();
+                e.stopPropagation();
+            });
+            
+            document.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
+                
+                const deltaX = e.clientX - startX;
+                const deltaY = e.clientY - startY;
+                
+                // Calcular novas posições
+                const newX = initialX + deltaX;
+                const newY = initialY + deltaY;
+                
+                // Limitar movimento dentro do canvas
+                const canvas = document.getElementById('canvas');
+                if (canvas) {
+                    const canvasRect = canvas.getBoundingClientRect();
+                    const maxX = canvasRect.width - 100; // 100px = largura do círculo
+                    const maxY = canvasRect.height - 100; // 100px = altura do círculo
+                    
+                    element.style.left = Math.max(0, Math.min(newX, maxX)) + 'px';
+                    element.style.top = Math.max(0, Math.min(newY, maxY)) + 'px';
+                } else {
+                    element.style.left = newX + 'px';
+                    element.style.top = newY + 'px';
+                }
+                
+                e.preventDefault();
+            });
+            
+            document.addEventListener('mouseup', function() {
+                if (isDragging) {
+                    isDragging = false;
+                    element.style.cursor = 'move';
+                    element.style.zIndex = '10'; // Voltar ao z-index normal
+                }
+            });
+        }
+
+        // Função para adicionar funcionalidade de edição de texto ao círculo
+        function addTextEditFunctionality(circle, textElement) {
+            let isEditing = false;
+            
+            // Clique simples para editar texto
+            circle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                
+                if (!isEditing) {
+                    startTextEditing(circle, textElement);
+                }
+            });
+            
+            // Adicionar indicador visual de que é editável
+            circle.title = 'Clique para editar texto';
+        }
+        
+        // Função para iniciar edição de texto
+        function startTextEditing(circle, textElement) {
+            const currentText = textElement.textContent;
+            
+            // Criar input temporário
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = currentText;
+            input.style.cssText = `
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 80px;
+                height: 20px;
+                background: rgba(255, 255, 255, 0.9);
+                border: 2px solid #3b82f6;
+                border-radius: 4px;
+                font-size: 12px;
+                font-weight: bold;
+                text-align: center;
+                color: #333;
+                outline: none;
+                z-index: 1001;
+                pointer-events: auto;
+            `;
+            
+            // Adicionar input ao círculo
+            circle.appendChild(input);
+            input.focus();
+            input.select();
+            
+            // Função para finalizar edição
+            const finishEditing = () => {
+                const newText = input.value.trim() || 'Texto';
+                textElement.textContent = newText;
+                circle.removeChild(input);
+                isEditing = false;
+                console.log('✅ Texto do círculo atualizado:', newText);
             };
             
-            showNotification(`${shapeNames[shapeType]} selecionado (funcionalidade em desenvolvimento)`, 'info');
+            // Event listeners para finalizar edição
+            input.addEventListener('blur', finishEditing);
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    finishEditing();
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    textElement.textContent = currentText; // Restaurar texto original
+                    circle.removeChild(input);
+                    isEditing = false;
+                }
+            });
             
-            // TODO: Implementar funcionalidade de formas
-            console.log('📝 TODO: Implementar funcionalidade para', shapeType);
+            isEditing = true;
         }
 
         // Função para atualizar controles visuais na edição
