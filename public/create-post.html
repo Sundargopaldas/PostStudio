@@ -3978,6 +3978,79 @@
                 console.log('🔧 textPosition corrigido para:', customizationSettings.textPosition);
             }
             
+            // Capturar todos os elementos do canvas (formas, ícones, etc.) ANTES de enviar
+            const canvas = document.getElementById('canvas');
+            const canvasElements = [];
+            
+            if (canvas) {
+                console.log('🎨 Capturando elementos do canvas...');
+                const draggableElements = canvas.querySelectorAll('.draggable-element');
+                console.log('🎨 Elementos encontrados:', draggableElements.length);
+                console.log('🎨 Elementos detalhados:', draggableElements);
+                
+                // Verificar se já existem elementos salvos para evitar duplicação
+                if (customizationSettings.canvasElements && customizationSettings.canvasElements.length > 0) {
+                    console.log('⚠️ Elementos já existem na customização, limpando...');
+                    customizationSettings.canvasElements = [];
+                }
+                
+                draggableElements.forEach((element, index) => {
+                    console.log(`🎨 Processando elemento ${index + 1}:`, element);
+                    console.log(`🎨 ID do elemento:`, element.id);
+                    console.log(`🎨 Classes do elemento:`, element.className);
+                    console.log(`🎨 HTML do elemento:`, element.innerHTML);
+                    console.log(`🎨 Posição do elemento:`, element.style.left, element.style.top);
+                    console.log(`🎨 Tamanho do elemento:`, element.style.width, element.style.height);
+                    
+                    const elementData = {
+                        id: element.id,
+                        type: element.className.includes('draggable-element') ? 'draggable' : 'unknown',
+                        position: {
+                            left: element.style.left,
+                            top: element.style.top,
+                            zIndex: element.style.zIndex || '5'
+                        },
+                        style: {
+                            width: element.style.width,
+                            height: element.style.height,
+                            backgroundColor: element.style.backgroundColor,
+                            opacity: element.style.opacity || '1'
+                        },
+                        content: element.innerHTML
+                    };
+                    
+                    // Identificar tipo específico do elemento
+                    if (element.id.startsWith('icon-')) {
+                        elementData.type = 'icon';
+                        const iconElement = element.querySelector('[data-lucide]');
+                        if (iconElement) {
+                            elementData.iconName = iconElement.getAttribute('data-lucide');
+                            console.log(`🎨 Ícone encontrado:`, elementData.iconName);
+                        } else {
+                            console.log(`⚠️ Elemento de ícone sem data-lucide:`, element.innerHTML);
+                        }
+                    } else if (element.id.startsWith('circle-')) {
+                        elementData.type = 'circle';
+                    } else if (element.id.startsWith('rectangle-')) {
+                        elementData.type = 'rectangle';
+                    } else if (element.id.startsWith('line-')) {
+                        elementData.type = 'line';
+                    }
+                    
+                    canvasElements.push(elementData);
+                    console.log(`🎨 Elemento ${index + 1}:`, elementData);
+                });
+                
+                // Adicionar elementos do canvas à customização
+                if (canvasElements.length > 0) {
+                    customizationSettings.canvasElements = canvasElements;
+                    console.log('🎨 Elementos do canvas adicionados à customização:', canvasElements.length);
+                    console.log('🎨 Customização final:', customizationSettings);
+                } else {
+                    console.log('⚠️ Nenhum elemento do canvas encontrado para salvar');
+                }
+            }
+            
             formData.append('customization', JSON.stringify(customizationSettings));
             
             // Adicionar imagem se houver
@@ -4033,64 +4106,6 @@
             if (selectedPartialImage) {
                 console.log('🖼️ Enviando imagem parcial do Pexels:', selectedPartialImage);
                 formData.append('pexelsPartialImage', selectedPartialImage);
-            }
-            // Capturar todos os elementos do canvas (formas, ícones, etc.)
-            const canvas = document.getElementById('canvas');
-            const canvasElements = [];
-            
-            if (canvas) {
-                console.log('🎨 Capturando elementos do canvas...');
-                const draggableElements = canvas.querySelectorAll('.draggable-element');
-                console.log('🎨 Elementos encontrados:', draggableElements.length);
-                
-                // Verificar se já existem elementos salvos para evitar duplicação
-                if (customizationSettings.canvasElements && customizationSettings.canvasElements.length > 0) {
-                    console.log('⚠️ Elementos já existem na customização, limpando...');
-                    customizationSettings.canvasElements = [];
-                }
-                
-                draggableElements.forEach((element, index) => {
-                    const elementData = {
-                        id: element.id,
-                        type: element.className.includes('draggable-element') ? 'draggable' : 'unknown',
-                        position: {
-                            left: element.style.left,
-                            top: element.style.top,
-                            zIndex: element.style.zIndex || '5'
-                        },
-                        style: {
-                            width: element.style.width,
-                            height: element.style.height,
-                            backgroundColor: element.style.backgroundColor,
-                            opacity: element.style.opacity || '1'
-                        },
-                        content: element.innerHTML
-                    };
-                    
-                    // Identificar tipo específico do elemento
-                    if (element.id.startsWith('icon-')) {
-                        elementData.type = 'icon';
-                        const iconElement = element.querySelector('[data-lucide]');
-                        if (iconElement) {
-                            elementData.iconName = iconElement.getAttribute('data-lucide');
-                        }
-                    } else if (element.id.startsWith('circle-')) {
-                        elementData.type = 'circle';
-                    } else if (element.id.startsWith('rectangle-')) {
-                        elementData.type = 'rectangle';
-                    } else if (element.id.startsWith('line-')) {
-                        elementData.type = 'line';
-                    }
-                    
-                    canvasElements.push(elementData);
-                    console.log(`🎨 Elemento ${index + 1}:`, elementData);
-                });
-                
-                // Adicionar elementos do canvas à customização
-                if (canvasElements.length > 0) {
-                    customizationSettings.canvasElements = canvasElements;
-                    console.log('🎨 Elementos do canvas adicionados à customização:', canvasElements.length);
-                }
             }
 
             // Forçar normalização da fonte antes de enviar

@@ -6,6 +6,8 @@
     <title>PostStudio I.A - Meus Posts</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <!-- Typed.js para efeito typewriter -->
     <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&family=Montserrat:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&family=Open+Sans:wght@300;400;600;700;800&family=Lato:wght@300;400;700;900&family=Source+Sans+Pro:wght@300;400;600;700;900&family=Nunito:wght@300;400;600;700;800;900&family=Quicksand:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700;800;900&family=Abril+Fatface&family=Merriweather:wght@300;400;700;900&family=PT+Serif:wght@400;700&family=Work+Sans:wght@300;400;600;700;800&family=Oswald:wght@300;400;500;600;700&family=Lobster&family=Pacifico&family=Dancing+Script:wght@400;500;600;700&family=Great+Vibes&family=Satisfy&family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -525,8 +527,18 @@
                             videoCaptionFont: customization.videoCaptionFont || 'Arial',
                             backgroundImage: customization.backgroundImage || null,
                             partialImage: customization.partialImage || null,
-                            narration: customization.narration || null
+                            narration: customization.narration || null,
+                            canvasElements: customization.canvasElements || []
                         };
+                        
+                        // Debug dos elementos do canvas
+                        if (customStyle.canvasElements && customStyle.canvasElements.length > 0) {
+                            console.log(`🎨 Post ${post.id} - Elementos do canvas encontrados:`, customStyle.canvasElements.length);
+                            console.log(`🎨 Elementos:`, customStyle.canvasElements);
+                        } else {
+                            console.log(`🎨 Post ${post.id} - Nenhum elemento do canvas encontrado`);
+                            console.log(`🎨 Customização completa:`, customization);
+                        }
                         
                         // Debug do vídeo
                         if (customStyle.video) {
@@ -669,9 +681,35 @@
                     <div class="relative">
                         <div>
                             <!-- SOLUÇÃO FINAL - COM BACKGROUND -->
-                            <div class="mb-6 rounded-xl overflow-hidden shadow-lg ${customStyle.background || 'bg-gradient-to-br from-blue-400 to-purple-500'}" style="height: 400px; background-position: center; background-size: cover; background-repeat: no-repeat; ${customStyle.backgroundImage ? `background-image: url('${customStyle.backgroundImage}');` : ''} display: flex; flex-direction: column; align-items: center; text-align: center; padding: 24px; ${customStyle.textPosition === 'top' ? 'justify-content: flex-start;' : customStyle.textPosition === 'bottom' ? 'justify-content: flex-end;' : 'justify-content: center;'}">
+                            <div class="mb-6 rounded-xl overflow-hidden shadow-lg ${customStyle.background || 'bg-gradient-to-br from-blue-400 to-purple-500'}" style="height: 400px; background-position: center; background-size: cover; background-repeat: no-repeat; ${customStyle.backgroundImage ? `background-image: url('${customStyle.backgroundImage}');` : ''} display: flex; flex-direction: column; align-items: center; text-align: center; padding: 24px; ${customStyle.textPosition === 'top' ? 'justify-content: flex-start;' : customStyle.textPosition === 'bottom' ? 'justify-content: flex-end;' : 'justify-content: center;'} position: relative;">
                                 <h3 class="text-2xl font-bold ${resolvedFontClass} mb-4" style="${resolvedFontStyle} color: ${customStyle.color} !important; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">${post.title}</h3>
                                 <p class="text-base leading-relaxed ${resolvedFontClass}" style="${resolvedFontStyle} color: ${customStyle.color} !important; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">${post.content.substring(0, 200)}${post.content.length > 200 ? '...' : ''}</p>
+                                
+                                <!-- Elementos do Canvas (formas, ícones, etc.) -->
+                                ${customStyle.canvasElements && customStyle.canvasElements.length > 0 ? `
+                                    <div class="absolute inset-0 pointer-events-none">
+                                        ${customStyle.canvasElements.map(element => {
+                                            console.log('🎨 Renderizando elemento:', element);
+                                            if (element.type === 'icon') {
+                                                return `<div class="absolute flex items-center justify-center" style="left: ${element.position.left}; top: ${element.position.top}; z-index: ${element.position.zIndex}; width: ${element.style.width}; height: ${element.style.height}; opacity: ${element.style.opacity};">
+                                                    <i data-lucide="${element.iconName}" class="w-6 h-6" style="color: #3b82f6; width: 24px; height: 24px;"></i>
+                                                </div>`;
+                                            } else if (element.type === 'circle') {
+                                                return `<div class="absolute flex items-center justify-center text-white text-sm font-medium" style="left: ${element.position.left}; top: ${element.position.top}; z-index: ${element.position.zIndex}; width: ${element.style.width}; height: ${element.style.height}; background-color: ${element.style.backgroundColor}; border-radius: 50%; opacity: ${element.style.opacity};">
+                                                    ${element.content}
+                                                </div>`;
+                                            } else if (element.type === 'rectangle') {
+                                                return `<div class="absolute flex items-center justify-center text-white text-sm font-medium" style="left: ${element.position.left}; top: ${element.position.top}; z-index: ${element.position.zIndex}; width: ${element.style.width}; height: ${element.style.height}; background-color: ${element.style.backgroundColor}; border-radius: 8px; opacity: ${element.style.opacity};">
+                                                    ${element.content}
+                                                </div>`;
+                                            } else if (element.type === 'line') {
+                                                return `<div class="absolute" style="left: ${element.position.left}; top: ${element.position.top}; z-index: ${element.position.zIndex}; width: ${element.style.width}; height: ${element.style.height}; background-color: ${element.style.backgroundColor}; opacity: ${element.style.opacity};">
+                                                </div>`;
+                                            }
+                                            return '';
+                                        }).join('')}
+                                    </div>
+                                ` : ''}
                             </div>
                             
                             <!-- Conteúdo adicional (vídeos, imagens, etc.) -->
@@ -751,6 +789,27 @@
             
             console.log(`🎉 Total de posts exibidos: ${posts.length}`);
             console.log('📦 Container final:', container.innerHTML.length, 'caracteres');
+            
+            // Inicializar ícones Lucide para elementos do canvas
+            setTimeout(() => {
+                if (typeof lucide !== 'undefined') {
+                    console.log('🎨 Inicializando ícones Lucide...');
+                    lucide.createIcons();
+                    console.log('✅ Ícones Lucide inicializados');
+                } else {
+                    console.log('⚠️ Lucide não está disponível, tentando novamente...');
+                    // Tentar novamente após um pequeno delay
+                    setTimeout(() => {
+                        if (typeof lucide !== 'undefined') {
+                            console.log('🎨 Inicializando ícones Lucide (segunda tentativa)...');
+                            lucide.createIcons();
+                            console.log('✅ Ícones Lucide inicializados');
+                        } else {
+                            console.log('❌ Lucide ainda não está disponível');
+                        }
+                    }, 500);
+                }
+            }, 100);
             
             // Legendas serão animadas automaticamente quando o vídeo for reproduzido
             console.log('📝 Legendas configuradas para animação automática');
