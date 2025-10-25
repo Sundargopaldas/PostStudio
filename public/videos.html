@@ -79,18 +79,19 @@
         /* Estilo para legendas */
         .caption-overlay {
             position: absolute;
-            bottom: 80px;
+            bottom: 20px;
             left: 20px;
             right: 20px;
-            background: rgba(0,0,0,0.8);
+            background: transparent;
             color: white;
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: 600;
+            padding: 0;
+            border-radius: 0;
+            font-size: 16px;
+            font-weight: 500;
             text-align: center;
             opacity: 0;
             transition: opacity 0.3s ease;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.9);
         }
         
         .caption-overlay.show {
@@ -167,10 +168,18 @@
             <div class="glass-effect rounded-2xl p-8">
                 <i class="fas fa-video text-6xl text-white/50 mb-4"></i>
                 <h3 class="text-2xl font-bold text-white mb-2">Nenhum vídeo encontrado</h3>
-                <p class="text-white/80 mb-6">Crie seu primeiro vídeo profissional com legenda e narração!</p>
-                <button onclick="window.location.href='/video-editor-pro.html'" class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors">
-                    <i class="fas fa-plus mr-2"></i>Criar Primeiro Vídeo
-                </button>
+                <p class="text-white/80 mb-4">Crie seu primeiro vídeo profissional com legenda e narração!</p>
+                <div class="bg-blue-900/50 border border-blue-500 rounded-lg p-4 mb-6">
+                    <p class="text-blue-300 text-sm">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        Dica: Use o editor de vídeo para criar vídeos com legendas e narração
+                    </p>
+                </div>
+                <div class="flex gap-4 justify-center">
+                    <button onclick="window.location.href='/video-editor-pro.html'" class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>Criar Primeiro Vídeo
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -194,27 +203,46 @@
                 
                 if (response.ok) {
                     const allPosts = await response.json();
-                    console.log('📊 Todos os posts:', allPosts);
+                    console.log('📊 Todos os posts carregados:', allPosts.length);
+                    console.log('📊 Posts com customização:', allPosts.filter(p => p.customization).length);
                     
                     // Filtrar apenas vídeos
                     videos = allPosts.filter(post => {
-                        if (!post.customization) return false;
+                        if (!post.customization) {
+                            console.log('❌ Post sem customização:', post.title);
+                            return false;
+                        }
                         
                         try {
                             const customization = JSON.parse(post.customization);
-                            return customization.video && (
-                                customization.videoCaption || 
-                                customization.narration
-                            );
+                            const hasVideo = !!customization.video;
+                            const hasCaption = !!customization.videoCaption;
+                            const hasNarration = !!customization.narration;
+                            
+                            console.log(`🔍 Post "${post.title}":`, {
+                                hasVideo,
+                                hasCaption,
+                                hasNarration,
+                                videoUrl: customization.video
+                            });
+                            
+                            // Considerar vídeo se tem URL de vídeo válida
+                            const isValidUrl = isValidVideoUrl(customization.video);
+                            console.log(`🔗 URL do vídeo "${post.title}": ${customization.video} (válida: ${isValidUrl})`);
+                            
+                            return hasVideo && isValidUrl;
                         } catch (e) {
+                            console.error('❌ Erro ao parsear customização do post:', post.title, e);
                             return false;
                         }
                     });
                     
-                    console.log('🎬 Vídeos filtrados:', videos);
+                    console.log('🎬 Vídeos filtrados:', videos.length);
+                    console.log('🎬 Lista de vídeos:', videos.map(v => ({ id: v.id, title: v.title })));
                     displayVideos();
                 } else {
                     console.error('❌ Erro ao carregar posts:', response.status);
+                    console.error('❌ Resposta:', await response.text());
                 }
             } catch (error) {
                 console.error('❌ Erro ao carregar vídeos:', error);
@@ -250,57 +278,33 @@
                                 data-video-caption="${customization.videoCaption || ''}"
                                 data-video-caption-font="${customization.videoCaptionFont || 'Arial'}"
                                 data-video-caption-size="${customization.videoCaptionSize || '20'}"
+                                onerror="handleVideoError(${video.id})"
                             >
                                 <source src="${customization.video}" type="video/mp4">
-                                Seu navegador não suporta vídeos.
+                                <div class="bg-gray-800 text-white p-4 text-center">
+                                    <i class="fas fa-exclamation-triangle text-yellow-400 mb-2"></i>
+                                    <p>Vídeo não encontrado</p>
+                                    <p class="text-sm text-gray-400">URL: ${customization.video}</p>
+                                </div>
                             </video>
                             
-                            <!-- Controles customizados -->
-                            <div class="video-controls">
-                                <button id="playPause-${video.id}" class="play-button">
-                                    <i class="fas fa-play"></i>
-                                </button>
-                                
-                                <div class="progress-bar" id="progressBar-${video.id}">
-                                    <div class="progress-fill" id="progressFill-${video.id}"></div>
-                                </div>
-                                
-                                <div class="time-display">
-                                    <span id="currentTime-${video.id}">0:00</span> / <span id="duration-${video.id}">0:00</span>
-                                </div>
-                            </div>
-                            
                             <!-- Overlay de legenda -->
-                            <div class="caption-overlay" id="captionOverlay-${video.id}">
-                                <span id="captionText-${video.id}">${customization.videoCaption || ''}</span>
+                            <div id="captionOverlay-${video.id}" class="caption-overlay" style="font-family: ${customization.videoCaptionFont || 'Arial'};">
+                                ${customization.videoCaption || ''}
                             </div>
                             
-                            <!-- Indicador de narração -->
-                            <div class="narration-indicator" id="narrationIndicator-${video.id}">
-                                <i class="fas fa-microphone mr-2"></i>Narração Ativa
-                            </div>
-                            
-                            <!-- Indicadores de status -->
-                            <div class="status-indicator status-video">
-                                <i class="fas fa-video mr-1"></i>Vídeo
-                            </div>
-                            ${hasCaption ? '<div class="status-indicator status-caption" style="top: 60px;"><i class="fas fa-closed-captioning mr-1"></i>Legenda</div>' : ''}
-                            ${hasNarration ? '<div class="status-indicator status-narration" style="top: 100px;"><i class="fas fa-microphone mr-1"></i>Narração</div>' : ''}
+                            <!-- Vídeo limpo sem controles extras -->
                         </div>
                         
                         <!-- Informações do vídeo -->
                         <div class="mt-4">
                             <h3 class="text-lg font-bold text-white mb-2">${video.title}</h3>
-                            <p class="text-white/80 text-sm mb-3">${video.content}</p>
                             
                             <!-- Botões de ação -->
                             <div class="flex gap-2">
-                                <button onclick="playVideo(${video.id})" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm">
+                                <button onclick="playVideo(${video.id})" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors text-sm">
                                     <i class="fas fa-play mr-1"></i>Reproduzir
                                 </button>
-                                ${hasNarration ? `<button onclick="playNarration(${video.id})" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors text-sm">
-                                    <i class="fas fa-microphone mr-1"></i>Narração
-                                </button>` : ''}
                                 <button onclick="deleteVideo(${video.id})" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors text-sm">
                                     <i class="fas fa-trash mr-1"></i>Excluir
                                 </button>
@@ -319,54 +323,40 @@
         // Configurar eventos do vídeo
         function setupVideoEvents(videoId) {
             const video = document.getElementById(`video-${videoId}`);
-            const playPauseBtn = document.getElementById(`playPause-${videoId}`);
-            const progressBar = document.getElementById(`progressBar-${videoId}`);
-            const progressFill = document.getElementById(`progressFill-${videoId}`);
-            const currentTimeDisplay = document.getElementById(`currentTime-${videoId}`);
-            const durationDisplay = document.getElementById(`duration-${videoId}`);
             
-            if (!video) return;
+            if (!video) {
+                console.log(`⚠️ Vídeo ${videoId} não encontrado, pulando configuração de eventos`);
+                return;
+            }
             
-            // Event listeners
+            console.log(`🎬 Configurando eventos para vídeo ${videoId}`);
+            
+            // Event listeners básicos
             video.addEventListener('loadedmetadata', () => {
-                durationDisplay.textContent = formatTime(video.duration);
+                console.log(`📹 Vídeo ${videoId} carregado, duração: ${video.duration}s`);
             });
             
             video.addEventListener('timeupdate', () => {
-                const progress = (video.currentTime / video.duration) * 100;
-                progressFill.style.width = progress + '%';
-                currentTimeDisplay.textContent = formatTime(video.currentTime);
-                
                 // Mostrar legenda se necessário
                 updateCaptionDisplay(videoId);
             });
             
             video.addEventListener('play', () => {
-                playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                console.log(`▶️ Vídeo ${videoId} iniciado`);
+                // Mostrar legenda
+                updateCaptionDisplay(videoId);
                 // Reproduzir narração se existir
                 playNarration(videoId);
             });
             
             video.addEventListener('pause', () => {
-                playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                console.log(`⏸️ Vídeo ${videoId} pausado`);
                 // Pausar narração se existir
                 pauseNarration(videoId);
             });
             
-            // Controles
-            playPauseBtn.addEventListener('click', () => {
-                if (video.paused) {
-                    video.play();
-                } else {
-                    video.pause();
-                }
-            });
-            
-            progressBar.addEventListener('click', (e) => {
-                const rect = progressBar.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const percentage = x / rect.width;
-                video.currentTime = percentage * video.duration;
+            video.addEventListener('error', (e) => {
+                console.error(`❌ Erro no vídeo ${videoId}:`, e);
             });
         }
 
@@ -450,10 +440,13 @@
             const video = document.getElementById(`video-${videoId}`);
             const captionOverlay = document.getElementById(`captionOverlay-${videoId}`);
             
-            if (video && captionOverlay && !video.paused) {
-                captionOverlay.classList.add('show');
-            } else if (captionOverlay) {
-                captionOverlay.classList.remove('show');
+            if (video && captionOverlay) {
+                // Mostrar legenda quando vídeo estiver tocando
+                if (!video.paused && video.currentTime > 0) {
+                    captionOverlay.classList.add('show');
+                } else {
+                    captionOverlay.classList.remove('show');
+                }
             }
         }
 
@@ -485,6 +478,93 @@
             const secs = Math.floor(seconds % 60);
             return mins + ':' + (secs < 10 ? '0' : '') + secs;
         }
+
+        // Lidar com erro de vídeo
+        function handleVideoError(videoId) {
+            console.error(`❌ Erro ao carregar vídeo ${videoId}`);
+            const video = document.getElementById(`video-${videoId}`);
+            if (video) {
+                // Mostrar mensagem de erro no lugar do vídeo
+                const container = video.parentElement;
+                container.innerHTML = `
+                    <div class="bg-red-900/50 border border-red-500 rounded-lg p-4 text-center">
+                        <i class="fas fa-exclamation-triangle text-red-400 text-2xl mb-2"></i>
+                        <p class="text-red-300 font-semibold">Erro ao carregar vídeo</p>
+                        <p class="text-red-400 text-sm">O arquivo de vídeo não foi encontrado</p>
+                        <button onclick="deleteVideo(${videoId})" class="bg-red-600 text-white px-3 py-1 rounded text-sm mt-2">
+                            <i class="fas fa-trash mr-1"></i>Excluir
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // Validar URL de vídeo
+        function isValidVideoUrl(url) {
+            if (!url) return false;
+            
+            // URLs blob são temporárias e não funcionam após reload
+            if (url.startsWith('blob:')) {
+                console.warn('⚠️ URL blob detectada (temporária):', url);
+                return false;
+            }
+            
+            // URLs que começam com /uploads/ são válidas (URLs relativas)
+            if (url.startsWith('/uploads/')) {
+                return true;
+            }
+            
+            // URLs que começam com http são válidas
+            if (url.startsWith('http://') || url.startsWith('https://')) {
+                return true;
+            }
+            
+            // Verificar se é uma URL válida (para URLs absolutas)
+            try {
+                new URL(url);
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        // Converter blob para URL persistente
+        async function convertBlobToPersistentUrl(blobUrl) {
+            try {
+                // Se é uma URL blob, tentar converter
+                if (blobUrl.startsWith('blob:')) {
+                    console.log('🔄 Convertendo blob para URL persistente...');
+                    
+                    // Buscar o blob
+                    const response = await fetch(blobUrl);
+                    if (response.ok) {
+                        const blob = await response.blob();
+                        
+                        // Criar FormData para upload
+                        const formData = new FormData();
+                        formData.append('video', blob, 'video.mp4');
+                        
+                        // Upload para servidor
+                        const uploadResponse = await fetch('/api/upload-video', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        
+                        if (uploadResponse.ok) {
+                            const result = await uploadResponse.json();
+                            console.log('✅ Vídeo convertido para URL persistente:', result.url);
+                            return result.url;
+                        }
+                    }
+                }
+                
+                return blobUrl; // Retornar URL original se não for blob
+            } catch (error) {
+                console.error('❌ Erro ao converter blob:', error);
+                return null;
+            }
+        }
+
     </script>
 </body>
 </html>

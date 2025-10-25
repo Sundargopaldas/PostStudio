@@ -366,7 +366,14 @@
                 if (ttsManager.voices.length > 0) {
                     voiceSelect.innerHTML = '<option value="">Selecione uma voz...</option>';
                     
+                    console.log('🔍 Debug - Vozes disponíveis:');
                     ttsManager.voices.forEach((voice, index) => {
+                        console.log(`🎤 Voz ${index + 1}:`, {
+                            id: voice.voice_id,
+                            name: voice.name,
+                            category: voice.category
+                        });
+                        
                         const option = document.createElement('option');
                         option.value = voice.voice_id;
                         option.textContent = `${voice.name} (${voice.category || 'geral'})`;
@@ -379,6 +386,7 @@
                     });
                     
                     console.log('✅ Vozes carregadas:', ttsManager.voices.length);
+                    console.log('🔍 Debug - Opções no select:', voiceSelect.options.length);
                     updateNarrationStatus(`✅ ${ttsManager.voices.length} vozes carregadas!`, 'success');
                 } else {
                     voiceSelect.innerHTML = '<option value="">Nenhuma voz disponível</option>';
@@ -772,9 +780,50 @@
                 const narrationSpeed = document.getElementById('narrationSpeed').value;
                 const narrationVolume = document.getElementById('narrationVolume').value;
 
+                console.log('💾 Salvando vídeo como post...');
+
+                // 1. PRIMEIRO: Fazer upload do vídeo para URL persistente
+                let persistentVideoUrl = null;
+                
+                if (selectedVideo && selectedVideo.url && selectedVideo.url.startsWith('blob:')) {
+                    console.log('📤 Convertendo blob para URL persistente...');
+                    
+                    // Converter blob para arquivo
+                    const response = await fetch(selectedVideo.url);
+                    const blob = await response.blob();
+                    const file = new File([blob], 'video.mp4', { type: 'video/mp4' });
+                    
+                    // Upload para servidor
+                    const uploadFormData = new FormData();
+                    uploadFormData.append('video', file);
+                    
+                    const uploadResponse = await fetch('/api/upload-video', {
+                        method: 'POST',
+                        body: uploadFormData
+                    });
+                    
+                    if (uploadResponse.ok) {
+                        const uploadResult = await uploadResponse.json();
+                        persistentVideoUrl = uploadResult.url;
+                        console.log('✅ Vídeo convertido para URL persistente:', persistentVideoUrl);
+                    } else {
+                        console.error('❌ Erro ao converter vídeo:', await uploadResponse.text());
+                        alert('Erro ao salvar vídeo. Tente novamente.');
+                        return;
+                    }
+                } else if (selectedVideo && selectedVideo.url && !selectedVideo.url.startsWith('blob:')) {
+                    // Já é uma URL persistente
+                    persistentVideoUrl = selectedVideo.url;
+                    console.log('✅ Vídeo já tem URL persistente:', persistentVideoUrl);
+                } else {
+                    console.error('❌ Nenhum vídeo válido encontrado');
+                    alert('Erro: Nenhum vídeo válido encontrado.');
+                    return;
+                }
+
                 // Preparar dados para envio
                 const videoData = {
-                    video: selectedVideo,
+                    video: persistentVideoUrl,
                     caption: caption,
                     captionFont: captionFont,
                     speed: videoSpeed,
@@ -789,17 +838,17 @@
                     timestamp: new Date().toISOString()
                 };
 
-                console.log('💾 Salvando vídeo como post:', videoData);
+                console.log('💾 Dados do vídeo preparados:', videoData);
 
                 // Criar post com vídeo
                 const postData = {
-                    title: caption || 'Vídeo criado com legenda personalizada',
-                    content: caption || 'Vídeo criado com legenda personalizada',
+                    title: 'Meu Vídeo',
+                    content: 'Vídeo criado com legenda personalizada',
                     template: 'Vídeo com Legenda',
                     hashtags: '#video #legenda #personalizado',
                     platforms: JSON.stringify(['instagram', 'facebook']),
                     customization: JSON.stringify({
-                        video: selectedVideo.url || selectedVideo,
+                        video: persistentVideoUrl, // Usar URL persistente
                         videoCaption: caption,
                         videoCaptionFont: captionFont,
                         videoSpeed: videoSpeed,

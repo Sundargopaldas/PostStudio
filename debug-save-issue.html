@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Problema de Salvamento</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-8 text-center">
+            <i class="fas fa-bug mr-2"></i>
+            Debug - Problema de Salvamento
+        </h1>
+
+        <div class="grid md:grid-cols-2 gap-8">
+            <!-- Formulário de Teste -->
+            <div class="bg-gray-800 rounded-lg p-6">
+                <h2 class="text-xl font-semibold mb-4">Teste de Salvamento</h2>
+                
+                <form id="testForm">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Título</label>
+                        <input type="text" id="title" class="w-full px-3 py-2 bg-gray-700 rounded border" 
+                               value="Teste de Debug" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Conteúdo</label>
+                        <textarea id="content" rows="3" class="w-full px-3 py-2 bg-gray-700 rounded border" 
+                                  required>Este é um teste para verificar se o salvamento está funcionando corretamente.</textarea>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Template</label>
+                        <select id="template" class="w-full px-3 py-2 bg-gray-700 rounded border">
+                            <option value="Post Personalizado">Post Personalizado</option>
+                            <option value="Vídeo com Legenda">Vídeo com Legenda</option>
+                            <option value="Vídeo Profissional">Vídeo Profissional</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Hashtags</label>
+                        <input type="text" id="hashtags" class="w-full px-3 py-2 bg-gray-700 rounded border" 
+                               value="#teste #debug #salvamento">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Plataformas</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" name="platforms" value="instagram" checked class="mr-2">
+                                Instagram
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="platforms" value="facebook" checked class="mr-2">
+                                Facebook
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="platforms" value="twitter" class="mr-2">
+                                Twitter
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded font-medium">
+                        <i class="fas fa-save mr-2"></i>
+                        Testar Salvamento
+                    </button>
+                </form>
+            </div>
+
+            <!-- Log de Debug -->
+            <div class="bg-gray-800 rounded-lg p-6">
+                <h2 class="text-xl font-semibold mb-4">Log de Debug</h2>
+                <div id="debugLog" class="bg-black rounded p-4 h-96 overflow-y-auto font-mono text-sm">
+                    <div class="text-green-400">🔧 Debug iniciado...</div>
+                    <div class="text-blue-400">📝 Aguardando teste de salvamento...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resultados -->
+        <div id="results" class="mt-8 bg-gray-800 rounded-lg p-6" style="display: none;">
+            <h2 class="text-xl font-semibold mb-4">Resultados do Teste</h2>
+            <div id="resultContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const debugLog = document.getElementById('debugLog');
+        const results = document.getElementById('results');
+        const resultContent = document.getElementById('resultContent');
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? 'text-red-400' : 
+                         type === 'success' ? 'text-green-400' : 
+                         type === 'warning' ? 'text-yellow-400' : 'text-blue-400';
+            
+            debugLog.innerHTML += `<div class="${color}">[${timestamp}] ${message}</div>`;
+            debugLog.scrollTop = debugLog.scrollHeight;
+        }
+
+        function showResults(title, content, isSuccess = true) {
+            results.style.display = 'block';
+            resultContent.innerHTML = `
+                <div class="${isSuccess ? 'text-green-400' : 'text-red-400'} mb-4">
+                    <i class="fas fa-${isSuccess ? 'check-circle' : 'exclamation-circle'} mr-2"></i>
+                    ${title}
+                </div>
+                <div class="bg-gray-900 rounded p-4">
+                    <pre class="text-sm">${content}</pre>
+                </div>
+            `;
+        }
+
+        document.getElementById('testForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            log('🚀 Iniciando teste de salvamento...', 'info');
+            
+            try {
+                // Coletar dados do formulário
+                const formData = new FormData();
+                formData.append('title', document.getElementById('title').value);
+                formData.append('content', document.getElementById('content').value);
+                formData.append('template', document.getElementById('template').value);
+                formData.append('hashtags', document.getElementById('hashtags').value);
+                
+                // Coletar plataformas
+                const platforms = Array.from(document.querySelectorAll('input[name="platforms"]:checked'))
+                    .map(cb => cb.value);
+                formData.append('platforms', JSON.stringify(platforms));
+                
+                // Adicionar customização de teste
+                const customization = {
+                    test: true,
+                    timestamp: new Date().toISOString(),
+                    video: 'https://example.com/test-video.mp4',
+                    videoCaption: 'Legenda de teste',
+                    narration: {
+                        text: 'Narração de teste',
+                        voiceId: 'test-voice',
+                        hasAudio: true
+                    },
+                    timestamps: [
+                        { word: 'Teste', start: 0, end: 0.5 },
+                        { word: 'de', start: 0.5, end: 0.8 },
+                        { word: 'salvamento', start: 0.8, end: 1.5 }
+                    ]
+                };
+                formData.append('customization', JSON.stringify(customization));
+                
+                log('📤 Dados preparados:', 'info');
+                log(`  - Título: ${formData.get('title')}`, 'info');
+                log(`  - Conteúdo: ${formData.get('content')}`, 'info');
+                log(`  - Template: ${formData.get('template')}`, 'info');
+                log(`  - Hashtags: ${formData.get('hashtags')}`, 'info');
+                log(`  - Plataformas: ${formData.get('platforms')}`, 'info');
+                log(`  - Customização: ${formData.get('customization')}`, 'info');
+                
+                log('🌐 Enviando requisição para /api/posts...', 'info');
+                
+                const response = await fetch('/api/posts', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                log(`📥 Resposta recebida: ${response.status} ${response.statusText}`, 
+                    response.ok ? 'success' : 'error');
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    log('✅ Salvamento bem-sucedido!', 'success');
+                    log(`📝 ID do post: ${result.postId}`, 'success');
+                    log(`📝 Mensagem: ${result.message}`, 'success');
+                    
+                    showResults('✅ Salvamento Funcionou!', JSON.stringify(result, null, 2), true);
+                    
+                    // Verificar se o post foi salvo no banco
+                    log('🔍 Verificando se o post foi salvo no banco...', 'info');
+                    
+                    const checkResponse = await fetch('/api/posts');
+                    if (checkResponse.ok) {
+                        const posts = await checkResponse.json();
+                        const savedPost = posts.find(p => p.id === result.postId);
+                        
+                        if (savedPost) {
+                            log('✅ Post encontrado no banco de dados!', 'success');
+                            log(`📝 Título salvo: ${savedPost.title}`, 'success');
+                            log(`📝 Customização salva: ${savedPost.customization ? 'Sim' : 'Não'}`, 'success');
+                        } else {
+                            log('❌ Post não encontrado no banco de dados!', 'error');
+                        }
+                    }
+                    
+                } else {
+                    const errorText = await response.text();
+                    log(`❌ Erro no salvamento: ${errorText}`, 'error');
+                    showResults('❌ Erro no Salvamento', errorText, false);
+                }
+                
+            } catch (error) {
+                log(`❌ Erro de conexão: ${error.message}`, 'error');
+                showResults('❌ Erro de Conexão', error.message, false);
+            }
+        });
+
+        // Verificar se o servidor está rodando
+        log('🔍 Verificando se o servidor está rodando...', 'info');
+        fetch('/api/posts')
+            .then(response => {
+                if (response.ok) {
+                    log('✅ Servidor está rodando!', 'success');
+                } else {
+                    log(`⚠️ Servidor respondeu com status: ${response.status}`, 'warning');
+                }
+            })
+            .catch(error => {
+                log(`❌ Servidor não está rodando: ${error.message}`, 'error');
+            });
+    </script>
+</body>
+</html>

@@ -52,6 +52,25 @@
             background: #000;
             border-radius: 12px;
             overflow: hidden;
+            z-index: 1;
+        }
+        
+        .video-player video {
+            z-index: 1;
+            position: relative;
+            pointer-events: auto;
+        }
+        
+        .video-player video:not([controls]) {
+            pointer-events: none;
+        }
+        
+        .video-player video[controls] {
+            pointer-events: auto;
+        }
+        
+        .video-player video[controls]:hover {
+            pointer-events: auto;
         }
         
         .video-controls {
@@ -64,6 +83,7 @@
             display: flex;
             align-items: center;
             gap: 15px;
+            z-index: 1000;
         }
         
         .play-button {
@@ -76,6 +96,8 @@
             font-size: 18px;
             cursor: pointer;
             transition: all 0.3s ease;
+            z-index: 1000;
+            position: relative;
         }
         
         .play-button:hover {
@@ -90,6 +112,7 @@
             border-radius: 3px;
             cursor: pointer;
             position: relative;
+            z-index: 100;
         }
         
         .progress-fill {
@@ -103,12 +126,16 @@
             color: white;
             font-size: 14px;
             font-weight: 500;
+            z-index: 100;
+            position: relative;
         }
         
         .volume-control {
             display: flex;
             align-items: center;
             gap: 10px;
+            z-index: 100;
+            position: relative;
         }
         
         .volume-slider {
@@ -118,6 +145,7 @@
             border-radius: 2px;
             cursor: pointer;
             position: relative;
+            z-index: 100;
         }
         
         .volume-fill {
@@ -130,18 +158,23 @@
         /* Estilo para legendas */
         .caption-overlay {
             position: absolute;
-            bottom: 80px;
+            bottom: 20px;
             left: 20px;
             right: 20px;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.6);
             color: white;
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: 600;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
             text-align: center;
             opacity: 0;
             transition: opacity 0.3s ease;
+            line-height: 1.4;
+            max-height: 60px;
+            overflow: hidden;
+            z-index: 10;
+            pointer-events: none;
         }
         
         .caption-overlay.show {
@@ -161,6 +194,8 @@
             font-weight: 600;
             opacity: 0;
             transition: opacity 0.3s ease;
+            z-index: 10;
+            pointer-events: none;
         }
         
         .narration-indicator.show {
@@ -173,6 +208,8 @@
             border-radius: 8px;
             padding: 15px;
             margin-top: 20px;
+            z-index: 100;
+            position: relative;
         }
         
         .timeline-track {
@@ -181,6 +218,7 @@
             border-radius: 2px;
             position: relative;
             cursor: pointer;
+            z-index: 100;
         }
         
         .timeline-fill {
@@ -199,6 +237,7 @@
             border-radius: 50%;
             cursor: pointer;
             transition: left 0.1s ease;
+            z-index: 100;
         }
     </style>
 </head>
@@ -254,7 +293,7 @@
                                 </h3>
                                 <button 
                                     onclick="togglePexelsSearch()" 
-                                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer"
                                 >
                                     <i class="fas fa-search mr-2"></i>Buscar
                                 </button>
@@ -280,7 +319,7 @@
                                     </select>
                                     <button 
                                         onclick="searchPexelsVideos()" 
-                                        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                                        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors cursor-pointer"
                                     >
                                         <i class="fas fa-search"></i>
                                     </button>
@@ -305,7 +344,7 @@
                                 </h3>
                                 <button 
                                     onclick="toggleModernVideos()" 
-                                    class="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all transform hover:scale-105"
+                                    class="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all transform hover:scale-105 cursor-pointer"
                                 >
                                     <i class="fas fa-magic mr-2"></i>Explorar
                                 </button>
@@ -314,23 +353,23 @@
                             <div id="modernVideosSearch" class="hidden space-y-4">
                                 <div class="flex flex-wrap gap-2">
                                     <button onclick="loadModernVideos('all')" 
-                                            class="px-4 py-2 bg-white/20 text-white rounded-lg hover:bg-white/30 transition-colors">
+                                            class="px-4 py-2 bg-white/20 text-white rounded-lg hover:bg-white/30 transition-colors cursor-pointer">
                                         <i class="fas fa-th-large mr-1"></i>Todos
                                     </button>
                                     <button onclick="loadModernVideos('business')" 
-                                            class="px-4 py-2 bg-blue-600/80 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                                            class="px-4 py-2 bg-blue-600/80 text-white rounded-lg hover:bg-blue-600 transition-colors cursor-pointer">
                                         <i class="fas fa-briefcase mr-1"></i>Negócios
                                     </button>
                                     <button onclick="loadModernVideos('technology')" 
-                                            class="px-4 py-2 bg-green-600/80 text-white rounded-lg hover:bg-green-600 transition-colors">
+                                            class="px-4 py-2 bg-green-600/80 text-white rounded-lg hover:bg-green-600 transition-colors cursor-pointer">
                                         <i class="fas fa-laptop-code mr-1"></i>Tecnologia
                                     </button>
                                     <button onclick="loadModernVideos('lifestyle')" 
-                                            class="px-4 py-2 bg-purple-600/80 text-white rounded-lg hover:bg-purple-600 transition-colors">
+                                            class="px-4 py-2 bg-purple-600/80 text-white rounded-lg hover:bg-purple-600 transition-colors cursor-pointer">
                                         <i class="fas fa-heart mr-1"></i>Lifestyle
                                     </button>
                                     <button onclick="loadModernVideos('nature')" 
-                                            class="px-4 py-2 bg-emerald-600/80 text-white rounded-lg hover:bg-emerald-600 transition-colors">
+                                            class="px-4 py-2 bg-emerald-600/80 text-white rounded-lg hover:bg-emerald-600 transition-colors cursor-pointer">
                                         <i class="fas fa-leaf mr-1"></i>Natureza
                                     </button>
                                 </div>
@@ -365,6 +404,13 @@
                                 class="w-full px-4 py-3 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50"
                                 placeholder="Digite a legenda que aparecerá no vídeo..."
                             ></textarea>
+                            <button 
+                                type="button" 
+                                id="testCaptionAnimation" 
+                                class="mt-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200 cursor-pointer"
+                            >
+                                <i class="fas fa-play mr-2"></i>Testar Animação da Legenda
+                            </button>
                         </div>
                         
                         <div class="grid grid-cols-2 gap-4">
@@ -454,14 +500,14 @@
                         <div class="flex items-center space-x-4">
                             <button 
                                 id="previewNarration" 
-                                class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors"
+                                class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors cursor-pointer"
                             >
                                 <i class="fas fa-play mr-2"></i>Preview Narração
                             </button>
                             
                             <button 
                                 id="generateNarration" 
-                                class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors"
+                                class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors cursor-pointer"
                             >
                                 <i class="fas fa-magic mr-2"></i>Gerar Narração
                             </button>
@@ -479,14 +525,16 @@
                         <div class="flex items-center space-x-4">
                             <button 
                                 id="playPauseBtn" 
-                                class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors"
+                                class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors cursor-pointer"
+                                style="z-index: 1000; position: relative;"
                             >
                                 <i class="fas fa-play mr-2"></i>Play
                             </button>
                             
                             <button 
                                 id="stopBtn" 
-                                class="bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 transition-colors"
+                                class="bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 transition-colors cursor-pointer"
+                                style="z-index: 1000; position: relative;"
                             >
                                 <i class="fas fa-stop mr-2"></i>Stop
                             </button>
@@ -528,7 +576,7 @@
                 <div class="glass-effect rounded-2xl p-6">
                     <button 
                         id="saveVideo" 
-                        class="w-full bg-gradient-to-r from-green-500 to-blue-500 text-white px-8 py-4 rounded-lg hover:from-green-600 hover:to-blue-600 transition-all duration-300 font-bold text-lg"
+                        class="w-full bg-gradient-to-r from-green-500 to-blue-500 text-white px-8 py-4 rounded-lg hover:from-green-600 hover:to-blue-600 transition-all duration-300 font-bold text-lg cursor-pointer"
                     >
                         <i class="fas fa-save mr-2"></i>Salvar Vídeo Final
                     </button>
@@ -549,6 +597,7 @@
                             class="w-full h-64 object-cover"
                             controls
                             muted
+                            style="z-index: 1; position: relative;"
                         >
                             <source src="" type="video/mp4">
                             Seu navegador não suporta vídeos.
@@ -556,7 +605,7 @@
                         
                         <!-- Controles customizados -->
                         <div class="video-controls">
-                            <button id="playPauseBtn2" class="play-button">
+                            <button id="playPauseBtn2" class="play-button" style="z-index: 1000; position: relative;">
                                 <i class="fas fa-play"></i>
                             </button>
                             
@@ -633,6 +682,13 @@
 
         // Elementos DOM
         const videoPlayer = document.getElementById('videoPlayer');
+        
+        // Debug: Verificar se o elemento foi encontrado
+        if (!videoPlayer) {
+            console.error('❌ Elemento videoPlayer não encontrado!');
+        } else {
+            console.log('✅ Elemento videoPlayer encontrado:', videoPlayer);
+        }
         const playPauseBtn = document.getElementById('playPauseBtn');
         const playPauseBtn2 = document.getElementById('playPauseBtn2');
         const stopBtn = document.getElementById('stopBtn');
@@ -687,6 +743,7 @@
             
             // Legenda
             document.getElementById('captionText').addEventListener('input', updateCaption);
+            document.getElementById('testCaptionAnimation').addEventListener('click', testCaptionAnimation);
             
             // Narração
             document.getElementById('previewNarration').addEventListener('click', previewNarration);
@@ -723,6 +780,22 @@
 
         function loadVideo(url) {
             console.log('🎬 Carregando vídeo:', url);
+            
+            // Remover event listeners anteriores para evitar duplicação
+            videoPlayer.removeEventListener('loadstart', () => {});
+            videoPlayer.removeEventListener('loadeddata', () => {});
+            videoPlayer.removeEventListener('canplay', () => {});
+            videoPlayer.removeEventListener('error', () => {});
+            
+            // Adicionar event listeners para debug
+            videoPlayer.addEventListener('loadstart', () => console.log('🔄 Vídeo iniciando carregamento'));
+            videoPlayer.addEventListener('loadeddata', () => console.log('✅ Dados do vídeo carregados'));
+            videoPlayer.addEventListener('canplay', () => console.log('▶️ Vídeo pode ser reproduzido'));
+            videoPlayer.addEventListener('error', (e) => {
+                console.error('❌ Erro no vídeo:', e);
+                videoStatus.textContent = 'Erro ao carregar vídeo';
+                videoStatus.className = 'text-red-400';
+            });
             
             // Verificar se é uma URL blob válida
             if (url.startsWith('blob:')) {
@@ -836,7 +909,7 @@
                             <p class="text-white/70 text-xs">${video.width}x${video.height}</p>
                             <button 
                                 onclick="selectPexelsVideo('${bestVideo.link}', ${video.duration}, '${video.id}')" 
-                                class="w-full mt-2 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
+                                class="w-full mt-2 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm cursor-pointer"
                             >
                                 <i class="fas fa-play mr-1"></i>Usar Vídeo
                             </button>
@@ -950,7 +1023,7 @@
                             </div>
                             <button 
                                 onclick="selectModernVideo('${bestVideo.link}', ${video.duration}, '${video.id}', '${video.title}')" 
-                                class="w-full px-3 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-colors text-sm"
+                                class="w-full px-3 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-colors text-sm cursor-pointer"
                             >
                                 <i class="fas fa-magic mr-1"></i>Usar Vídeo
                             </button>
@@ -1031,8 +1104,10 @@
             timelineFill.style.width = progress + '%';
             timelineMarker.style.left = progress + '%';
             
-            // Mostrar legenda se necessário
-            updateCaptionDisplay();
+            // Mostrar legenda se necessário (só uma vez)
+            if (!captionTextDisplay.hasBeenAnimated) {
+                updateCaptionDisplay();
+            }
         }
 
         function onVideoPlay() {
@@ -1050,6 +1125,10 @@
             isPlaying = false;
             playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
             playPauseBtn2.innerHTML = '<i class="fas fa-play"></i>';
+            
+            // Reset flags de animação
+            captionTextDisplay.hasBeenAnimated = false;
+            captionTextDisplay.isAnimating = false;
             
             // Pausar narração se existir
             if (currentNarration) {
@@ -1069,10 +1148,24 @@
         }
 
         function togglePlayPause() {
+            console.log('🎮 Toggle play/pause - isPlaying:', isPlaying);
+            console.log('🎮 VideoPlayer src:', videoPlayer.src);
+            console.log('🎮 VideoPlayer readyState:', videoPlayer.readyState);
+            console.log('🎮 Caption text:', document.getElementById('captionText').value);
+            console.log('🎮 Narration text:', document.getElementById('narrationText').value);
+            console.log('🎮 Caption animating:', captionTextDisplay.isAnimating);
+            console.log('🎮 Caption hasBeenAnimated:', captionTextDisplay.hasBeenAnimated);
+            
             if (isPlaying) {
+                console.log('⏸️ Pausando vídeo');
                 videoPlayer.pause();
             } else {
-                videoPlayer.play();
+                console.log('▶️ Reproduzindo vídeo');
+                videoPlayer.play().catch(error => {
+                    console.error('❌ Erro ao reproduzir vídeo:', error);
+                    console.error('❌ Erro details:', error.message, error.name);
+                    alert('Erro ao reproduzir vídeo: ' + error.message);
+                });
             }
         }
 
@@ -1127,19 +1220,96 @@
             if (captionText) {
                 captionStatus.textContent = 'Definida';
                 captionStatus.className = 'text-green-400';
-                captionTextDisplay.textContent = captionText;
+                
+                // Animar legenda palavra por palavra
+                animateCaptionWordByWord(captionText);
             } else {
                 captionStatus.textContent = 'Não definida';
                 captionStatus.className = 'text-yellow-400';
+                captionTextDisplay.textContent = '';
             }
+        }
+        
+        // Função para animar legenda palavra por palavra
+        function animateCaptionWordByWord(text) {
+            // Verificar se já está animando para evitar conflitos
+            if (captionTextDisplay.isAnimating) {
+                console.log('⏸️ Animação já em andamento, ignorando...');
+                return;
+            }
+            
+            // Parar animação anterior se existir
+            if (captionTextDisplay.animationTimeout) {
+                clearTimeout(captionTextDisplay.animationTimeout);
+                captionTextDisplay.animationTimeout = null;
+            }
+            
+            const words = text.split(' ');
+            let currentIndex = 0;
+            
+            // Marcar como animando
+            captionTextDisplay.isAnimating = true;
+            
+            // Limpar elemento
+            captionTextDisplay.textContent = '';
+            
+            console.log(`📝 Iniciando animação palavra por palavra: ${words.length} palavras`);
+            
+            // Função para mostrar próxima palavra
+            function showNextWord() {
+                if (currentIndex < words.length) {
+                    // Adicionar palavra atual
+                    if (currentIndex > 0) {
+                        captionTextDisplay.textContent += ' ';
+                    }
+                    captionTextDisplay.textContent += words[currentIndex];
+                    
+                    currentIndex++;
+                    
+                    // Continuar com próxima palavra (velocidade ajustável)
+                    captionTextDisplay.animationTimeout = setTimeout(showNextWord, 200); // 200ms entre palavras
+                } else {
+                    // Animação concluída
+                    captionTextDisplay.animationTimeout = null;
+                    captionTextDisplay.isAnimating = false;
+                    console.log('✅ Animação de legenda concluída');
+                }
+            }
+            
+            // Iniciar animação
+            showNextWord();
+        }
+        
+        // Função para testar animação da legenda
+        function testCaptionAnimation() {
+            const captionText = document.getElementById('captionText').value;
+            if (!captionText) {
+                alert('Digite um texto na legenda primeiro!');
+                return;
+            }
+            
+            console.log('🧪 Testando animação da legenda:', captionText);
+            
+            // Mostrar overlay
+            captionOverlay.classList.add('show');
+            
+            // Animar legenda palavra por palavra
+            animateCaptionWordByWord(captionText);
         }
 
         function updateCaptionDisplay() {
             const captionText = document.getElementById('captionText').value;
             if (captionText && isPlaying) {
                 captionOverlay.classList.add('show');
+                // Só animar se ainda não foi animado
+                if (!captionTextDisplay.hasBeenAnimated) {
+                    animateCaptionWordByWord(captionText);
+                    captionTextDisplay.hasBeenAnimated = true;
+                }
             } else {
                 captionOverlay.classList.remove('show');
+                captionTextDisplay.textContent = '';
+                captionTextDisplay.hasBeenAnimated = false; // Reset para próxima vez
             }
         }
 
@@ -1288,15 +1458,54 @@
             try {
                 console.log('💾 Salvando vídeo...');
                 
+                // 1. PRIMEIRO: Fazer upload do vídeo para URL persistente
+                let persistentVideoUrl = null;
+                
+                if (videoPlayer.src && videoPlayer.src.startsWith('blob:')) {
+                    console.log('📤 Convertendo blob para URL persistente...');
+                    
+                    // Converter blob para arquivo
+                    const response = await fetch(videoPlayer.src);
+                    const blob = await response.blob();
+                    const file = new File([blob], 'video.mp4', { type: 'video/mp4' });
+                    
+                    // Upload para servidor
+                    const uploadFormData = new FormData();
+                    uploadFormData.append('video', file);
+                    
+                    const uploadResponse = await fetch('/api/upload-video', {
+                        method: 'POST',
+                        body: uploadFormData
+                    });
+                    
+                    if (uploadResponse.ok) {
+                        const uploadResult = await uploadResponse.json();
+                        persistentVideoUrl = uploadResult.url;
+                        console.log('✅ Vídeo convertido para URL persistente:', persistentVideoUrl);
+                    } else {
+                        console.error('❌ Erro ao converter vídeo:', await uploadResponse.text());
+                        alert('Erro ao salvar vídeo. Tente novamente.');
+                        return;
+                    }
+                } else if (videoPlayer.src && !videoPlayer.src.startsWith('blob:')) {
+                    // Já é uma URL persistente
+                    persistentVideoUrl = videoPlayer.src;
+                    console.log('✅ Vídeo já tem URL persistente:', persistentVideoUrl);
+                } else {
+                    console.error('❌ Nenhum vídeo válido encontrado');
+                    alert('Erro: Nenhum vídeo válido encontrado.');
+                    return;
+                }
+                
                 // Preparar dados de forma mais simples
                 const postData = {
-                    title: caption || 'Vídeo Profissional',
-                    content: caption || 'Vídeo criado com legenda e narração',
+                    title: 'Meu Vídeo',
+                    content: 'Vídeo criado com legenda e narração',
                     template: 'Vídeo Profissional',
                     hashtags: '#video #legenda #narracao #profissional',
                     platforms: JSON.stringify(['instagram', 'facebook', 'youtube']),
                     customization: JSON.stringify({
-                        video: videoPlayer.src,
+                        video: persistentVideoUrl, // Usar URL persistente
                         videoCaption: caption,
                         videoCaptionFont: captionFont,
                         videoCaptionSize: captionSize,

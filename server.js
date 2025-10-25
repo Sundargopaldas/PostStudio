@@ -44,6 +44,37 @@ const dbConfig = {
 // Criar pool de conexões
 const pool = mysql.createPool(dbConfig);
 
+// Configuração do multer para upload de arquivos
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/')
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname))
+    }
+});
+
+const upload = multer({ 
+    storage: storage,
+    fileFilter: function (req, file, cb) {
+        // Aceitar imagens, vídeos e áudio
+        if (file.mimetype.startsWith('image/') || 
+            file.mimetype.startsWith('video/') || 
+            file.mimetype.startsWith('audio/')) {
+            cb(null, true);
+        } else {
+            cb(new Error('Apenas arquivos de imagem, vídeo ou áudio são permitidos!'), false);
+        }
+    },
+    limits: {
+        fileSize: 50 * 1024 * 1024, // 50MB
+        fieldSize: 50 * 1024 * 1024, // 50MB para campos de texto (imagens de fundo)
+        fieldNameSize: 100,
+        fields: 20
+    }
+});
+
 // Testar conexão com o banco
 async function testDatabaseConnection() {
     try {
@@ -421,6 +452,265 @@ app.post('/api/generate-narration', async (req, res) => {
     }
 });
 
+// 🆕 NOVA ROTA: Gerar narração com timestamps para legendas sincronizadas
+app.post('/api/generate-narration-with-timestamps', async (req, res) => {
+    try {
+        console.log('🎤 POST /api/generate-narration-with-timestamps - Gerando narração com timestamps');
+        const { text, voiceId, speed, volume } = req.body;
+        
+        console.log('📝 Dados da narração:', { text, voiceId, speed, volume });
+        
+        if (!text || !voiceId) {
+            return res.status(400).json({ error: 'Texto e voz são obrigatórios' });
+        }
+        
+        // Usar a API key do ElevenLabs
+        const apiKey = 'sk_83361992bc2f7a4177040a338cad9964ce3bd9dd53d480e4';
+        
+        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+            method: 'POST',
+            headers: {
+                'xi-api-key': apiKey,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                text: text,
+                model_id: 'eleven_multilingual_v2',
+                voice_settings: {
+                    stability: 0.5,
+                    similarity_boost: 0.5,
+                    style: 0.0,
+                    use_speaker_boost: true
+                }
+            })
+        });
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ Erro da API ElevenLabs:', errorText);
+            return res.status(500).json({ error: 'Erro ao gerar narração' });
+        }
+        
+        const audioBuffer = await response.arrayBuffer();
+        const audioBlob = Buffer.from(audioBuffer);
+        
+        console.log('✅ Narração gerada com sucesso:', audioBlob.length, 'bytes');
+        
+        // Gerar timestamps simulados baseados no texto
+        const words = text.split(/\s+/).filter(word => word.length > 0);
+        const timestamps = [];
+        let currentTime = 0;
+        
+        words.forEach((word, index) => {
+            const startTime = currentTime;
+            const duration = Math.max(0.3, word.length * 0.1);
+            const endTime = startTime + duration;
+            
+            timestamps.push({
+                word: word,
+                start: startTime,
+                end: endTime,
+                index: index
+            });
+            
+            currentTime = endTime + 0.1;
+        });
+        
+        console.log('⏱️ Timestamps gerados:', timestamps.length, 'segmentos');
+        
+        // Converter áudio para base64 para envio
+        const audioBase64 = audioBlob.toString('base64');
+        
+        res.json({
+            success: true,
+            audio: audioBase64,
+            timestamps: timestamps,
+            duration: currentTime
+        });
+        
+    } catch (error) {
+        console.error('❌ Erro ao gerar narração com timestamps:', error);
+        res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+});
+
+// 🆕 NOVA ROTA: Gerar legendas SRT
+app.post('/api/generate-srt', async (req, res) => {
+    try {
+        const { timestamps } = req.body;
+        
+        if (!timestamps || !Array.isArray(timestamps)) {
+            return res.status(400).json({ error: 'Timestamps são obrigatórios' });
+        }
+        
+        let srtContent = '';
+        let subtitleIndex = 1;
+        const wordsPerSubtitle = 8;
+        
+        for (let i = 0; i < timestamps.length; i += wordsPerSubtitle) {
+            const subtitleWords = timestamps.slice(i, i + wordsPerSubtitle);
+            if (subtitleWords.length === 0) break;
+            
+            const startTime = subtitleWords[0].start;
+            const endTime = subtitleWords[subtitleWords.length - 1].end;
+            
+            const startSRT = formatTimeSRT(startTime);
+            const endSRT = formatTimeSRT(endTime);
+            const text = subtitleWords.map(w => w.word).join(' ');
+            
+            srtContent += `${subtitleIndex}\n`;
+            srtContent += `${startSRT} --> ${endSRT}\n`;
+            srtContent += `${text}\n\n`;
+            
+            subtitleIndex++;
+        }
+        
+        res.set({
+            'Content-Type': 'text/plain',
+            'Content-Disposition': 'attachment; filename="legendas.srt"'
+        });
+        
+        res.send(srtContent);
+        
+    } catch (error) {
+        console.error('❌ Erro ao gerar SRT:', error);
+        res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+});
+
+// 🆕 NOVA ROTA: Gerar legendas VTT
+app.post('/api/generate-vtt', async (req, res) => {
+    try {
+        const { timestamps } = req.body;
+        
+        if (!timestamps || !Array.isArray(timestamps)) {
+            return res.status(400).json({ error: 'Timestamps são obrigatórios' });
+        }
+        
+        let vttContent = 'WEBVTT\n\n';
+        const wordsPerSubtitle = 8;
+        
+        for (let i = 0; i < timestamps.length; i += wordsPerSubtitle) {
+            const subtitleWords = timestamps.slice(i, i + wordsPerSubtitle);
+            if (subtitleWords.length === 0) break;
+            
+            const startTime = subtitleWords[0].start;
+            const endTime = subtitleWords[subtitleWords.length - 1].end;
+            
+            const startVTT = formatTimeVTT(startTime);
+            const endVTT = formatTimeVTT(endTime);
+            const text = subtitleWords.map(w => w.word).join(' ');
+            
+            vttContent += `${startVTT} --> ${endVTT}\n`;
+            vttContent += `${text}\n\n`;
+        }
+        
+        res.set({
+            'Content-Type': 'text/vtt',
+            'Content-Disposition': 'attachment; filename="legendas.vtt"'
+        });
+        
+        res.send(vttContent);
+        
+    } catch (error) {
+        console.error('❌ Erro ao gerar VTT:', error);
+        res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+});
+
+// 🆕 ROTA: Upload de vídeo para converter blob em URL persistente
+app.post('/api/upload-video', upload.single('video'), async (req, res) => {
+    try {
+        console.log('📹 POST /api/upload-video - Upload de vídeo');
+        
+        if (!req.file) {
+            return res.status(400).json({ error: 'Nenhum arquivo de vídeo enviado' });
+        }
+        
+        const videoUrl = `/uploads/${req.file.filename}`;
+        console.log('✅ Vídeo salvo:', videoUrl);
+        console.log('📊 Tamanho:', req.file.size, 'bytes');
+        console.log('📊 Tipo:', req.file.mimetype);
+        
+        res.json({
+            success: true,
+            url: videoUrl,
+            filename: req.file.filename,
+            size: req.file.size,
+            mimetype: req.file.mimetype
+        });
+        
+    } catch (error) {
+        console.error('❌ Erro ao fazer upload de vídeo:', error);
+        res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+});
+
+// 🆕 ROTA: Converter blob URLs em URLs persistentes
+app.post('/api/convert-blob-videos', async (req, res) => {
+    try {
+        console.log('🔄 POST /api/convert-blob-videos - Convertendo blobs');
+        
+        const [posts] = await pool.execute('SELECT id, title, customization FROM posts WHERE customization IS NOT NULL');
+        let convertedCount = 0;
+        
+        for (const post of posts) {
+            try {
+                const customization = JSON.parse(post.customization);
+                
+                if (customization.video && customization.video.startsWith('blob:')) {
+                    console.log(`🔄 Convertendo blob do post ${post.id}: ${post.title}`);
+                    
+                    // Marcar como blob temporário
+                    customization.video = 'BLOB_TEMPORARIO_REMOVIDO';
+                    customization._blobConverted = true;
+                    customization._conversionDate = new Date().toISOString();
+                    
+                    // Atualizar no banco
+                    await pool.execute(
+                        'UPDATE posts SET customization = ? WHERE id = ?',
+                        [JSON.stringify(customization), post.id]
+                    );
+                    
+                    convertedCount++;
+                    console.log(`✅ Post ${post.id} marcado para conversão`);
+                }
+            } catch (e) {
+                console.error(`❌ Erro ao processar post ${post.id}:`, e.message);
+            }
+        }
+        
+        res.json({
+            success: true,
+            message: `${convertedCount} posts com blob URLs foram marcados para conversão`,
+            convertedCount: convertedCount
+        });
+        
+    } catch (error) {
+        console.error('❌ Erro ao converter blobs:', error);
+        res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+});
+
+// 🆕 FUNÇÕES AUXILIARES: Formatar tempo para SRT e VTT
+function formatTimeSRT(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+    const milliseconds = Math.floor((seconds % 1) * 1000);
+    
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')},${milliseconds.toString().padStart(3, '0')}`;
+}
+
+function formatTimeVTT(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+    const milliseconds = Math.floor((seconds % 1) * 1000);
+    
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}.${milliseconds.toString().padStart(3, '0')}`;
+}
+
 app.get('/session-test', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'session-test.html'));
 });
@@ -479,6 +769,7 @@ app.get('/test-pexels-videos', (req, res) => {
 app.get('/test-modern-videos', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'test-modern-videos.html'));
 });
+
 
 // API do usuário - configurações
 app.get('/api/user/settings', checkSession, (req, res) => {
@@ -1088,36 +1379,7 @@ const requireAuth = (req, res, next) => {
     next();
 };
 
-// Configurar multer para upload de imagens
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads/')
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname))
-    }
-});
-
-const upload = multer({ 
-    storage: storage,
-    fileFilter: function (req, file, cb) {
-        // Aceitar imagens, vídeos e áudio
-        if (file.mimetype.startsWith('image/') || 
-            file.mimetype.startsWith('video/') || 
-            file.mimetype.startsWith('audio/')) {
-            cb(null, true);
-        } else {
-            cb(new Error('Apenas arquivos de imagem, vídeo ou áudio são permitidos!'), false);
-        }
-    },
-    limits: {
-        fileSize: 50 * 1024 * 1024, // 50MB
-        fieldSize: 50 * 1024 * 1024, // 50MB para campos de texto (imagens de fundo)
-        fieldNameSize: 100,
-        fields: 20
-    }
-});
+// Upload configuration moved to top of file
 
 // Rota de teste para verificar se as rotas estão funcionando
 app.get('/api/test', (req, res) => {
@@ -1297,6 +1559,7 @@ app.post('/api/posts', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'v
                 console.log('🔍 Vídeo na customização:', customization.video);
                 console.log('🔍 Legenda na customização:', customization.videoCaption);
                 console.log('🔍 Narração na customização:', customization.narration);
+                console.log('🔍 POSIÇÃO DO TEXTO NO SERVIDOR:', customization.textPosition);
             } catch (e) {
                 console.error('❌ Erro ao parsear customização no servidor:', e);
             }
@@ -1602,7 +1865,7 @@ app.post('/api/posts', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'v
 });
 
 // Atualizar post existente
-app.put('/api/posts/:id', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'video', maxCount: 1 }, { name: 'backgroundImage', maxCount: 1 }]), async (req, res) => {
+app.put('/api/posts/:id', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'video', maxCount: 1 }, { name: 'backgroundImage', maxCount: 1 }, { name: 'narrationAudio', maxCount: 1 }]), async (req, res) => {
     try {
         console.log('🔄 PUT /api/posts/:id - Iniciando atualização');
         const postId = req.params.id;
@@ -1610,6 +1873,9 @@ app.put('/api/posts/:id', upload.fields([{ name: 'image', maxCount: 1 }, { name:
         console.log('📝 Body recebido:', req.body);
         console.log('📝 Files recebidos:', req.files);
         console.log('👤 Sessão:', req.session);
+        console.log('🔍 Debug - URL completa:', req.url);
+        console.log('🔍 Debug - Método:', req.method);
+        console.log('🔍 Debug - Headers:', req.headers);
         
         // Debug detalhado dos arquivos
         if (req.files) {
@@ -1748,6 +2014,79 @@ app.put('/api/posts/:id', upload.fields([{ name: 'image', maxCount: 1 }, { name:
                 } catch (e) {}
             }
             console.log('🎬 Novo vídeo salvo como:', videoUrl);
+        }
+
+        // Processar áudio de narração se foi enviado
+        let narrationAudioUrl = '';
+        if (req.files && req.files.narrationAudio && req.files.narrationAudio[0]) {
+            console.log('🎤 Novo áudio de narração detectado - iniciando processo de substituição');
+            
+            // Deletar áudio anterior se existir
+            try {
+                const [currentPost] = await pool.execute('SELECT customization FROM posts WHERE id = ? AND user_id = ?', [postId, req.session.userId]);
+                console.log('🔍 Post atual encontrado para áudio:', currentPost.length > 0);
+                
+                if (currentPost.length > 0 && currentPost[0].customization) {
+                    const custom = JSON.parse(currentPost[0].customization);
+                    console.log('🔍 Áudio atual:', custom.narration);
+                    
+                    if (custom.narration && custom.narration.audioUrl && custom.narration.audioUrl.startsWith('/uploads/')) {
+                        const oldAudioPath = custom.narration.audioUrl.replace('/uploads/', 'uploads/');
+                        const fs = require('fs');
+                        const path = require('path');
+                        const fullPath = path.join(__dirname, oldAudioPath);
+                        
+                        console.log('🔍 Tentando deletar áudio anterior:', fullPath);
+                        console.log('🔍 Áudio existe:', fs.existsSync(fullPath));
+                        
+                        if (fs.existsSync(fullPath)) {
+                            fs.unlinkSync(fullPath);
+                            console.log('✅ Áudio anterior deletado com sucesso:', oldAudioPath);
+                        } else {
+                            console.log('⚠️ Áudio anterior não encontrado:', fullPath);
+                        }
+                    } else {
+                        console.log('ℹ️ Áudio atual é placeholder ou inválido, pulando deleção');
+                    }
+                } else {
+                    console.log('ℹ️ Nenhum áudio anterior encontrado');
+                }
+            } catch (deleteError) {
+                console.log('❌ Erro ao deletar áudio anterior:', deleteError.message);
+                console.log('❌ Stack trace:', deleteError.stack);
+            }
+            
+            narrationAudioUrl = `/uploads/${req.files.narrationAudio[0].filename}`;
+            console.log('🎤 Novo áudio salvo como:', narrationAudioUrl);
+            console.log('🎤 Arquivo original:', req.files.narrationAudio[0].originalname);
+            console.log('🎤 Tamanho do arquivo:', req.files.narrationAudio[0].size);
+            console.log('🎤 Tipo MIME:', req.files.narrationAudio[0].mimetype);
+        } else {
+            console.log('ℹ️ Nenhum novo áudio enviado - mantendo áudio atual');
+        }
+
+        // Processar dados de narração se foram enviados
+        if (req.body.narration) {
+            console.log('🎤 Dados de narração recebidos na atualização:', req.body.narration);
+            
+            if (customization) {
+                try {
+                    const c = JSON.parse(customization);
+                    c.narration = JSON.parse(req.body.narration);
+                    
+                    // Adicionar URL do áudio se foi salvo
+                    if (narrationAudioUrl) {
+                        c.narration.audioUrl = narrationAudioUrl;
+                        c.narration.hasAudio = true;
+                        console.log('🔄 URL do áudio adicionada na narração (atualização):', narrationAudioUrl);
+                    }
+                    
+                    req.body.customization = JSON.stringify(c);
+                    console.log('🔄 Narração adicionada na customização (atualização):', c.narration);
+                } catch (e) {
+                    console.error('❌ Erro ao processar narração na atualização:', e);
+                }
+            }
         }
 
         // Processar imagem de fundo se foi enviada

@@ -26,7 +26,7 @@
         }
         .post-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
         }
         
         /* Garantir que o conteúdo ocupe o espaço disponível */
@@ -110,7 +110,7 @@
         
         .hover-lift:hover {
             transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
         }
         
         /* Backgrounds dinâmicos para posts */
@@ -220,6 +220,38 @@
     </div>
 
     <script>
+        // Sistema de carregamento de fontes do Google
+        const loadedFonts = new Set();
+        
+        function loadGoogleFontIfNeeded(fontFamily) {
+            if (loadedFonts.has(fontFamily)) {
+                return;
+            }
+            
+            // Verificar se é uma fonte do Google (não é uma classe Tailwind)
+            if (fontFamily.startsWith('font-')) {
+                return;
+            }
+            
+            console.log('🔄 Carregando fonte do Google:', fontFamily);
+            
+            const link = document.createElement('link');
+            link.href = `https://fonts.googleapis.com/css2?family=${fontFamily.replace(/\s+/g, '+')}:wght@300;400;500;600;700;800;900&display=swap`;
+            link.rel = 'stylesheet';
+            link.crossOrigin = 'anonymous';
+            
+            link.onload = () => {
+                loadedFonts.add(fontFamily);
+                console.log('✅ Fonte do Google carregada:', fontFamily);
+            };
+            
+            link.onerror = (error) => {
+                console.error('❌ Erro ao carregar fonte do Google:', fontFamily, error);
+            };
+            
+            document.head.appendChild(link);
+        }
+        
         // Carregar dados do usuário
         async function loadUserData() {
             try {
@@ -237,64 +269,30 @@
             }
         }
 
-        // Função para mostrar legendas com animação de API gratuita - VERSÃO FORÇADA
-        function animateVideoCaption(postId, caption, font, speed = 1000, pauseSpeed = 2000) {
-            console.log(`📝 FORÇANDO legenda para post ${postId}:`, caption);
-            
+        // Função para mostrar legendas com animação palavra por palavra
+        function animateVideoCaption(postId, caption, font) {
             const captionElement = document.getElementById(`videoCaption-${postId}`);
             
-            if (!captionElement) {
-                console.log(`❌ Elemento de legenda não encontrado para post ${postId}, criando...`);
-                
-                // Criar elemento de legenda se não existir
-                const videoContainer = document.querySelector(`[data-post-id="${postId}"]`);
-                if (videoContainer) {
-                    const videoElement = videoContainer.querySelector('video');
-                    if (videoElement) {
-                        const newCaptionElement = document.createElement('div');
-                        newCaptionElement.id = `videoCaption-${postId}`;
-                        newCaptionElement.className = 'absolute bottom-4 left-4 right-4 bg-black/80 text-white text-sm px-3 py-2 rounded-lg z-10';
-                        newCaptionElement.style.fontFamily = font;
-                        newCaptionElement.style.wordWrap = 'break-word';
-                        newCaptionElement.style.maxWidth = 'calc(100% - 2rem)';
-                        newCaptionElement.style.lineHeight = '1.4';
-                        newCaptionElement.style.minHeight = '2.8rem';
-                        newCaptionElement.style.display = 'flex';
-                        newCaptionElement.style.alignItems = 'center';
-                        newCaptionElement.style.justifyContent = 'center';
-                        newCaptionElement.style.textAlign = 'center';
-                        
-                        videoElement.parentElement.appendChild(newCaptionElement);
-                        console.log('✅ Elemento de legenda criado!');
-                    }
-                }
-            }
-            
-            const finalCaptionElement = document.getElementById(`videoCaption-${postId}`);
-            if (!finalCaptionElement || !caption) {
-                console.log(`❌ Elemento de legenda ainda não encontrado para post ${postId}`);
+            if (!captionElement || !caption) {
                 return;
             }
             
             // Verificar se já está animando para evitar duplicação
-            if (finalCaptionElement.isAnimating) {
-                console.log(`⏸️ Legenda já está animando para post ${postId}`);
+            if (captionElement.isAnimating) {
                 return;
             }
             
-            console.log(`📝 Animando legenda para post ${postId}:`, caption);
-            
             // Marcar como animando
-            finalCaptionElement.isAnimating = true;
+            captionElement.isAnimating = true;
             
-            // FORÇAR exibição
-            finalCaptionElement.style.fontFamily = font;
-            finalCaptionElement.style.opacity = '1';
-            finalCaptionElement.style.display = 'block';
-            finalCaptionElement.style.visibility = 'visible';
+            // Aplicar fonte e exibir
+            captionElement.style.fontFamily = font;
+            captionElement.style.opacity = '1';
+            captionElement.style.display = 'flex';
+            captionElement.style.visibility = 'visible';
             
-            // Usar animação de API gratuita
-            animateTextWithAPI(finalCaptionElement, caption);
+            // Animar palavra por palavra
+            animateTextWithAPI(captionElement, caption);
         }
         
         // Função para animar texto usando API gratuita (CORRIGIDA)
@@ -355,13 +353,11 @@
                     // Animação concluída
                     element.animationTimeout = null;
                     element.isAnimating = false; // Marcar como não animando
-                    console.log('✅ Animação de texto concluída');
                 }
             }
             
             // Iniciar animação
             showNextWord();
-            console.log('📝 Animação de texto iniciada:', text);
         }
 
         // Carregar posts
@@ -529,6 +525,12 @@
                             // Forçar a cor personalizada
                             customStyle.color = customization.color;
                         }
+                        
+                        // CORREÇÃO ESPECÍFICA PARA CORES BRANCAS
+                        if (customization.color === '#ffffff' || customization.color === 'white') {
+                            console.log(`🎨 Post ${post.id} - Cor branca detectada, forçando aplicação`);
+                            customStyle.color = '#ffffff';
+                        }
                         console.log(`🎨 Post ${post.id} - Customização aplicada:`, customStyle);
                         console.log(`🎨 Post ${post.id} - Cor escolhida:`, customization.color);
                         console.log(`🎨 Post ${post.id} - Cor aplicada:`, customStyle.color);
@@ -542,24 +544,25 @@
                 }
                 
                 const postCard = document.createElement('div');
-                postCard.className = `post-card hover-lift rounded-2xl p-6 ${customStyle.background} animate-fade-in`;
+                postCard.className = `post-card hover-lift rounded-2xl p-6 animate-fade-in`;
                 postCard.style.animationDelay = `${index * 0.1}s`;
                 postCard.setAttribute('data-post-id', post.id);
                 
                 // Adicionar dados das legendas para acesso fácil
+                console.log('🔍 Verificando legenda para post:', post.id);
+                console.log('🔍 customStyle.videoCaption:', customStyle.videoCaption);
+                console.log('🔍 Tipo:', typeof customStyle.videoCaption);
+                console.log('🔍 Condição:', !!customStyle.videoCaption);
+                
                 if (customStyle.videoCaption) {
                     postCard.setAttribute('data-video-caption', customStyle.videoCaption);
                     postCard.setAttribute('data-video-caption-font', customStyle.videoCaptionFont || 'Arial');
                     console.log('📝 Dados de legenda adicionados ao post:', post.id, customStyle.videoCaption);
+                } else {
+                    console.log('❌ Nenhuma legenda encontrada para post:', post.id);
                 }
                 
-                // Aplicar imagem de fundo se existir
-                if (customStyle.backgroundImage) {
-                    postCard.style.backgroundImage = `url(${customStyle.backgroundImage})`;
-                    postCard.style.backgroundSize = 'cover';
-                    postCard.style.backgroundPosition = 'center';
-                    postCard.style.backgroundRepeat = 'no-repeat';
-                }
+                // Imagem de fundo será aplicada na div interna
                 
                 // Adicionar imagem parcial se existir
                 if (customStyle.partialImage) {
@@ -577,11 +580,16 @@
                         const family = match && match[1] ? match[1] : '';
                         if (family) {
                             resolvedFontStyle = `font-family: ${JSON.stringify(family)};`;
+                            // Carregar fonte do Google se necessário
+                            loadGoogleFontIfNeeded(family);
                         }
                     } else if (customStyle.font.startsWith('font-')) {
                         resolvedFontClass = customStyle.font;
                     } else {
-                        resolvedFontStyle = `font-family: ${JSON.stringify(customStyle.font)};`;
+                        // CORREÇÃO: Aplicar fonte diretamente via style
+                        resolvedFontStyle = `font-family: '${customStyle.font}', sans-serif;`;
+                        // Carregar fonte do Google se necessário
+                        loadGoogleFontIfNeeded(customStyle.font);
                     }
                 }
                 
@@ -613,62 +621,65 @@
                 };
 
                 console.log(`🎨 Criando HTML para post ${post.id}...`);
+                console.log(`📝 Posicionamento do texto para post ${post.id}:`, customStyle.textPosition);
+                console.log(`📝 Título do post:`, post.title);
+                console.log(`📝 Conteúdo do post:`, post.content);
+                console.log(`📝 CustomStyle completo:`, customStyle);
+                console.log(`📝 Post completo:`, post);
+                console.log(`📝 Título sendo renderizado:`, post.title);
+                console.log(`📝 Conteúdo sendo renderizado:`, post.content);
+                console.log(`📝 Cor do texto:`, customStyle.color);
+                console.log(`📝 Fonte do texto:`, resolvedFontClass);
+                console.log(`📝 TextPosition sendo aplicado:`, customStyle.textPosition);
+                console.log(`📝 Justify-content será:`, customStyle.textPosition === 'top' ? 'flex-start' : customStyle.textPosition === 'bottom' ? 'flex-end' : 'center');
+                console.log(`📝 CSS final aplicado:`, `justify-content: ${customStyle.textPosition === 'top' ? 'flex-start' : customStyle.textPosition === 'bottom' ? 'flex-end' : 'center'}`);
+                console.log(`📝 Altura do post: 400px (igual ao preview)`);
+                console.log(`📝 Estrutura completa:`, {
+                    textPosition: customStyle.textPosition,
+                    justifyContent: customStyle.textPosition === 'top' ? 'flex-start' : customStyle.textPosition === 'bottom' ? 'flex-end' : 'center',
+                    height: '400px',
+                    display: 'flex',
+                    flexDirection: 'column'
+                });
+                
+                // Criar container principal para o post
+                const postContainer = document.createElement('div');
+                postContainer.className = 'mb-8';
+                
+                // Criar o card do post
                 postCard.innerHTML = `
                     <div class="relative">
                         <div>
-                            <!-- Header com três pontos -->
-                            <div class="flex items-start justify-between mb-4">
-                                ${!customStyle.video ? `<h3 class="text-2xl font-bold ${resolvedFontClass}" style="${resolvedFontStyle} color: ${customStyle.color}">${post.title}</h3>` : ''}
-                                <div class="relative ml-4">
-                                    <button onclick="togglePostMenu(${post.id})" class="px-3 py-1 rounded-lg transition-colors hover:bg-white/30" style="background: rgba(255,255,255,0.2); color: white;">⋯</button>
-                                    <div id="menu-${post.id}" class="absolute right-0 top-10 bg-white/20 backdrop-blur-xl rounded-xl p-1 shadow-2xl border border-white/30 hidden z-10 min-w-40" style="display: none;">
-                                        <button onclick="editPost(${post.id})" class="w-full text-left px-4 py-3 rounded-lg hover:bg-white/30 transition-all duration-200 text-white text-sm font-medium">
-                                            <i class="fas fa-edit mr-2"></i>Editar Post
-                                        </button>
-                                        <div class="h-px bg-white/20 my-1"></div>
-                                        <button onclick="deletePost(${post.id})" class="w-full text-left px-4 py-3 rounded-lg hover:bg-white/30 transition-all duration-200 text-white text-sm font-medium">
-                                            <i class="fas fa-trash mr-2"></i>Deletar Post
-                                        </button>
-                                    </div>
-                                </div>
+                            <!-- SOLUÇÃO FINAL - COM BACKGROUND -->
+                            <div class="mb-6 rounded-xl overflow-hidden shadow-lg ${customStyle.background || 'bg-gradient-to-br from-blue-400 to-purple-500'}" style="height: 400px; background-position: center; background-size: cover; background-repeat: no-repeat; ${customStyle.backgroundImage ? `background-image: url('${customStyle.backgroundImage}');` : ''} display: flex; flex-direction: column; align-items: center; text-align: center; padding: 24px; ${customStyle.textPosition === 'top' ? 'justify-content: flex-start;' : customStyle.textPosition === 'bottom' ? 'justify-content: flex-end;' : 'justify-content: center;'}">
+                                <h3 class="text-2xl font-bold ${resolvedFontClass} mb-4" style="${resolvedFontStyle} color: ${customStyle.color} !important; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">${post.title}</h3>
+                                <p class="text-base leading-relaxed ${resolvedFontClass}" style="${resolvedFontStyle} color: ${customStyle.color} !important; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">${post.content.substring(0, 200)}${post.content.length > 200 ? '...' : ''}</p>
                             </div>
                             
-                            <!-- Conteúdo do Post (sem ícones) -->
+                            <!-- Conteúdo adicional (vídeos, imagens, etc.) -->
                             <div class="mb-6">
                                 ${customStyle.video ? `
                                 <div class="relative rounded-xl overflow-hidden border border-white/20 mb-4">
-                                    <video id="video-${post.id}" src="${customStyle.video}" controls playsinline class="w-full h-64 object-cover" onloadstart="console.log('🎬 Carregando vídeo:', '${customStyle.video}');" onerror="console.error('❌ Erro ao carregar vídeo:', '${customStyle.video}')" onloadeddata="console.log('✅ Vídeo carregado:', '${customStyle.video}'); this.volume = 1.0; this.muted = false;" onplay="console.log('▶️ Vídeo iniciado'); if('${customStyle.videoCaption}' && !window.captionAnimated_${post.id}) { window.captionAnimated_${post.id} = true; const captionElement = document.getElementById('videoCaption-${post.id}'); if(captionElement) { animateVideoCaption(${post.id}, '${customStyle.videoCaption}', '${customStyle.videoCaptionFont || 'Arial'}'); } }">
-                                        <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                                            <button onclick="playVideo(${post.id})" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-full p-4 transition-all">
-                                                <i class="fas fa-play text-2xl"></i>
-                                            </button>
-                                        </div>
+                                    <video id="video-${post.id}" src="${customStyle.video}" controls playsinline class="w-full h-64 object-cover" style="border-radius: 0.75rem;">
+                                        <source src="${customStyle.video}" type="video/mp4">
+                                        Seu navegador não suporta vídeos.
                                     </video>
                                     
-                                    <!-- Indicador de áudio ativo -->
-                                    <div class="absolute top-2 right-2 bg-blue-500/80 text-white px-2 py-1 rounded-full text-xs flex items-center">
-                                        <i class="fas fa-video mr-1"></i>
-                                        <span>Vídeo</span>
-                                    </div>
-                                    
-                                    
-                                    ${customStyle.videoCaption ? `<div id="videoCaption-${post.id}" class="absolute bottom-4 left-4 right-4 bg-black/80 text-white text-sm px-3 py-2 rounded-lg z-10" style="font-family: '${customStyle.videoCaptionFont}'; word-wrap: break-word; max-width: calc(100% - 2rem); line-height: 1.4; min-height: 2.8rem; display: flex; align-items: center; justify-content: center; text-align: center;"></div>` : ''}
-                                    
-                                    <!-- Narração se existir -->
-                                    ${customStyle.narration ? `
-                                        <div class="absolute top-2 left-2 bg-purple-500/80 text-white px-2 py-1 rounded-full text-xs flex items-center">
-                                            <i class="fas fa-microphone mr-1"></i>
-                                            <span>Narração</span>
-                                        </div>
-                                        <div id="narration-${post.id}" class="absolute bottom-2 right-2 bg-purple-500/80 text-white px-2 py-1 rounded-full text-xs cursor-pointer hover:bg-purple-600/80 transition-colors" onclick="playNarration(${post.id})">
-                                            <i class="fas fa-play mr-1"></i>
-                                            <span>Reproduzir</span>
-                                        </div>
-                                    ` : ''}
+                                    ${(() => {
+                                        console.log('🔍 Criando elemento de legenda para post:', post.id);
+                                        console.log('🔍 customStyle.videoCaption:', customStyle.videoCaption);
+                                        console.log('🔍 Condição para criar:', !!customStyle.videoCaption);
+                                        if (customStyle.videoCaption) {
+                                            console.log('✅ Criando elemento de legenda');
+                                            return `<div id="videoCaption-${post.id}" class="absolute bottom-4 left-4 right-4 text-white text-sm px-3 py-2 rounded-lg z-10" style="font-family: '${customStyle.videoCaptionFont || 'Arial'}', sans-serif; word-wrap: break-word; max-width: calc(100% - 2rem); line-height: 1.4; text-align: center; backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1);"></div>`;
+                                        } else {
+                                            console.log('❌ Não criando elemento de legenda');
+                                            return '';
+                                        }
+                                    })()}
                                     
                                 </div>
                                 ` : ''}
-                                <p class="text-base leading-relaxed ${resolvedFontClass} mb-4" style="${resolvedFontStyle} color: ${customStyle.color}">${post.content.substring(0, 200)}${post.content.length > 200 ? '...' : ''}</p>
                                 ${post.image_url && post.image_url !== '' && post.image_url !== 'imagem_uploaded' ? `
                                     <div class="mt-4">
                                         <img src="${post.image_url}" alt="Imagem do post" class="w-full h-64 object-cover rounded-xl border border-white/20">
@@ -684,7 +695,7 @@
                             <!-- Hashtags (sem ícones) -->
                             ${post.hashtags ? `
                                 <div class="mb-4">
-                                    <p class="text-sm font-inter" style="color: ${customStyle.color}99">${post.hashtags}</p>
+                                    <p class="text-sm font-inter" style="color: ${customStyle.color} !important">${post.hashtags}</p>
                                 </div>
                             ` : ''}
                             
@@ -697,10 +708,27 @@
                     </div>
                 `;
                 
-                container.appendChild(postCard);
+                // Criar botões de ação separados
+                const buttonsContainer = document.createElement('div');
+                buttonsContainer.className = 'mt-4 flex gap-3 justify-end';
+                buttonsContainer.innerHTML = `
+                    <button onclick="editPost(${post.id})" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2">
+                        <i class="fas fa-edit"></i>
+                        Editar
+                    </button>
+                    <button onclick="deletePost(${post.id})" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2">
+                        <i class="fas fa-trash"></i>
+                        Deletar
+                    </button>
+                `;
+                
+                // Adicionar card e botões ao container principal
+                postContainer.appendChild(postCard);
+                postContainer.appendChild(buttonsContainer);
+                
+                // Adicionar o container completo ao container principal
+                container.appendChild(postContainer);
                 console.log(`✅ Post ${index + 1} adicionado ao DOM`);
-                console.log(`🔍 Post ${post.id} - Menu criado? ${!!document.getElementById(`menu-${post.id}`)}`);
-                console.log(`🔍 Post ${post.id} - Botão criado? ${!!document.querySelector(`[onclick="togglePostMenu(${post.id})"]`)}`);
             });
             
             console.log(`🎉 Total de posts exibidos: ${posts.length}`);
@@ -778,61 +806,10 @@
             return texts[status] || status;
         }
 
-        // Toggle menu de três pontos
-        function togglePostMenu(postId) {
-            console.log(`🔍 Toggle menu para post ${postId}`);
-            
-            // Fechar todos os outros menus primeiro
-            document.querySelectorAll('[id^="menu-"]').forEach(menu => {
-                if (menu.id !== `menu-${postId}`) {
-                    menu.classList.add('hidden');
-                    menu.style.display = 'none';
-                    console.log(`❌ Fechando menu: ${menu.id}`);
-                }
-            });
-            
-            // Toggle do menu atual
-            const menu = document.getElementById(`menu-${postId}`);
-            if (menu) {
-                const isHidden = menu.classList.contains('hidden') || menu.style.display === 'none';
-                if (isHidden) {
-                    menu.classList.remove('hidden');
-                    menu.style.display = 'block';
-                    console.log(`✅ Abrindo menu: ${menu.id}`);
-                } else {
-                    menu.classList.add('hidden');
-                    menu.style.display = 'none';
-                    console.log(`❌ Fechando menu: ${menu.id}`);
-                }
-            } else {
-                console.log(`⚠️ Menu não encontrado: menu-${postId}`);
-            }
-        }
-
-        // Fechar menus ao clicar fora
-        document.addEventListener('click', function(event) {
-            // Verificar se o clique foi em um botão de menu ou dentro de um menu
-            const isMenuButton = event.target.closest('[onclick^="togglePostMenu"]');
-            const isInsideMenu = event.target.closest('[id^="menu-"]');
-            
-            if (!isMenuButton && !isInsideMenu) {
-                // Fechar todos os menus se clicou fora
-                document.querySelectorAll('[id^="menu-"]').forEach(menu => {
-                    menu.classList.add('hidden');
-                    menu.style.display = 'none';
-                });
-                console.log('🔒 Fechando todos os menus - clique fora');
-            }
-        });
 
         // Editar post
         function editPost(postId) {
-            // Fechar menu
-            const menu = document.getElementById(`menu-${postId}`);
-            if (menu) {
-                menu.classList.add('hidden');
-                menu.style.display = 'none';
-            }
+            console.log(`✏️ Editando post ${postId}`);
             
             // Obter post completo da lista carregada
             const posts = window._posts || [];
@@ -855,12 +832,7 @@
 
         // Deletar post
         async function deletePost(postId) {
-            // Fechar menu
-            const menu = document.getElementById(`menu-${postId}`);
-            if (menu) {
-                menu.classList.add('hidden');
-                menu.style.display = 'none';
-            }
+            console.log(`🗑️ Deletando post ${postId}`);
             // Criar modal de confirmação personalizado
             const confirmModal = document.createElement('div');
             confirmModal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50';
@@ -1105,12 +1077,7 @@
                     audio.play().then(() => {
                         console.log('✅ Narração reproduzindo automaticamente!');
                         
-                        // Atualizar indicador de narração
-                        const narrationIndicator = document.getElementById(`narration-indicator-${postId}`);
-                        if (narrationIndicator) {
-                            narrationIndicator.innerHTML = '<i class="fas fa-microphone text-green-400"></i> NARRAÇÃO ATIVA';
-                            narrationIndicator.style.display = 'flex';
-                        }
+                        // Narração reproduzindo automaticamente
                         
                     }).catch(error => {
                         console.error('❌ Erro ao reproduzir narração automática:', error);
@@ -1142,12 +1109,7 @@
                         audio.play().then(() => {
                             console.log('✅ Narração gerada e reproduzindo automaticamente!');
                             
-                            // Atualizar indicador de narração
-                            const narrationIndicator = document.getElementById(`narration-indicator-${postId}`);
-                            if (narrationIndicator) {
-                                narrationIndicator.innerHTML = '<i class="fas fa-microphone text-green-400"></i> NARRAÇÃO ATIVA';
-                                narrationIndicator.style.display = 'flex';
-                            }
+                            // Narração gerada e reproduzindo
                             
                         }).catch(error => {
                             console.error('❌ Erro ao reproduzir narração gerada:', error);
@@ -1203,16 +1165,7 @@
                     // Reproduzir áudio salvo
                     const audio = new Audio(narrationData.audioUrl);
                     
-                    // Atualizar botão para mostrar que está reproduzindo
-                    const button = document.getElementById(`narration-${postId}`);
-                    if (button) {
-                        button.innerHTML = '<i class="fas fa-pause mr-1"></i><span>Pausar</span>';
-                        button.onclick = () => {
-                            audio.pause();
-                            button.innerHTML = '<i class="fas fa-play mr-1"></i><span>Reproduzir</span>';
-                            button.onclick = () => playNarration(postId);
-                        };
-                    }
+                    // Áudio reproduzindo automaticamente
                     
                     audio.play().then(() => {
                         console.log('✅ Áudio salvo reproduzindo!');
@@ -1221,12 +1174,7 @@
                         alert('Erro ao reproduzir áudio salvo.');
                     });
                     
-                    audio.onended = () => {
-                        if (button) {
-                            button.innerHTML = '<i class="fas fa-play mr-1"></i><span>Reproduzir</span>';
-                            button.onclick = () => playNarration(postId);
-                        }
-                    };
+                    // Áudio finalizado
                     
                 } else if (narrationData.text && narrationData.voiceId) {
                     console.log('🎤 Gerando narração em tempo real...');
@@ -1250,16 +1198,7 @@
                         const audioUrl = URL.createObjectURL(audioBlob);
                         const audio = new Audio(audioUrl);
                         
-                        // Atualizar botão para mostrar que está reproduzindo
-                        const button = document.getElementById(`narration-${postId}`);
-                        if (button) {
-                            button.innerHTML = '<i class="fas fa-pause mr-1"></i><span>Pausar</span>';
-                            button.onclick = () => {
-                                audio.pause();
-                                button.innerHTML = '<i class="fas fa-play mr-1"></i><span>Reproduzir</span>';
-                                button.onclick = () => playNarration(postId);
-                            };
-                        }
+                        // Narração reproduzindo automaticamente
                         
                         audio.play().then(() => {
                             console.log('✅ Narração reproduzindo!');
@@ -1268,12 +1207,7 @@
                             alert('Erro ao reproduzir narração.');
                         });
                         
-                        audio.onended = () => {
-                            if (button) {
-                                button.innerHTML = '<i class="fas fa-play mr-1"></i><span>Reproduzir</span>';
-                                button.onclick = () => playNarration(postId);
-                            }
-                        };
+                        // Narração finalizada
                         
                     } else {
                         console.error('❌ Erro ao gerar narração:', response.status);
@@ -1364,24 +1298,6 @@
                 // FORÇAR reprodução do vídeo
                 video.play().then(() => {
                     console.log('✅ VÍDEO REPRODUZIDO COM SOM!');
-                    
-                    // Esconder botão de play do vídeo
-                    const playButton = video.parentElement.querySelector('button');
-                    if (playButton) {
-                        playButton.style.display = 'none';
-                    }
-                    
-                    // Esconder botão de narração (não precisamos mais)
-                    const narrationButton = document.getElementById(`narration-${postId}`);
-                    if (narrationButton) {
-                        narrationButton.style.display = 'none';
-                    }
-                    
-                    // Mostrar indicador de som ativo
-                    const soundIndicator = video.parentElement.querySelector('.sound-indicator');
-                    if (soundIndicator) {
-                        soundIndicator.innerHTML = '<i class="fas fa-volume-up text-green-400"></i> VÍDEO + NARRAÇÃO ATIVOS';
-                    }
                     
                     // AUTOMATICAMENTE reproduzir narração SEM DELAY
                     console.log('🎤 Reproduzindo narração automaticamente...');
