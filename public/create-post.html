@@ -2865,7 +2865,16 @@
             bringForwardBtn.title = 'Trazer para frente';
             bringForwardBtn.onclick = function() {
                 console.log('⬆️ Trazer para frente clicado');
-                showNotification('Trazer para frente (funcionalidade em desenvolvimento)', 'info');
+                
+                // Pega z-index atual do elemento
+                const currentZIndex = parseInt(element.style.zIndex) || 10;
+                const newZIndex = currentZIndex + 10;
+                
+                // Aplica novo z-index
+                element.style.zIndex = newZIndex;
+                
+                console.log('🎨 Z-index alterado de', currentZIndex, 'para', newZIndex);
+                showNotification(`Elemento trazido para frente (z-index: ${newZIndex})`, 'success');
             };
             
             // Botão enviar para trás
@@ -2875,7 +2884,16 @@
             sendBackwardBtn.title = 'Enviar para trás';
             sendBackwardBtn.onclick = function() {
                 console.log('⬇️ Enviar para trás clicado');
-                showNotification('Enviar para trás (funcionalidade em desenvolvimento)', 'info');
+                
+                // Pega z-index atual do elemento
+                const currentZIndex = parseInt(element.style.zIndex) || 10;
+                const newZIndex = Math.max(1, currentZIndex - 10); // Mínimo de 1
+                
+                // Aplica novo z-index
+                element.style.zIndex = newZIndex;
+                
+                console.log('🎨 Z-index alterado de', currentZIndex, 'para', newZIndex);
+                showNotification(`Elemento enviado para trás (z-index: ${newZIndex})`, 'success');
             };
             
             // Adicionar botões ao toolbar
