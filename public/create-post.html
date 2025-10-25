@@ -2722,6 +2722,7 @@
                 border: 2px solid rgba(255, 255, 255, 0.3);
                 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
                 z-index: 10;
+                opacity: 1;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -2794,6 +2795,7 @@
                 border: 2px solid rgba(255, 255, 255, 0.3);
                 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
                 z-index: 10;
+                opacity: 1;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -2862,6 +2864,7 @@
                 border-radius: 1px;
                 box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
                 z-index: 10;
+                opacity: 1;
             `;
             
             console.log('📏 Linha criada com z-index inicial:', line.style.zIndex);
@@ -2954,9 +2957,26 @@
             opacitySlider.className = 'opacity-slider';
             opacitySlider.title = 'Opacidade';
             opacitySlider.oninput = function() {
-                console.log('🎨 Slider de opacidade alterado para:', this.value);
-                showNotification(`Opacidade: ${this.value}% (funcionalidade em desenvolvimento)`, 'info');
+                const opacityValue = this.value;
+                const opacityDecimal = opacityValue / 100;
+                
+                // Aplicar opacidade ao elemento
+                element.style.opacity = opacityDecimal;
+                
+                console.log('🎨 Slider de opacidade alterado para:', opacityValue);
+                console.log('🎨 Opacidade aplicada:', opacityDecimal);
+                console.log('🎨 Elemento opacity:', element.style.opacity);
+                
+                showNotification(`Opacidade: ${opacityValue}%`, 'success');
             };
+            
+            // Definir opacidade inicial do elemento
+            const currentOpacity = element.style.opacity || '1';
+            const initialOpacityPercent = Math.round(parseFloat(currentOpacity) * 100);
+            opacitySlider.value = initialOpacityPercent;
+            
+            console.log('🎨 Opacidade inicial do elemento:', currentOpacity);
+            console.log('🎨 Valor inicial do slider:', initialOpacityPercent);
             
             // Adicionar botões ao toolbar
             toolbar.appendChild(bringForwardBtn);
