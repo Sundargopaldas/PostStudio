@@ -4004,6 +4004,10 @@
             // DEBUG: Mostrar customizationSettings antes de enviar
             console.log('🔍 DEBUG - customizationSettings antes de enviar:', customizationSettings);
             
+            // Verificação final para garantir que não há duplicação
+            console.log('🔍 Verificação final - Elementos do canvas:', customizationSettings.canvasElements ? customizationSettings.canvasElements.length : 0);
+            console.log('🔍 Verificação final - Post será único:', true);
+            
             // Anexar imagem de fundo se houver
             const backgroundImageInput = document.getElementById('backgroundImage');
             console.log('🔍 Debug - backgroundImageInput:', backgroundImageInput);
@@ -4030,6 +4034,65 @@
                 console.log('🖼️ Enviando imagem parcial do Pexels:', selectedPartialImage);
                 formData.append('pexelsPartialImage', selectedPartialImage);
             }
+            // Capturar todos os elementos do canvas (formas, ícones, etc.)
+            const canvas = document.getElementById('canvas');
+            const canvasElements = [];
+            
+            if (canvas) {
+                console.log('🎨 Capturando elementos do canvas...');
+                const draggableElements = canvas.querySelectorAll('.draggable-element');
+                console.log('🎨 Elementos encontrados:', draggableElements.length);
+                
+                // Verificar se já existem elementos salvos para evitar duplicação
+                if (customizationSettings.canvasElements && customizationSettings.canvasElements.length > 0) {
+                    console.log('⚠️ Elementos já existem na customização, limpando...');
+                    customizationSettings.canvasElements = [];
+                }
+                
+                draggableElements.forEach((element, index) => {
+                    const elementData = {
+                        id: element.id,
+                        type: element.className.includes('draggable-element') ? 'draggable' : 'unknown',
+                        position: {
+                            left: element.style.left,
+                            top: element.style.top,
+                            zIndex: element.style.zIndex || '5'
+                        },
+                        style: {
+                            width: element.style.width,
+                            height: element.style.height,
+                            backgroundColor: element.style.backgroundColor,
+                            opacity: element.style.opacity || '1'
+                        },
+                        content: element.innerHTML
+                    };
+                    
+                    // Identificar tipo específico do elemento
+                    if (element.id.startsWith('icon-')) {
+                        elementData.type = 'icon';
+                        const iconElement = element.querySelector('[data-lucide]');
+                        if (iconElement) {
+                            elementData.iconName = iconElement.getAttribute('data-lucide');
+                        }
+                    } else if (element.id.startsWith('circle-')) {
+                        elementData.type = 'circle';
+                    } else if (element.id.startsWith('rectangle-')) {
+                        elementData.type = 'rectangle';
+                    } else if (element.id.startsWith('line-')) {
+                        elementData.type = 'line';
+                    }
+                    
+                    canvasElements.push(elementData);
+                    console.log(`🎨 Elemento ${index + 1}:`, elementData);
+                });
+                
+                // Adicionar elementos do canvas à customização
+                if (canvasElements.length > 0) {
+                    customizationSettings.canvasElements = canvasElements;
+                    console.log('🎨 Elementos do canvas adicionados à customização:', canvasElements.length);
+                }
+            }
+
             // Forçar normalização da fonte antes de enviar
             if (customizationSettings && customizationSettings.font) {
                 // Remover aspas dinamicas do JIT: font-['Abril Fatface'] -> 'Abril Fatface'

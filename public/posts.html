@@ -471,7 +471,7 @@
             const container = document.getElementById('postsContainer');
             console.log('📦 Container encontrado:', container);
             console.log('📦 Container innerHTML antes:', container.innerHTML);
-            
+
             if (!posts || posts.length === 0) {
                 console.log('⚠️ Nenhum post para exibir');
                 console.log('⚠️ Mostrando mensagem "Nenhum post encontrado"');
@@ -484,7 +484,25 @@
             // Limpar container antes de adicionar novos posts
             container.innerHTML = '';
             
-            posts.forEach((post, index) => {
+            // Verificar se há posts duplicados por ID
+            const uniquePosts = [];
+            const seenIds = new Set();
+            
+            posts.forEach(post => {
+                if (!seenIds.has(post.id)) {
+                    seenIds.add(post.id);
+                    uniquePosts.push(post);
+                } else {
+                    console.log('⚠️ Post duplicado detectado e removido:', post.id);
+                }
+            });
+            
+            console.log(`🔄 Posts únicos após remoção de duplicatas: ${uniquePosts.length}`);
+            
+            // Usar apenas posts únicos
+            const postsToDisplay = uniquePosts;
+            
+            postsToDisplay.forEach((post, index) => {
                 console.log(`📝 Processando post ${index + 1}:`, post);
                 console.log(`🔍 Post ID: ${post.id}`);
                 console.log(`🔍 Post tem ID? ${!!post.id}`);
