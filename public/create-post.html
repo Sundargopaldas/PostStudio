@@ -105,6 +105,39 @@
             border-color: rgba(255, 255, 255, 0.4);
             transform: scale(1.05);
         }
+
+        /* Slider de opacidade no mini toolbar */
+        .opacity-slider {
+            width: 60px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            outline: none;
+            cursor: pointer;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .opacity-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .opacity-slider::-moz-range-thumb {
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
         
         .animate-slide-up {
             animation: slideUp 0.8s ease-out;
@@ -2695,6 +2728,8 @@
                 text-align: center;
             `;
             
+            console.log('🔴 Círculo criado com z-index inicial:', circle.style.zIndex);
+            
             // Adicionar texto ao círculo
             const textElement = document.createElement('div');
             textElement.style.cssText = `
@@ -2765,6 +2800,8 @@
                 text-align: center;
             `;
             
+            console.log('🟦 Retângulo criado com z-index inicial:', rectangle.style.zIndex);
+            
             // Adicionar texto ao retângulo
             const textElement = document.createElement('div');
             textElement.style.cssText = `
@@ -2827,6 +2864,8 @@
                 z-index: 10;
             `;
             
+            console.log('📏 Linha criada com z-index inicial:', line.style.zIndex);
+            
             // Posicionar no centro do canvas
             const canvasRect = canvas.getBoundingClientRect();
             const centerX = canvasRect.width / 2 - 100; // 100px = metade da largura da linha
@@ -2865,6 +2904,8 @@
             bringForwardBtn.title = 'Trazer para frente';
             bringForwardBtn.onclick = function() {
                 console.log('⬆️ Trazer para frente clicado');
+                console.log('🎨 Elemento antes:', element);
+                console.log('🎨 Z-index atual antes:', element.style.zIndex);
                 
                 // Pega z-index atual do elemento
                 const currentZIndex = parseInt(element.style.zIndex) || 10;
@@ -2873,7 +2914,12 @@
                 // Aplica novo z-index
                 element.style.zIndex = newZIndex;
                 
+                // Forçar atualização visual
+                element.style.position = 'absolute';
+                
                 console.log('🎨 Z-index alterado de', currentZIndex, 'para', newZIndex);
+                console.log('🎨 Z-index aplicado:', element.style.zIndex);
+                console.log('🎨 Elemento depois:', element);
                 showNotification(`Elemento trazido para frente (z-index: ${newZIndex})`, 'success');
             };
             
@@ -2884,21 +2930,38 @@
             sendBackwardBtn.title = 'Enviar para trás';
             sendBackwardBtn.onclick = function() {
                 console.log('⬇️ Enviar para trás clicado');
+                console.log('🎨 Elemento antes:', element);
+                console.log('🎨 Z-index atual antes:', element.style.zIndex);
                 
-                // Pega z-index atual do elemento
-                const currentZIndex = parseInt(element.style.zIndex) || 10;
-                const newZIndex = Math.max(1, currentZIndex - 10); // Mínimo de 1
+                // Define z-index = 1 (enviar para trás)
+                element.style.zIndex = 1;
                 
-                // Aplica novo z-index
-                element.style.zIndex = newZIndex;
+                // Forçar atualização visual
+                element.style.position = 'absolute';
                 
-                console.log('🎨 Z-index alterado de', currentZIndex, 'para', newZIndex);
-                showNotification(`Elemento enviado para trás (z-index: ${newZIndex})`, 'success');
+                console.log('🎨 Z-index definido como 1 (enviar para trás)');
+                console.log('🎨 Z-index aplicado:', element.style.zIndex);
+                console.log('🎨 Elemento depois:', element);
+                showNotification('Elemento enviado para trás (z-index: 1)', 'success');
+            };
+            
+            // Criar slider de opacidade
+            const opacitySlider = document.createElement('input');
+            opacitySlider.type = 'range';
+            opacitySlider.min = '0';
+            opacitySlider.max = '100';
+            opacitySlider.value = '100';
+            opacitySlider.className = 'opacity-slider';
+            opacitySlider.title = 'Opacidade';
+            opacitySlider.oninput = function() {
+                console.log('🎨 Slider de opacidade alterado para:', this.value);
+                showNotification(`Opacidade: ${this.value}% (funcionalidade em desenvolvimento)`, 'info');
             };
             
             // Adicionar botões ao toolbar
             toolbar.appendChild(bringForwardBtn);
             toolbar.appendChild(sendBackwardBtn);
+            toolbar.appendChild(opacitySlider);
             
             // Posicionar toolbar acima do elemento
             const elementRect = element.getBoundingClientRect();
@@ -2915,8 +2978,8 @@
             const relativeLeft = elementRect.left - canvasRect.left;
             const relativeTop = elementRect.top - canvasRect.top;
             
-            // Centralizar horizontalmente e posicionar acima
-            toolbar.style.left = (relativeLeft + (elementRect.width / 2) - 40) + 'px';
+            // Centralizar horizontalmente e posicionar acima (ajustado para 3 elementos)
+            toolbar.style.left = (relativeLeft + (elementRect.width / 2) - 60) + 'px';
             toolbar.style.top = (relativeTop - 50) + 'px';
             
             console.log('🎨 Posicionando toolbar:', {
