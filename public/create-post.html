@@ -2557,16 +2557,19 @@
         function addShape(shapeType) {
             console.log('🔴 Função addShape chamada para:', shapeType);
             console.log('🔴 Tipo é circle?', shapeType === 'circle');
+            console.log('🔴 Tipo é rectangle?', shapeType === 'rectangle');
             
             // Chamar função específica baseada no tipo
             if (shapeType === 'circle') {
                 console.log('🔴 Chamando addCircle()...');
                 addCircle();
+            } else if (shapeType === 'rectangle') {
+                console.log('🔴 Chamando addRectangle()...');
+                addRectangle();
             } else {
                 console.log('🔴 Outras formas - mostrando mensagem de desenvolvimento');
                 // Feedback visual temporário para outras formas
                 const shapeNames = {
-                    'rectangle': 'Retângulo', 
                     'line': 'Linha'
                 };
                 
@@ -2645,6 +2648,76 @@
             showNotification('Círculo com texto adicionado com sucesso!', 'success');
         }
 
+        // Função para adicionar retângulo ao canvas
+        function addRectangle() {
+            console.log('🟦 Adicionando retângulo ao canvas...');
+            
+            const canvas = document.getElementById('canvas');
+            if (!canvas) {
+                console.error('❌ Canvas não encontrado');
+                showNotification('Erro: Canvas não encontrado', 'error');
+                return;
+            }
+            
+            // Texto padrão para o retângulo
+            const rectangleText = 'Texto';
+            
+            // Criar elemento div para o retângulo
+            const rectangle = document.createElement('div');
+            rectangle.className = 'draggable-element';
+            rectangle.id = 'rectangle-' + Date.now();
+            rectangle.style.cssText = `
+                position: absolute;
+                width: 150px;
+                height: 100px;
+                background-color: #10b981;
+                border-radius: 8px;
+                cursor: move;
+                border: 2px solid rgba(255, 255, 255, 0.3);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                z-index: 10;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+            `;
+            
+            // Adicionar texto ao retângulo
+            const textElement = document.createElement('div');
+            textElement.style.cssText = `
+                color: white;
+                font-size: 14px;
+                font-weight: bold;
+                text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+                word-wrap: break-word;
+                max-width: 140px;
+                line-height: 1.2;
+                pointer-events: none;
+            `;
+            textElement.textContent = rectangleText || 'Texto';
+            rectangle.appendChild(textElement);
+            
+            // Posicionar no centro do canvas
+            const canvasRect = canvas.getBoundingClientRect();
+            const centerX = canvasRect.width / 2 - 75; // 75px = metade da largura do retângulo
+            const centerY = canvasRect.height / 2 - 50; // 50px = metade da altura do retângulo
+            
+            rectangle.style.left = centerX + 'px';
+            rectangle.style.top = centerY + 'px';
+            
+            // Adicionar ao canvas
+            canvas.appendChild(rectangle);
+            
+            // Tornar draggable
+            makeDraggable(rectangle);
+            
+            // Adicionar funcionalidade de edição de texto
+            addTextEditFunctionality(rectangle, textElement);
+            
+            console.log('✅ Retângulo com texto adicionado ao canvas');
+            showNotification('Retângulo com texto adicionado com sucesso!', 'success');
+        }
+
         // Função para tornar elemento draggable
         function makeDraggable(element) {
             let isDragging = false;
@@ -2684,8 +2757,11 @@
                 const canvas = document.getElementById('canvas');
                 if (canvas) {
                     const canvasRect = canvas.getBoundingClientRect();
-                    const maxX = canvasRect.width - 100; // 100px = largura do círculo
-                    const maxY = canvasRect.height - 100; // 100px = altura do círculo
+                    // Detectar tamanho do elemento para limitar movimento
+                    const elementWidth = element.offsetWidth || 100;
+                    const elementHeight = element.offsetHeight || 100;
+                    const maxX = canvasRect.width - elementWidth;
+                    const maxY = canvasRect.height - elementHeight;
                     
                     element.style.left = Math.max(0, Math.min(newX, maxX)) + 'px';
                     element.style.top = Math.max(0, Math.min(newY, maxY)) + 'px';
