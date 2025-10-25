@@ -2649,6 +2649,45 @@
         // Variável global para o mini toolbar de camadas
         let currentLayerToolbar = null;
         
+        // Estrutura de dados para templates
+        const templates = [
+            {
+                id: 'instagram-post',
+                name: 'Post Instagram',
+                width: 1080,
+                height: 1080,
+                elements: []  // vazio por enquanto
+            },
+            {
+                id: 'story',
+                name: 'Story',
+                width: 1080,
+                height: 1920,
+                elements: []
+            },
+            {
+                id: 'facebook-cover',
+                name: 'Capa Facebook',
+                width: 1200,
+                height: 630,
+                elements: []
+            },
+            {
+                id: 'twitter-header',
+                name: 'Cabeçalho Twitter',
+                width: 1500,
+                height: 500,
+                elements: []
+            },
+            {
+                id: 'youtube-thumbnail',
+                name: 'Miniatura YouTube',
+                width: 1280,
+                height: 720,
+                elements: []
+            }
+        ];
+        
         // Inicializar seletor de cor
         document.addEventListener('DOMContentLoaded', function() {
             const colorPicker = document.getElementById('shapeColorPicker');
