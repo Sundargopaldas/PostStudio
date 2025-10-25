@@ -481,6 +481,27 @@
                         </div>
                     </div>
 
+                    <!-- Ferramentas de Formas -->
+                    <div class="font-selector p-6">
+                        <h4 class="text-xl font-bold text-white mb-4 font-inter">
+                            <i class="fas fa-shapes mr-2"></i>Ferramentas de Formas
+                        </h4>
+                        <div class="grid grid-cols-3 gap-3">
+                            <button onclick="addShape('circle')" class="shapeBtn bg-red-500/20 hover:bg-red-500/40 text-white px-4 py-3 rounded-lg transition-all transform hover:scale-105 border border-red-400/30 hover:border-red-400/60">
+                                <div class="text-2xl mb-2">🔴</div>
+                                <div class="text-sm font-medium">Círculo</div>
+                            </button>
+                            <button onclick="addShape('rectangle')" class="shapeBtn bg-blue-500/20 hover:bg-blue-500/40 text-white px-4 py-3 rounded-lg transition-all transform hover:scale-105 border border-blue-400/30 hover:border-blue-400/60">
+                                <div class="text-2xl mb-2">⬜</div>
+                                <div class="text-sm font-medium">Retângulo</div>
+                            </button>
+                            <button onclick="addShape('line')" class="shapeBtn bg-green-500/20 hover:bg-green-500/40 text-white px-4 py-3 rounded-lg transition-all transform hover:scale-105 border border-green-400/30 hover:border-green-400/60">
+                                <div class="text-2xl mb-2">📏</div>
+                                <div class="text-sm font-medium">Linha</div>
+                            </button>
+                        </div>
+                    </div>
+
                 </div>
 
                 <!-- Preview do Post -->
@@ -2532,7 +2553,22 @@
             }, 100);
         }
 
-
+        // Função para adicionar formas (sem funcionalidade ainda)
+        function addShape(shapeType) {
+            console.log('🔴 Função addShape chamada para:', shapeType);
+            
+            // Feedback visual temporário
+            const shapeNames = {
+                'circle': 'Círculo',
+                'rectangle': 'Retângulo', 
+                'line': 'Linha'
+            };
+            
+            showNotification(`${shapeNames[shapeType]} selecionado (funcionalidade em desenvolvimento)`, 'info');
+            
+            // TODO: Implementar funcionalidade de formas
+            console.log('📝 TODO: Implementar funcionalidade para', shapeType);
+        }
 
         // Função para atualizar controles visuais na edição
         function updateVisualControls() {
