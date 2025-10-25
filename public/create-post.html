@@ -10,6 +10,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&family=Montserrat:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&family=Open+Sans:wght@300;400;600;700;800&family=Lato:wght@300;400;700;900&family=Source+Sans+Pro:wght@300;400;600;700;900&family=Nunito:wght@300;400;600;700;800;900&family=Quicksand:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700;800;900&family=Oswald:wght@300;400;500;600;700&family=Lobster&family=Pacifico&family=Dancing+Script:wght@400;500;600;700&family=Great+Vibes:wght@400&family=Satisfy:wght@400&family=Abril+Fatface&family=Merriweather:wght@300;400;700;900&family=PT+Serif:wght@400;700&family=Work+Sans:wght@300;400;600;700;800&family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <style>
         .gradient-bg {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -664,7 +665,7 @@
                             </div>
                         </div>
                         
-                        <div class="grid grid-cols-3 gap-3">
+                        <div class="grid grid-cols-4 gap-3">
                             <button onclick="addShape('circle')" class="shapeBtn bg-red-500/20 hover:bg-red-500/40 text-white px-4 py-3 rounded-lg transition-all transform hover:scale-105 border border-red-400/30 hover:border-red-400/60">
                                 <div class="text-2xl mb-2">🔴</div>
                                 <div class="text-sm font-medium">Círculo</div>
@@ -676,6 +677,10 @@
                             <button onclick="addShape('line')" class="shapeBtn bg-green-500/20 hover:bg-green-500/40 text-white px-4 py-3 rounded-lg transition-all transform hover:scale-105 border border-green-400/30 hover:border-green-400/60">
                                 <div class="text-2xl mb-2">📏</div>
                                 <div class="text-sm font-medium">Linha</div>
+                            </button>
+                            <button onclick="showIconGrid()" class="shapeBtn bg-purple-500/20 hover:bg-purple-500/40 text-white px-4 py-3 rounded-lg transition-all transform hover:scale-105 border border-purple-400/30 hover:border-purple-400/60">
+                                <div class="text-2xl mb-2">🎨</div>
+                                <div class="text-sm font-medium">Ícone</div>
                             </button>
                         </div>
                     </div>
@@ -767,6 +772,30 @@
                         <p class="text-blue-300/80 text-sm">Aparece como elemento separado no post, acima ou abaixo do texto</p>
                         <div class="mt-2 text-xs text-blue-400">
                             <i class="fas fa-arrow-right mr-1"></i>Use para fotos, ilustrações, gráficos
+                        </div>
+                    </div>
+                    
+                    <!-- Filtros de Imagem -->
+                    <div class="bg-orange-500/10 border border-orange-400/30 rounded-lg p-4 mb-4">
+                        <div class="flex items-center space-x-2 mb-3">
+                            <i class="fas fa-magic text-orange-400"></i>
+                            <span class="font-medium text-orange-200">Filtros de Imagem</span>
+                            <span class="bg-orange-500/20 text-orange-300 px-2 py-1 rounded-full text-xs">Filtros</span>
+                        </div>
+                        <p class="text-orange-300/80 text-sm mb-3">Aplique filtros visuais à imagem de fundo</p>
+                        <div class="grid grid-cols-3 gap-3">
+                            <button onclick="applyImageFilter('normal')" class="filterBtn bg-gray-500/20 hover:bg-gray-500/40 text-white px-3 py-2 rounded-lg transition-all transform hover:scale-105 border border-gray-400/30 hover:border-gray-400/60">
+                                <div class="text-lg mb-1">🎨</div>
+                                <div class="text-xs font-medium">Normal</div>
+                            </button>
+                            <button onclick="applyImageFilter('grayscale')" class="filterBtn bg-gray-500/20 hover:bg-gray-500/40 text-white px-3 py-2 rounded-lg transition-all transform hover:scale-105 border border-gray-400/30 hover:border-gray-400/60">
+                                <div class="text-lg mb-1">⚫</div>
+                                <div class="text-xs font-medium">P&B</div>
+                            </button>
+                            <button onclick="applyImageFilter('sepia')" class="filterBtn bg-yellow-500/20 hover:bg-yellow-500/40 text-white px-3 py-2 rounded-lg transition-all transform hover:scale-105 border border-yellow-400/30 hover:border-yellow-400/60">
+                                <div class="text-lg mb-1">🟤</div>
+                                <div class="text-xs font-medium">Sépia</div>
+                            </button>
                         </div>
                     </div>
                     
@@ -2977,6 +3006,153 @@
             showNotification(`Canvas redimensionado para ${width}×${height}px`, 'success');
         }
 
+        // Lista de ícones populares do Lucide
+        const popularIcons = [
+            'heart', 'star', 'thumbs-up', 'smile', 'camera', 'music', 'coffee', 'sun', 'moon', 'fire',
+            'zap', 'shield', 'lock', 'unlock', 'eye', 'eye-off', 'search', 'plus', 'minus', 'x'
+        ];
+
+        // Função para mostrar grid de ícones
+        function showIconGrid() {
+            console.log('🎨 Mostrando grid de ícones');
+            const modal = document.getElementById('iconModal');
+            const iconGrid = document.getElementById('iconGrid');
+            
+            // Limpar grid anterior
+            iconGrid.innerHTML = '';
+            
+            // Adicionar ícones ao grid
+            popularIcons.forEach((iconName, index) => {
+                const iconButton = document.createElement('button');
+                iconButton.className = 'flex flex-col items-center p-4 bg-white/10 hover:bg-white/20 rounded-xl transition-all duration-300 border border-white/20 hover:border-white/40 hover:scale-105 shadow-lg hover:shadow-xl';
+                iconButton.onclick = () => addIconToCanvas(iconName);
+                
+                // Criar ícone SVG usando Lucide com cores vibrantes
+                const iconSvg = document.createElement('div');
+                const colors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
+                const iconColor = colors[index % colors.length];
+                iconSvg.innerHTML = `<i data-lucide="${iconName}" class="w-8 h-8" style="color: ${iconColor}; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));"></i>`;
+                iconSvg.className = 'mb-3';
+                
+                const iconLabel = document.createElement('span');
+                iconLabel.textContent = iconName;
+                iconLabel.className = 'text-xs text-white/90 font-medium';
+                
+                iconButton.appendChild(iconSvg);
+                iconButton.appendChild(iconLabel);
+                iconGrid.appendChild(iconButton);
+            });
+            
+            // Mostrar modal
+            modal.classList.remove('hidden');
+            
+            // Inicializar ícones Lucide
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+            
+            showNotification('Grid de ícones carregado', 'success');
+        }
+
+        // Função para esconder grid de ícones
+        function hideIconGrid() {
+            console.log('🎨 Escondendo grid de ícones');
+            const modal = document.getElementById('iconModal');
+            modal.classList.add('hidden');
+        }
+
+        // Função para adicionar ícone ao canvas
+        function addIconToCanvas(iconName) {
+            console.log('🎨 Adicionando ícone ao canvas:', iconName);
+            
+            const canvas = document.getElementById('canvas');
+            if (!canvas) {
+                console.error('❌ Canvas não encontrado!');
+                return;
+            }
+            
+            // Criar elemento div para o ícone
+            const iconElement = document.createElement('div');
+            iconElement.className = 'draggable-element';
+            iconElement.id = 'icon-' + Date.now();
+            iconElement.style.cssText = `
+                position: absolute;
+                width: 40px;
+                height: 40px;
+                cursor: move;
+                z-index: 5;
+                opacity: 1;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 8px;
+                border: 2px solid rgba(255, 255, 255, 0.3);
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            `;
+            
+            // Adicionar ícone SVG
+            const iconSvg = document.createElement('div');
+            iconSvg.innerHTML = `<i data-lucide="${iconName}" class="w-6 h-6" style="color: #3b82f6;"></i>`;
+            iconElement.appendChild(iconSvg);
+            
+            // Posicionar no centro do canvas
+            const canvasRect = canvas.getBoundingClientRect();
+            const centerX = canvasRect.width / 2 - 20;
+            const centerY = canvasRect.height / 2 - 20;
+            
+            iconElement.style.left = centerX + 'px';
+            iconElement.style.top = centerY + 'px';
+            
+            // Adicionar ao canvas
+            canvas.appendChild(iconElement);
+            
+            // Inicializar ícone Lucide
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+            
+            // Tornar draggable
+            makeDraggable(iconElement);
+            
+            // Esconder modal
+            hideIconGrid();
+            
+            console.log('✅ Ícone adicionado:', iconName);
+            showNotification(`Ícone ${iconName} adicionado!`, 'success');
+        }
+
+        // Função para aplicar filtros de imagem
+        function applyImageFilter(filterType) {
+            console.log('🎨 Aplicando filtro:', filterType);
+            
+            const canvas = document.getElementById('canvas');
+            if (!canvas) {
+                console.error('❌ Canvas não encontrado!');
+                return;
+            }
+            
+            // Remover filtros anteriores
+            canvas.style.filter = '';
+            
+            // Aplicar novo filtro
+            switch(filterType) {
+                case 'grayscale':
+                    canvas.style.filter = 'grayscale(100%)';
+                    break;
+                case 'sepia':
+                    canvas.style.filter = 'sepia(80%)';
+                    break;
+                case 'normal':
+                default:
+                    canvas.style.filter = '';
+                    break;
+            }
+            
+            console.log('✅ Filtro aplicado:', filterType, '->', canvas.style.filter);
+            showNotification(`Filtro ${filterType} aplicado!`, 'success');
+        }
+
         // Função para adicionar formas
         function addShape(shapeType) {
             console.log('🔴 Função addShape chamada para:', shapeType);
@@ -3939,6 +4115,24 @@
             }
         });
     </script>
+    
+    <!-- Modal de Ícones -->
+    <div id="iconModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto shadow-2xl">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl font-bold text-white">
+                    <i class="fas fa-icons mr-3 text-blue-400"></i>Escolher Ícone
+                </h3>
+                <button onclick="hideIconGrid()" class="text-white/60 hover:text-white text-2xl hover:bg-white/10 rounded-full p-2 transition-all">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="iconGrid" class="grid grid-cols-5 gap-4">
+                <!-- Ícones serão inseridos aqui via JavaScript -->
+            </div>
+        </div>
+    </div>
+    
     <script src="modern-videos-manager.js"></script>
 </body>
 </html>
