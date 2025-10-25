@@ -60,6 +60,51 @@
         .animate-fade-in {
             animation: fadeIn 0.6s ease-in-out;
         }
+
+        /* Mini toolbar flutuante para camadas */
+        .layer-toolbar {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            border-radius: 8px;
+            padding: 8px;
+            display: flex;
+            gap: 4px;
+            z-index: 9999;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .layer-toolbar.show {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .layer-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+
+        .layer-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: scale(1.05);
+        }
         
         .animate-slide-up {
             animation: slideUp 0.8s ease-out;
@@ -2568,6 +2613,9 @@
         // Variável global para cor das formas
         let selectedShapeColor = '#3b82f6';
         
+        // Variável global para o mini toolbar de camadas
+        let currentLayerToolbar = null;
+        
         // Inicializar seletor de cor
         document.addEventListener('DOMContentLoaded', function() {
             const colorPicker = document.getElementById('shapeColorPicker');
@@ -2580,6 +2628,13 @@
                     console.log('🎨 Cor das formas alterada para:', selectedShapeColor);
                 });
             }
+            
+            // Esconder mini toolbar quando clicar fora
+            document.addEventListener('click', function(e) {
+                if (currentLayerToolbar && !currentLayerToolbar.contains(e.target)) {
+                    hideLayerToolbar();
+                }
+            });
         });
 
         // Função para adicionar formas
@@ -2790,6 +2845,109 @@
             showNotification('Linha adicionada com sucesso!', 'success');
         }
 
+        // Função para criar mini toolbar de camadas
+        function createLayerToolbar(element) {
+            // Remover toolbar anterior se existir
+            if (currentLayerToolbar) {
+                currentLayerToolbar.remove();
+                currentLayerToolbar = null;
+            }
+            
+            // Criar mini toolbar
+            const toolbar = document.createElement('div');
+            toolbar.className = 'layer-toolbar';
+            toolbar.id = 'layer-toolbar-' + Date.now();
+            
+            // Botão trazer para frente
+            const bringForwardBtn = document.createElement('button');
+            bringForwardBtn.className = 'layer-btn';
+            bringForwardBtn.innerHTML = '⬆️';
+            bringForwardBtn.title = 'Trazer para frente';
+            bringForwardBtn.onclick = function() {
+                console.log('⬆️ Trazer para frente clicado');
+                showNotification('Trazer para frente (funcionalidade em desenvolvimento)', 'info');
+            };
+            
+            // Botão enviar para trás
+            const sendBackwardBtn = document.createElement('button');
+            sendBackwardBtn.className = 'layer-btn';
+            sendBackwardBtn.innerHTML = '⬇️';
+            sendBackwardBtn.title = 'Enviar para trás';
+            sendBackwardBtn.onclick = function() {
+                console.log('⬇️ Enviar para trás clicado');
+                showNotification('Enviar para trás (funcionalidade em desenvolvimento)', 'info');
+            };
+            
+            // Adicionar botões ao toolbar
+            toolbar.appendChild(bringForwardBtn);
+            toolbar.appendChild(sendBackwardBtn);
+            
+            // Posicionar toolbar acima do elemento
+            const elementRect = element.getBoundingClientRect();
+            const canvas = document.getElementById('canvas');
+            
+            if (!canvas) {
+                console.error('❌ Canvas não encontrado para posicionar toolbar');
+                return;
+            }
+            
+            const canvasRect = canvas.getBoundingClientRect();
+            
+            // Calcular posição relativa ao canvas
+            const relativeLeft = elementRect.left - canvasRect.left;
+            const relativeTop = elementRect.top - canvasRect.top;
+            
+            // Centralizar horizontalmente e posicionar acima
+            toolbar.style.left = (relativeLeft + (elementRect.width / 2) - 40) + 'px';
+            toolbar.style.top = (relativeTop - 50) + 'px';
+            
+            console.log('🎨 Posicionando toolbar:', {
+                elementRect: elementRect,
+                canvasRect: canvasRect,
+                relativeLeft: relativeLeft,
+                relativeTop: relativeTop,
+                finalLeft: toolbar.style.left,
+                finalTop: toolbar.style.top
+            });
+            
+            // Adicionar ao canvas
+            canvas.appendChild(toolbar);
+            
+            // Verificar se o toolbar está visível
+            setTimeout(() => {
+                toolbar.classList.add('show');
+                
+                // Fallback: se não estiver visível, posicionar no centro do canvas
+                setTimeout(() => {
+                    const toolbarRect = toolbar.getBoundingClientRect();
+                    if (toolbarRect.width === 0 || toolbarRect.height === 0) {
+                        console.log('🎨 Toolbar não visível, usando posição de fallback');
+                        toolbar.style.left = '50%';
+                        toolbar.style.top = '50%';
+                        toolbar.style.transform = 'translate(-50%, -50%)';
+                    }
+                }, 100);
+            }, 10);
+            
+            // Armazenar referência
+            currentLayerToolbar = toolbar;
+            
+            console.log('🎨 Mini toolbar de camadas criado');
+        }
+
+        // Função para esconder mini toolbar
+        function hideLayerToolbar() {
+            if (currentLayerToolbar) {
+                currentLayerToolbar.classList.remove('show');
+                setTimeout(() => {
+                    if (currentLayerToolbar) {
+                        currentLayerToolbar.remove();
+                        currentLayerToolbar = null;
+                    }
+                }, 300);
+            }
+        }
+
         // Função para tornar elemento draggable
         function makeDraggable(element) {
             let isDragging = false;
@@ -2813,6 +2971,16 @@
                 element.style.zIndex = '1000'; // Garantir que fica por cima
                 e.preventDefault();
                 e.stopPropagation();
+            });
+            
+            // Adicionar detecção de clique para mostrar mini toolbar
+            element.addEventListener('click', function(e) {
+                e.stopPropagation();
+                console.log('🎨 Elemento clicado, mostrando mini toolbar');
+                console.log('🎨 Elemento:', element);
+                console.log('🎨 Elemento ID:', element.id);
+                console.log('🎨 Elemento classe:', element.className);
+                createLayerToolbar(element);
             });
             
             document.addEventListener('mousemove', function(e) {
