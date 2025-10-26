@@ -762,18 +762,6 @@
             </div>
             <div id="guideContent" class="space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Imagem Parcial -->
-                    <div class="bg-blue-500/10 border border-blue-400/30 rounded-lg p-4">
-                        <div class="flex items-center space-x-2 mb-2">
-                            <i class="fas fa-image text-blue-400"></i>
-                            <span class="font-medium text-blue-200">Imagem Parcial</span>
-                            <span class="bg-blue-500/20 text-blue-300 px-2 py-1 rounded-full text-xs">Elemento</span>
-                        </div>
-                        <p class="text-blue-300/80 text-sm">Aparece como elemento separado no post, acima ou abaixo do texto</p>
-                        <div class="mt-2 text-xs text-blue-400">
-                            <i class="fas fa-arrow-right mr-1"></i>Use para fotos, ilustrações, gráficos
-                        </div>
-                    </div>
                     
                     <!-- Filtros de Imagem -->
                     <div class="bg-orange-500/10 border border-orange-400/30 rounded-lg p-4 mb-4">
@@ -863,46 +851,6 @@
                     </div>
                 </div>
 
-                <!-- Image Upload -->
-                <div>
-                    <div class="flex items-center justify-between mb-4">
-                        <label for="postImages" class="block text-sm font-medium text-white">
-                            <i class="fas fa-image mr-2"></i>Imagem Parcial (opcional)
-                        </label>
-                        <div class="bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full text-xs font-medium">
-                            <i class="fas fa-info-circle mr-1"></i>Aparece como elemento no post
-                        </div>
-                    </div>
-                    <div class="bg-blue-500/10 border border-blue-400/30 rounded-lg p-4 mb-4">
-                        <div class="flex items-start space-x-3">
-                            <i class="fas fa-lightbulb text-yellow-400 mt-1"></i>
-                            <div class="text-sm text-blue-200">
-                                <p class="font-medium mb-1">💡 Dica: Imagem Parcial vs Imagem de Fundo</p>
-                                <p class="text-blue-300/80">• <strong>Imagem Parcial:</strong> Aparece como elemento separado no post</p>
-                                <p class="text-blue-300/80">• <strong>Imagem de Fundo:</strong> Fica atrás do texto (veja na seção Background)</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="border-2 border-dashed border-white/30 rounded-lg p-6 text-center hover:border-white/50 transition-colors">
-                        <input 
-                            type="file" 
-                            id="postImages" 
-                            name="images" 
-                            multiple 
-                            accept="image/*" 
-                            class="hidden"
-                            onchange="handleImageUpload(event)"
-                        >
-                        <label for="postImages" class="cursor-pointer">
-                            <i class="fas fa-cloud-upload-alt text-4xl text-white/60 mb-2"></i>
-                            <p class="text-white/80">Clique para selecionar imagens</p>
-                            <p class="text-white/60 text-sm">PNG, JPG, GIF até 10MB cada</p>
-                        </label>
-                    </div>
-                    <div id="imagePreview" class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <!-- Preview das imagens será inserido aqui -->
-                    </div>
-                </div>
 
                 <!-- Hashtags -->
                 <div>
@@ -989,7 +937,6 @@
         let selectedTextEffect = 'normal';
         let selectedTextPosition = 'center'; // Posicionamento do texto
         let selectedBackgroundImage = null; // imagem de fundo personalizada
-        let selectedPartialImage = null; // imagem parcial do Pexels
         let customizationSettings = {
             font: 'font-inter',
             color: '#ef4444', // Vermelho por padrão para teste
@@ -1676,56 +1623,7 @@
                 previewText.classList.remove('text-glow', 'text-3d', 'text-gradient');
             }
             
-            // Remover indicador de imagem parcial se existir
-            const existingPartialIndicator = document.getElementById('partialImageIndicator');
-            if (existingPartialIndicator) {
-                existingPartialIndicator.remove();
-            }
 
-            // Exibir imagem parcial do Pexels se selecionada
-            console.log('🖼️ Verificando imagem parcial:', selectedPartialImage);
-            console.log('🖼️ Canvas encontrado:', !!canvas);
-            const existingPartialImage = document.getElementById('partialImagePreview');
-            console.log('🖼️ Imagem parcial existente:', !!existingPartialImage);
-            
-            if (selectedPartialImage) {
-                console.log('🖼️ Aplicando imagem parcial:', selectedPartialImage);
-                if (!existingPartialImage) {
-                    console.log('🖼️ Criando nova imagem parcial...');
-                    const partialImageDiv = document.createElement('div');
-                    partialImageDiv.id = 'partialImagePreview';
-                    partialImageDiv.className = 'mt-4 w-full';
-                    partialImageDiv.style.position = 'absolute';
-                    partialImageDiv.style.bottom = '24px';
-                    partialImageDiv.style.left = '50%';
-                    partialImageDiv.style.transform = 'translateX(-50%)';
-                    partialImageDiv.style.width = '80%';
-                    partialImageDiv.style.maxWidth = '400px';
-                    partialImageDiv.innerHTML = `
-                        <img src="${selectedPartialImage}" alt="Imagem parcial" class="w-full h-56 object-cover rounded-xl border border-white/20 shadow-lg">
-                    `;
-                    canvas.appendChild(partialImageDiv);
-                    console.log('✅ Imagem parcial adicionada ao preview');
-                    console.log('✅ Canvas children:', canvas.children.length);
-                } else {
-                    console.log('🖼️ Atualizando imagem parcial existente...');
-                    // Atualizar imagem existente
-                    const img = existingPartialImage.querySelector('img');
-                    if (img) {
-                        img.src = selectedPartialImage;
-                        console.log('✅ Imagem parcial atualizada no preview');
-                    } else {
-                        console.error('❌ Imagem não encontrada no elemento existente');
-                    }
-                }
-            } else {
-                console.log('🖼️ Nenhuma imagem parcial selecionada');
-                // Remover imagem parcial se não selecionada
-                if (existingPartialImage) {
-                    console.log('🖼️ Removendo imagem parcial existente');
-                    existingPartialImage.remove();
-                }
-            }
             
             console.log('✅ Preview atualizado com:', {
                 font: selectedFont,
@@ -1870,9 +1768,6 @@
                     <button onclick="useUploadedImageAsBackground('${imageUrl}')" class="flex-1 bg-purple-500/80 hover:bg-purple-500 text-white text-xs px-2 py-1 rounded transition-colors">
                         <i class="fas fa-image mr-1"></i>Fundo
                     </button>
-                    <button onclick="useUploadedImageAsPartial('${imageUrl}')" class="flex-1 bg-blue-500/80 hover:bg-blue-500 text-white text-xs px-2 py-1 rounded transition-colors">
-                        <i class="fas fa-crop mr-1"></i>Parcial
-                    </button>
                 </div>
                 <button type="button" onclick="removeUploadedImage(${index})" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600">
                     <i class="fas fa-times"></i>
@@ -1910,9 +1805,6 @@
                                 <button data-action="background" data-image-url="${e.target.result}" class="flex-1 bg-purple-500/80 hover:bg-purple-500 text-white text-xs px-2 py-1 rounded transition-colors">
                                     <i class="fas fa-image mr-1"></i>Fundo
                                 </button>
-                                <button data-action="partial" data-image-url="${e.target.result}" class="flex-1 bg-blue-500/80 hover:bg-blue-500 text-white text-xs px-2 py-1 rounded transition-colors">
-                                    <i class="fas fa-crop mr-1"></i>Parcial
-                                </button>
                             </div>
                             <button type="button" onclick="removeImage(${index})" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600">
                                 <i class="fas fa-times"></i>
@@ -1922,7 +1814,6 @@
                         
                         // Adicionar event listeners para os botões
                         const backgroundBtn = previewDiv.querySelector('[data-action="background"]');
-                        const partialBtn = previewDiv.querySelector('[data-action="partial"]');
                         
                         if (backgroundBtn) {
                             backgroundBtn.addEventListener('click', function() {
@@ -1931,12 +1822,6 @@
                             });
                         }
                         
-                        if (partialBtn) {
-                            partialBtn.addEventListener('click', function() {
-                                const imageUrl = this.dataset.imageUrl;
-                                selectUploadedImageAsPartial(imageUrl);
-                            });
-                        }
                     };
                     reader.readAsDataURL(file);
                 });
@@ -2542,10 +2427,6 @@
                                     class="flex-1 bg-purple-500/20 hover:bg-purple-500/40 text-white text-xs px-2 py-1 rounded transition-colors">
                                 <i class="fas fa-image mr-1"></i>Fundo
                             </button>
-                            <button onclick="selectPexelsImageAsPartial('${photo.id}', '${photo.src.medium}', 'Pexels Image')" 
-                                    class="flex-1 bg-blue-500/20 hover:bg-blue-500/40 text-white text-xs px-2 py-1 rounded transition-colors">
-                                <i class="fas fa-crop mr-1"></i>Parcial
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -2557,7 +2438,6 @@
             console.log('🖼️ Selecionando imagem como fundo:', { photoId, imageUrl, description });
             
             selectedBackgroundImage = imageUrl;
-            selectedPartialImage = null;
             
             // Remove previous selection
             document.querySelectorAll('.pexels-image-card').forEach(card => {
@@ -2575,28 +2455,6 @@
             showNotification('Imagem selecionada como fundo!', 'success');
         }
 
-        // Select Pexels Image as Partial
-        function selectPexelsImageAsPartial(photoId, imageUrl, description) {
-            console.log('🖼️ Selecionando imagem como parcial:', { photoId, imageUrl, description });
-            
-            selectedPartialImage = imageUrl;
-            selectedBackgroundImage = null;
-            
-            // Remove previous selection
-            document.querySelectorAll('.pexels-image-card').forEach(card => {
-                card.classList.remove('ring-2', 'ring-green-400', 'ring-purple-400', 'ring-blue-400', 'bg-green-500/20', 'bg-purple-500/20', 'bg-blue-500/20');
-            });
-            
-            // Add selection to clicked image
-            const selectedCard = document.querySelector(`[onclick*="selectPexelsImageAsPartial('${photoId}'"]`);
-            if (selectedCard) {
-                selectedCard.classList.add('ring-2', 'ring-blue-400', 'bg-blue-500/20');
-            }
-            
-            // Update preview
-            updatePreview();
-            showNotification('Imagem selecionada como parcial!', 'success');
-        }
 
         // Select Pexels Image (legacy function for compatibility)
         function selectPexelsImage(photoId, imageUrl, description) {
@@ -2608,34 +2466,11 @@
             console.log('🖼️ Usando imagem de upload como fundo:', imageUrl);
             
             selectedBackgroundImage = imageUrl;
-            selectedPartialImage = null;
             
             updatePreview();
             showNotification('Imagem de upload como fundo!', 'success');
         }
 
-        function useUploadedImageAsPartial(imageUrl) {
-            console.log('🖼️ FUNÇÃO CHAMADA - Usando imagem de upload como parcial:', imageUrl);
-            console.log('🖼️ Variáveis ANTES:', { selectedBackgroundImage, selectedPartialImage });
-            
-            selectedPartialImage = imageUrl;
-            selectedBackgroundImage = null;
-            
-            console.log('🖼️ Variáveis DEPOIS:', { selectedBackgroundImage, selectedPartialImage });
-            console.log('🖼️ Chamando updatePreview...');
-            
-            updatePreview();
-            showNotification('Imagem de upload como parcial!', 'success');
-            
-            console.log('🖼️ updatePreview chamado, verificando resultado...');
-            setTimeout(() => {
-                const partialImage = document.getElementById('partialImagePreview');
-                console.log('🖼️ Imagem parcial no DOM após updatePreview:', !!partialImage);
-                if (partialImage) {
-                    console.log('🖼️ Imagem parcial encontrada:', partialImage);
-                }
-            }, 500);
-        }
 
         function removeUploadedImage(index) {
             console.log('🗑️ Removendo imagem de upload:', index);
@@ -2656,23 +2491,12 @@
             console.log('🖼️ Selecionando imagem de upload como fundo:', imageUrl);
             
             selectedBackgroundImage = imageUrl;
-            selectedPartialImage = null;
             
             // Update preview
             updatePreview();
             showNotification('Imagem de upload selecionada como fundo!', 'success');
         }
 
-        function selectUploadedImageAsPartial(imageUrl) {
-            console.log('🖼️ Selecionando imagem de upload como parcial:', imageUrl);
-            
-            selectedPartialImage = imageUrl;
-            selectedBackgroundImage = null;
-            
-            // Update preview
-            updatePreview();
-            showNotification('Imagem de upload selecionada como parcial!', 'success');
-        }
 
         // Função de teste para upload
         function testUpload() {
@@ -2695,9 +2519,6 @@
                         <div class="absolute bottom-2 left-2 right-2 flex space-x-1">
                             <button onclick="selectUploadedImageAsBackground('${testImageUrl}')" class="flex-1 bg-purple-500/80 hover:bg-purple-500 text-white text-xs px-2 py-1 rounded transition-colors">
                                 <i class="fas fa-image mr-1"></i>Fundo
-                            </button>
-                            <button onclick="selectUploadedImageAsPartial('${testImageUrl}')" class="flex-1 bg-blue-500/80 hover:bg-blue-500 text-white text-xs px-2 py-1 rounded transition-colors">
-                                <i class="fas fa-crop mr-1"></i>Parcial
                             </button>
                         </div>
                     </div>
@@ -2729,11 +2550,7 @@
                         <span class="text-white text-sm font-medium">Imagem forçada</span>
                     </div>
                     <div class="absolute bottom-2 left-2 right-2 flex space-x-1">
-                        <button class="flex-1 bg-purple-500/80 hover:bg-purple-500 text-white text-xs px-2 py-1 rounded transition-colors" onclick="selectedBackgroundImage='${testImageUrl}'; selectedPartialImage=null; updatePreview(); showNotification('Imagem como fundo!', 'success');">
                             <i class="fas fa-image mr-1"></i>Fundo
-                        </button>
-                        <button class="flex-1 bg-blue-500/80 hover:bg-blue-500 text-white text-xs px-2 py-1 rounded transition-colors" onclick="selectedPartialImage='${testImageUrl}'; selectedBackgroundImage=null; updatePreview(); showNotification('Imagem como parcial!', 'success');">
-                            <i class="fas fa-crop mr-1"></i>Parcial
                         </button>
                     </div>
                 `;
@@ -2742,31 +2559,6 @@
             }
         }
 
-        // Função de teste específica para imagem parcial
-        function testPartialImage() {
-            console.log('🧪 TESTANDO IMAGEM PARCIAL');
-            
-            const testImageUrl = 'https://images.pexels.com/photos/1234567/pexels-photo-1234567.jpeg?auto=compress&cs=tinysrgb&w=800';
-            
-            console.log('🧪 Definindo imagem parcial:', testImageUrl);
-            selectedPartialImage = testImageUrl;
-            selectedBackgroundImage = null;
-            
-            console.log('🧪 Variáveis definidas:', { selectedPartialImage, selectedBackgroundImage });
-            
-            console.log('🧪 Chamando updatePreview...');
-            updatePreview();
-            
-            console.log('🧪 Verificando se apareceu no DOM...');
-            setTimeout(() => {
-                const partialImage = document.getElementById('partialImagePreview');
-                console.log('🧪 Imagem parcial no DOM:', !!partialImage);
-                if (partialImage) {
-                    console.log('🧪 Imagem parcial encontrada:', partialImage);
-                    console.log('🧪 Imagem src:', partialImage.querySelector('img')?.src);
-                }
-            }, 1000);
-        }
 
         // Função para definir posicionamento do texto
         function setTextPosition(position, buttonElement) {
@@ -3717,31 +3509,19 @@
         function testPexelsPreview() {
             console.log('🧪 Testando preview do Pexels...');
             console.log('🧪 selectedBackgroundImage:', selectedBackgroundImage);
-            console.log('🧪 selectedPartialImage:', selectedPartialImage);
             
             // Testar com uma imagem real do Pexels
             selectedBackgroundImage = 'https://images.pexels.com/photos/1234567/pexels-photo-1234567.jpeg?auto=compress&cs=tinysrgb&w=800';
-            selectedPartialImage = null;
             
             console.log('🧪 Após definir background:', selectedBackgroundImage);
             updatePreview();
         }
 
-        // Função de teste para imagem parcial
-        function testPexelsPartial() {
-            console.log('🧪 Testando imagem parcial...');
-            selectedPartialImage = 'https://images.pexels.com/photos/1234567/pexels-photo-1234567.jpeg?auto=compress&cs=tinysrgb&w=800';
-            selectedBackgroundImage = null;
-            
-            console.log('🧪 Após definir partial:', selectedPartialImage);
-            updatePreview();
-        }
 
         // Função de teste direto para debug
         function debugPexelsSelection() {
             console.log('🔍 Debug - Variáveis atuais:');
             console.log('🔍 selectedBackgroundImage:', window.selectedBackgroundImage);
-            console.log('🔍 selectedPartialImage:', window.selectedPartialImage);
             console.log('🔍 updatePreview existe?', typeof updatePreview);
             
             // Verificar elementos DOM
@@ -3755,14 +3535,9 @@
             
             console.log('🔍 Testando imagem de fundo...');
             window.selectedBackgroundImage = testImage;
-            window.selectedPartialImage = null;
             updatePreview();
             
             setTimeout(() => {
-                console.log('🔍 Testando imagem parcial...');
-                window.selectedPartialImage = testImage;
-                window.selectedBackgroundImage = null;
-                updatePreview();
             }, 2000);
         }
 
@@ -3832,9 +3607,7 @@
             
             // Definir variáveis
             selectedBackgroundImage = 'https://images.pexels.com/photos/1234567/pexels-photo-1234567.jpeg?auto=compress&cs=tinysrgb&w=800';
-            selectedPartialImage = null;
             
-            console.log('🧪 Variáveis definidas:', { selectedBackgroundImage, selectedPartialImage });
             
             // Aplicar diretamente no canvas
             const canvas = document.getElementById('canvas');
@@ -4123,11 +3896,6 @@
                 console.log('ℹ️ Nenhuma imagem de fundo para enviar');
             }
 
-            // Adicionar imagem parcial se selecionada
-            if (selectedPartialImage) {
-                console.log('🖼️ Enviando imagem parcial do Pexels:', selectedPartialImage);
-                formData.append('pexelsPartialImage', selectedPartialImage);
-            }
 
             // Forçar normalização da fonte antes de enviar
             if (customizationSettings && customizationSettings.font) {
