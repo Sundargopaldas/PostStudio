@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -2920,6 +2920,15 @@
                         previewCanvas.style.width = previewWidth + 'px';
                         previewCanvas.style.height = previewHeight + 'px';
                         
+                        // SALVAR DIMENSÕES DO TEMPLATE para usar no salvamento
+                        customizationSettings.templateDimensions = {
+                            originalWidth: template.width,
+                            originalHeight: template.height,
+                            previewWidth: previewWidth,
+                            previewHeight: previewHeight,
+                            scale: previewWidth / template.width
+                        };
+                        
                         console.log('📋 Preview do template ajustado:', {
                             template: { width: template.width, height: template.height },
                             preview: { width: previewWidth, height: previewHeight },
@@ -3987,6 +3996,18 @@
                 const draggableElements = canvas.querySelectorAll('.draggable-element');
                 console.log('🎨 Elementos encontrados:', draggableElements.length);
                 console.log('🎨 Elementos detalhados:', draggableElements);
+                
+                // DEBUG: Verificar todos os elementos filhos do canvas
+                console.log('🔍 DEBUG: Todos os filhos do canvas:', canvas.children.length);
+                for (let i = 0; i < canvas.children.length; i++) {
+                    const child = canvas.children[i];
+                    console.log(`🔍 Filho ${i + 1}:`, {
+                        id: child.id,
+                        className: child.className,
+                        tagName: child.tagName,
+                        hasDraggableClass: child.classList.contains('draggable-element')
+                    });
+                }
                 
                 // Verificar se já existem elementos salvos para evitar duplicação
                 if (customizationSettings.canvasElements && customizationSettings.canvasElements.length > 0) {

@@ -676,34 +676,50 @@
                 const postContainer = document.createElement('div');
                 postContainer.className = 'mb-8';
                 
+                // DEBUG: Verificar dimensões do template
+                console.log('🔍 DEBUG POSTS - Template dimensions:', customStyle.templateDimensions);
+                if (customStyle.templateDimensions) {
+                    console.log('📏 Dimensões do template:', {
+                        original: `${customStyle.templateDimensions.originalWidth}x${customStyle.templateDimensions.originalHeight}`,
+                        preview: `${customStyle.templateDimensions.previewWidth}x${customStyle.templateDimensions.previewHeight}`,
+                        scale: customStyle.templateDimensions.scale
+                    });
+                }
+                
                 // Criar o card do post
                 postCard.innerHTML = `
                     <div class="relative">
                         <div>
                             <!-- SOLUÇÃO FINAL - COM BACKGROUND -->
-                            <div class="mb-6 rounded-xl overflow-hidden shadow-lg ${customStyle.background || 'bg-gradient-to-br from-blue-400 to-purple-500'}" style="height: 400px; background-position: center; background-size: cover; background-repeat: no-repeat; ${customStyle.backgroundImage ? `background-image: url('${customStyle.backgroundImage}');` : ''} display: flex; flex-direction: column; align-items: center; text-align: center; padding: 24px; ${customStyle.textPosition === 'top' ? 'justify-content: flex-start;' : customStyle.textPosition === 'bottom' ? 'justify-content: flex-end;' : 'justify-content: center;'} position: relative;">
+                            <div class="mb-6 rounded-xl overflow-hidden shadow-lg ${customStyle.background || 'bg-gradient-to-br from-blue-400 to-purple-500'}" style="width: ${customStyle.templateDimensions ? customStyle.templateDimensions.previewWidth + 'px' : '100%'}; max-width: ${customStyle.templateDimensions ? customStyle.templateDimensions.previewWidth + 'px' : '640px'}; height: ${customStyle.templateDimensions ? customStyle.templateDimensions.previewHeight + 'px' : '400px'}; background-position: center; background-size: cover; background-repeat: no-repeat; ${customStyle.backgroundImage ? `background-image: url('${customStyle.backgroundImage}');` : ''} display: flex; flex-direction: column; align-items: center; text-align: center; padding: 24px; ${customStyle.textPosition === 'top' ? 'justify-content: flex-start;' : customStyle.textPosition === 'bottom' ? 'justify-content: flex-end;' : 'justify-content: center;'} position: relative;">
                                 <h3 class="text-2xl font-bold ${resolvedFontClass} mb-4" style="${resolvedFontStyle} color: ${customStyle.color} !important; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">${post.title}</h3>
                                 <p class="text-base leading-relaxed ${resolvedFontClass}" style="${resolvedFontStyle} color: ${customStyle.color} !important; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">${post.content.substring(0, 200)}${post.content.length > 200 ? '...' : ''}</p>
                                 
                                 <!-- Elementos do Canvas (formas, ícones, etc.) -->
                                 ${customStyle.canvasElements && customStyle.canvasElements.length > 0 ? `
-                                    <div class="absolute inset-0 pointer-events-none">
+                                    <div class="absolute inset-0 pointer-events-none" style="overflow: hidden;">
                                         ${customStyle.canvasElements.map(element => {
                                             console.log('🎨 Renderizando elemento:', element);
+                                            console.log('🎨 Posição do elemento:', {
+                                                left: element.position.left,
+                                                top: element.position.top,
+                                                width: element.style.width,
+                                                height: element.style.height
+                                            });
                                             if (element.type === 'icon') {
-                                                return `<div class="absolute flex items-center justify-center" style="left: ${element.position.left}; top: ${element.position.top}; z-index: ${element.position.zIndex}; width: ${element.style.width}; height: ${element.style.height}; opacity: ${element.style.opacity};">
+                                                return `<div class="absolute flex items-center justify-center" style="left: ${element.position.left}; top: ${element.position.top}; z-index: 400; width: ${element.style.width}; height: ${element.style.height}; opacity: ${element.style.opacity};">
                                                     <i data-lucide="${element.iconName}" class="w-6 h-6" style="color: #3b82f6; width: 24px; height: 24px;"></i>
                                                 </div>`;
                                             } else if (element.type === 'circle') {
-                                                return `<div class="absolute flex items-center justify-center text-white text-sm font-medium" style="left: ${element.position.left}; top: ${element.position.top}; z-index: ${element.position.zIndex}; width: ${element.style.width}; height: ${element.style.height}; background-color: ${element.style.backgroundColor}; border-radius: 50%; opacity: ${element.style.opacity};">
+                                                return `<div class="absolute flex items-center justify-center text-white text-sm font-medium" style="left: ${element.position.left}; top: ${element.position.top}; z-index: 400; width: ${element.style.width}; height: ${element.style.height}; background-color: ${element.style.backgroundColor}; border-radius: 50%; opacity: ${element.style.opacity};">
                                                     ${element.content}
                                                 </div>`;
                                             } else if (element.type === 'rectangle') {
-                                                return `<div class="absolute flex items-center justify-center text-white text-sm font-medium" style="left: ${element.position.left}; top: ${element.position.top}; z-index: ${element.position.zIndex}; width: ${element.style.width}; height: ${element.style.height}; background-color: ${element.style.backgroundColor}; border-radius: 8px; opacity: ${element.style.opacity};">
+                                                return `<div class="absolute flex items-center justify-center text-white text-sm font-medium" style="left: ${element.position.left}; top: ${element.position.top}; z-index: 400; width: ${element.style.width}; height: ${element.style.height}; background-color: ${element.style.backgroundColor}; border-radius: 8px; opacity: ${element.style.opacity};">
                                                     ${element.content}
                                                 </div>`;
                                             } else if (element.type === 'line') {
-                                                return `<div class="absolute" style="left: ${element.position.left}; top: ${element.position.top}; z-index: ${element.position.zIndex}; width: ${element.style.width}; height: ${element.style.height}; background-color: ${element.style.backgroundColor}; opacity: ${element.style.opacity};">
+                                                return `<div class="absolute" style="left: ${element.position.left}; top: ${element.position.top}; z-index: 400; width: ${element.style.width}; height: ${element.style.height}; background-color: ${element.style.backgroundColor}; opacity: ${element.style.opacity};">
                                                 </div>`;
                                             }
                                             return '';
@@ -736,14 +752,13 @@
                                     
                                 </div>
                                 ` : ''}
-                                ${post.image_url && post.image_url !== '' && post.image_url !== 'imagem_uploaded' ? `
+                                
+                                <!-- Imagens parciais removidas - apenas imagens de fundo -->
+                                
+                                <!-- Imagem de post separada (se não for parcial) -->
+                                ${post.image_url && post.image_url !== '' && post.image_url !== 'imagem_uploaded' && !customStyle.partialImage ? `
                                     <div class="mt-4">
                                         <img src="${post.image_url}" alt="Imagem do post" class="w-full h-64 object-cover rounded-xl border border-white/20">
-                                    </div>
-                                ` : ''}
-                                ${customStyle.partialImage ? `
-                                    <div class="mt-4">
-                                        <img src="${customStyle.partialImage}" alt="Imagem parcial" class="w-full h-64 object-cover rounded-xl border border-white/20">
                                     </div>
                                 ` : ''}
                             </div>
