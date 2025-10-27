@@ -852,7 +852,6 @@
                 </div>
 
 
-                <!-- Hashtags -->
                 <div>
                     <label for="hashtags" class="block text-sm font-medium text-white mb-2">
                         <i class="fas fa-hashtag mr-2"></i>Hashtags
@@ -937,6 +936,7 @@
         let selectedTextEffect = 'normal';
         let selectedTextPosition = 'center'; // Posicionamento do texto
         let selectedBackgroundImage = null; // imagem de fundo personalizada
+        
         let customizationSettings = {
             font: 'font-inter',
             color: '#ef4444', // Vermelho por padrão para teste
@@ -945,7 +945,6 @@
             textPosition: 'center', // Posicionamento do texto
             backgroundImage: null
         };
-
         // Video functionality moved to /create-video page
 
         // Carregar dados do usuário
@@ -1549,8 +1548,28 @@
             // Aplicar background no canvas (1:1), mantendo padding interno
             const canvas = document.getElementById('canvas');
             if (canvas) {
-                // Aplicar classe de background
-                canvas.className = `rounded-xl overflow-hidden shadow-lg ${selectedBackground}`;
+                // Debug: Verificar ícones antes de atualizar
+                const iconsBefore = canvas.querySelectorAll('.draggable-element');
+                console.log('🔍 Ícones antes do updatePreview:', iconsBefore.length);
+                
+                // Aplicar classe de background preservando classes existentes
+                const existingClasses = canvas.className.split(' ').filter(cls => 
+                    !cls.startsWith('bg-') && 
+                    !cls.startsWith('gradient-') && 
+                    cls !== 'rounded-xl' && 
+                    cls !== 'overflow-hidden' && 
+                    cls !== 'shadow-lg'
+                );
+                canvas.className = `rounded-xl overflow-hidden shadow-lg ${selectedBackground} ${existingClasses.join(' ')}`.trim();
+                
+                // Debug: Verificar ícones depois de atualizar
+                const iconsAfter = canvas.querySelectorAll('.draggable-element');
+                console.log('🔍 Ícones depois do updatePreview:', iconsAfter.length);
+                
+                if (iconsBefore.length !== iconsAfter.length) {
+                    console.error('❌ PROBLEMA: Ícones foram removidos durante updatePreview!');
+                    console.error('❌ Antes:', iconsBefore.length, 'Depois:', iconsAfter.length);
+                }
                 
                 // Aplicar imagem de fundo se selecionada
                 console.log('🖼️ Verificando imagem de fundo:', selectedBackgroundImage);
@@ -2601,44 +2620,136 @@
         // Variável global para o mini toolbar de camadas
         let currentLayerToolbar = null;
         
-        // Estrutura de dados para templates
+        // Estrutura de dados para templates com metadata completa
         const templates = [
             {
                 id: 'instagram-post',
                 name: 'Post Instagram',
                 width: 1080,
                 height: 1080,
-                elements: []  // vazio por enquanto
+                aspectRatio: 1.0,
+                elements: [],
+                metadata: {
+                    originalWidth: 1080,
+                    originalHeight: 1080,
+                    previewMaxWidth: 400,
+                    previewMaxHeight: 400
+                }
             },
             {
                 id: 'story',
                 name: 'Story',
                 width: 1080,
                 height: 1920,
-                elements: []
+                aspectRatio: 0.5625,
+                elements: [],
+                metadata: {
+                    originalWidth: 1080,
+                    originalHeight: 1920,
+                    previewMaxWidth: 300,
+                    previewMaxHeight: 400
+                }
             },
             {
                 id: 'facebook-cover',
                 name: 'Capa Facebook',
                 width: 1200,
                 height: 630,
-                elements: []
+                aspectRatio: 1.9048,
+                elements: [],
+                metadata: {
+                    originalWidth: 1200,
+                    originalHeight: 630,
+                    previewMaxWidth: 400,
+                    previewMaxHeight: 210
+                }
             },
             {
                 id: 'twitter-header',
                 name: 'Cabeçalho Twitter',
                 width: 1500,
                 height: 500,
-                elements: []
+                aspectRatio: 3.0,
+                elements: [],
+                metadata: {
+                    originalWidth: 1500,
+                    originalHeight: 500,
+                    previewMaxWidth: 400,
+                    previewMaxHeight: 133
+                }
             },
             {
                 id: 'youtube-thumbnail',
                 name: 'Miniatura YouTube',
                 width: 1280,
                 height: 720,
-                elements: []
+                aspectRatio: 1.7778,
+                elements: [],
+                metadata: {
+                    originalWidth: 1280,
+                    originalHeight: 720,
+                    previewMaxWidth: 400,
+                    previewMaxHeight: 225
+                }
             }
         ];
+
+        // Variável global para template atual
+        let currentTemplate = templates[0]; // Instagram Post como padrão
+        
+        // Sistema de coordenadas normalizadas
+        const CoordinateSystem = {
+            // Converter coordenadas absolutas para normalizadas (0-1)
+            normalizePosition: function(x, y, canvasWidth, canvasHeight) {
+                return {
+                    x: x / canvasWidth,
+                    y: y / canvasHeight
+                };
+            },
+            
+            // Converter coordenadas normalizadas para absolutas
+            denormalizePosition: function(normalizedX, normalizedY, canvasWidth, canvasHeight) {
+                return {
+                    x: normalizedX * canvasWidth,
+                    y: normalizedY * canvasHeight
+                };
+            },
+            
+            // Normalizar tamanhos
+            normalizeSize: function(width, height, canvasWidth, canvasHeight) {
+                return {
+                    width: width / canvasWidth,
+                    height: height / canvasHeight
+                };
+            },
+            
+            // Desnormalizar tamanhos
+            denormalizeSize: function(normalizedWidth, normalizedHeight, canvasWidth, canvasHeight) {
+                return {
+                    width: normalizedWidth * canvasWidth,
+                    height: normalizedHeight * canvasHeight
+                };
+            },
+            
+            // Obter dimensões do preview atual
+            getPreviewDimensions: function() {
+                const canvas = document.getElementById('canvas');
+                if (!canvas) return { width: 400, height: 400 };
+                
+                return {
+                    width: parseInt(canvas.style.width) || 400,
+                    height: parseInt(canvas.style.height) || 400
+                };
+            },
+            
+            // Obter dimensões originais do template atual
+            getOriginalDimensions: function() {
+                return {
+                    width: currentTemplate.metadata.originalWidth,
+                    height: currentTemplate.metadata.originalHeight
+                };
+            }
+        };
         
         // Inicializar seletor de cor
         document.addEventListener('DOMContentLoaded', function() {
@@ -2662,7 +2773,52 @@
             
             // Renderizar botões de templates
             renderTemplateButtons();
+            
+            // Inicializar com template padrão
+            initializeDefaultTemplate();
         });
+
+        // Função para inicializar template padrão
+        function initializeDefaultTemplate() {
+            console.log('🚀 Inicializando template padrão:', currentTemplate.name);
+            
+            // Aplicar dimensões do template padrão ao preview
+            const previewCanvas = document.getElementById('canvas');
+            if (previewCanvas) {
+                const maxPreviewWidth = currentTemplate.metadata.previewMaxWidth;
+                const maxPreviewHeight = currentTemplate.metadata.previewMaxHeight;
+                
+                const aspectRatio = currentTemplate.metadata.originalWidth / currentTemplate.metadata.originalHeight;
+                
+                let previewWidth = maxPreviewWidth;
+                let previewHeight = maxPreviewHeight;
+                
+                // Ajustar para manter proporção
+                if (previewWidth / previewHeight > aspectRatio) {
+                    previewWidth = previewHeight * aspectRatio;
+                } else {
+                    previewHeight = previewWidth / aspectRatio;
+                }
+                
+                previewCanvas.style.width = Math.round(previewWidth) + 'px';
+                previewCanvas.style.height = Math.round(previewHeight) + 'px';
+                
+                // Configurar dimensões do template nas configurações
+                customizationSettings.templateDimensions = {
+                    originalWidth: currentTemplate.metadata.originalWidth,
+                    originalHeight: currentTemplate.metadata.originalHeight,
+                    previewWidth: Math.round(previewWidth),
+                    previewHeight: Math.round(previewHeight),
+                    scale: Math.round(previewWidth) / currentTemplate.metadata.originalWidth
+                };
+                
+                console.log('✅ Template padrão inicializado:', {
+                    template: currentTemplate.name,
+                    preview: { width: Math.round(previewWidth), height: Math.round(previewHeight) },
+                    original: { width: currentTemplate.metadata.originalWidth, height: currentTemplate.metadata.originalHeight }
+                });
+            }
+        }
 
         // Função para renderizar botões de templates
         function renderTemplateButtons() {
@@ -2688,44 +2844,57 @@
                 button.onclick = function() {
                     console.log('📋 Template selecionado:', template.name);
                     
-                    // Ajustar preview para o template selecionado
+                    // Atualizar template atual
+                    currentTemplate = template;
+                    
+                    // Ajustar preview para o template selecionado usando coordenadas normalizadas
                     const previewCanvas = document.getElementById('canvas');
                     if (previewCanvas) {
-                        // Calcular proporção para o preview
-                        const maxPreviewHeight = 400;
-                        const maxPreviewWidth = 600;
+                        // Usar dimensões máximas do preview do template
+                        const maxPreviewWidth = template.metadata.previewMaxWidth;
+                        const maxPreviewHeight = template.metadata.previewMaxHeight;
                         
-                        let previewWidth = template.width;
-                        let previewHeight = template.height;
+                        // Calcular proporção mantendo aspect ratio
+                        const aspectRatio = template.metadata.originalWidth / template.metadata.originalHeight;
                         
-                        // Ajustar se exceder limites
-                        if (template.height > maxPreviewHeight || template.width > maxPreviewWidth) {
-                            const scaleX = maxPreviewWidth / template.width;
-                            const scaleY = maxPreviewHeight / template.height;
-                            const scale = Math.min(scaleX, scaleY);
-                            
-                            previewWidth = Math.round(template.width * scale);
-                            previewHeight = Math.round(template.height * scale);
+                        let previewWidth = maxPreviewWidth;
+                        let previewHeight = maxPreviewHeight;
+                        
+                        // Ajustar para manter proporção
+                        if (previewWidth / previewHeight > aspectRatio) {
+                            previewWidth = previewHeight * aspectRatio;
+                        } else {
+                            previewHeight = previewWidth / aspectRatio;
                         }
                         
-                        // Aplicar tamanho ao preview
-                        previewCanvas.style.width = previewWidth + 'px';
-                        previewCanvas.style.height = previewHeight + 'px';
+                        // Aplicar dimensões ao preview
+                        previewCanvas.style.width = Math.round(previewWidth) + 'px';
+                        previewCanvas.style.height = Math.round(previewHeight) + 'px';
                         
                         // SALVAR DIMENSÕES DO TEMPLATE para usar no salvamento
                         customizationSettings.templateDimensions = {
-                            originalWidth: template.width,
-                            originalHeight: template.height,
-                            previewWidth: previewWidth,
-                            previewHeight: previewHeight,
-                            scale: previewWidth / template.width
+                            originalWidth: template.metadata.originalWidth,
+                            originalHeight: template.metadata.originalHeight,
+                            previewWidth: Math.round(previewWidth),
+                            previewHeight: Math.round(previewHeight),
+                            scale: Math.round(previewWidth) / template.metadata.originalWidth
                         };
                         
                         console.log('📋 Preview do template ajustado:', {
-                            template: { width: template.width, height: template.height },
-                            preview: { width: previewWidth, height: previewHeight },
-                            scale: previewWidth / template.width
+                            template: { 
+                                width: template.metadata.originalWidth, 
+                                height: template.metadata.originalHeight 
+                            },
+                            preview: { 
+                                width: Math.round(previewWidth), 
+                                height: Math.round(previewHeight) 
+                            },
+                            aspectRatio: aspectRatio,
+                            scale: Math.round(previewWidth) / template.metadata.originalWidth
                         });
+                        
+                        // Normalizar posições de todos os elementos existentes
+                        normalizeAllElements();
                     }
                     
                     showNotification(`${template.name} selecionado`, 'success');
@@ -2735,6 +2904,74 @@
             });
             
             console.log('📋 Botões de templates renderizados:', templates.length);
+        }
+
+        // Função para normalizar todos os elementos do canvas
+        function normalizeAllElements() {
+            const canvas = document.getElementById('canvas');
+            if (!canvas) return;
+            
+            const previewDims = CoordinateSystem.getPreviewDimensions();
+            const elements = canvas.querySelectorAll('.draggable-element');
+            
+            console.log('🔄 Normalizando elementos existentes:', elements.length);
+            
+            elements.forEach(element => {
+                const currentLeft = parseFloat(element.style.left) || 0;
+                const currentTop = parseFloat(element.style.top) || 0;
+                const currentWidth = parseFloat(element.style.width) || 0;
+                const currentHeight = parseFloat(element.style.height) || 0;
+                
+                // Normalizar posições e tamanhos
+                const normalizedPos = CoordinateSystem.normalizePosition(
+                    currentLeft, currentTop, previewDims.width, previewDims.height
+                );
+                const normalizedSize = CoordinateSystem.normalizeSize(
+                    currentWidth, currentHeight, previewDims.width, previewDims.height
+                );
+                
+                // Armazenar coordenadas normalizadas no elemento
+                element.dataset.normalizedLeft = normalizedPos.x;
+                element.dataset.normalizedTop = normalizedPos.y;
+                element.dataset.normalizedWidth = normalizedSize.width;
+                element.dataset.normalizedHeight = normalizedSize.height;
+                
+                console.log('🔄 Elemento normalizado:', {
+                    id: element.id,
+                    original: { left: currentLeft, top: currentTop, width: currentWidth, height: currentHeight },
+                    normalized: { left: normalizedPos.x, top: normalizedPos.y, width: normalizedSize.width, height: normalizedSize.height }
+                });
+            });
+        }
+        
+        // Função para aplicar coordenadas normalizadas aos elementos
+        function applyNormalizedCoordinates() {
+            const canvas = document.getElementById('canvas');
+            if (!canvas) return;
+            
+            const previewDims = CoordinateSystem.getPreviewDimensions();
+            const elements = canvas.querySelectorAll('.draggable-element');
+            
+            elements.forEach(element => {
+                const normalizedLeft = parseFloat(element.dataset.normalizedLeft) || 0;
+                const normalizedTop = parseFloat(element.dataset.normalizedTop) || 0;
+                const normalizedWidth = parseFloat(element.dataset.normalizedWidth) || 0;
+                const normalizedHeight = parseFloat(element.dataset.normalizedHeight) || 0;
+                
+                // Converter coordenadas normalizadas para absolutas do preview
+                const absolutePos = CoordinateSystem.denormalizePosition(
+                    normalizedLeft, normalizedTop, previewDims.width, previewDims.height
+                );
+                const absoluteSize = CoordinateSystem.denormalizeSize(
+                    normalizedWidth, normalizedHeight, previewDims.width, previewDims.height
+                );
+                
+                // Aplicar posições e tamanhos
+                element.style.left = Math.round(absolutePos.x) + 'px';
+                element.style.top = Math.round(absolutePos.y) + 'px';
+                element.style.width = Math.round(absoluteSize.width) + 'px';
+                element.style.height = Math.round(absoluteSize.height) + 'px';
+            });
         }
 
         // Função para redimensionar o canvas
@@ -3030,13 +3267,22 @@
             textElement.textContent = circleText || 'Texto';
             circle.appendChild(textElement);
             
-            // Posicionar no centro do canvas
-            const canvasRect = canvas.getBoundingClientRect();
-            const centerX = canvasRect.width / 2 - 50; // 50px = metade da largura do círculo
-            const centerY = canvasRect.height / 2 - 50; // 50px = metade da altura do círculo
+            // Posicionar no centro do canvas usando coordenadas normalizadas
+            const previewDims = CoordinateSystem.getPreviewDimensions();
+            const centerX = previewDims.width / 2 - 50; // 50px = metade da largura do círculo
+            const centerY = previewDims.height / 2 - 50; // 50px = metade da altura do círculo
             
             circle.style.left = centerX + 'px';
             circle.style.top = centerY + 'px';
+            
+            // Armazenar coordenadas normalizadas
+            const normalizedPos = CoordinateSystem.normalizePosition(centerX, centerY, previewDims.width, previewDims.height);
+            const normalizedSize = CoordinateSystem.normalizeSize(100, 100, previewDims.width, previewDims.height);
+            
+            circle.dataset.normalizedLeft = normalizedPos.x;
+            circle.dataset.normalizedTop = normalizedPos.y;
+            circle.dataset.normalizedWidth = normalizedSize.width;
+            circle.dataset.normalizedHeight = normalizedSize.height;
             
             // Adicionar ao canvas
             canvas.appendChild(circle);
@@ -3103,13 +3349,22 @@
             textElement.textContent = rectangleText || 'Texto';
             rectangle.appendChild(textElement);
             
-            // Posicionar no centro do canvas
-            const canvasRect = canvas.getBoundingClientRect();
-            const centerX = canvasRect.width / 2 - 75; // 75px = metade da largura do retângulo
-            const centerY = canvasRect.height / 2 - 50; // 50px = metade da altura do retângulo
+            // Posicionar no centro do canvas usando coordenadas normalizadas
+            const previewDims = CoordinateSystem.getPreviewDimensions();
+            const centerX = previewDims.width / 2 - 75; // 75px = metade da largura do retângulo
+            const centerY = previewDims.height / 2 - 50; // 50px = metade da altura do retângulo
             
             rectangle.style.left = centerX + 'px';
             rectangle.style.top = centerY + 'px';
+            
+            // Armazenar coordenadas normalizadas
+            const normalizedPos = CoordinateSystem.normalizePosition(centerX, centerY, previewDims.width, previewDims.height);
+            const normalizedSize = CoordinateSystem.normalizeSize(150, 100, previewDims.width, previewDims.height);
+            
+            rectangle.dataset.normalizedLeft = normalizedPos.x;
+            rectangle.dataset.normalizedTop = normalizedPos.y;
+            rectangle.dataset.normalizedWidth = normalizedSize.width;
+            rectangle.dataset.normalizedHeight = normalizedSize.height;
             
             // Adicionar ao canvas
             canvas.appendChild(rectangle);
@@ -3153,13 +3408,22 @@
             
             console.log('📏 Linha criada com z-index inicial:', line.style.zIndex);
             
-            // Posicionar no centro do canvas
-            const canvasRect = canvas.getBoundingClientRect();
-            const centerX = canvasRect.width / 2 - 100; // 100px = metade da largura da linha
-            const centerY = canvasRect.height / 2 - 1; // 1px = metade da altura da linha
+            // Posicionar no centro do canvas usando coordenadas normalizadas
+            const previewDims = CoordinateSystem.getPreviewDimensions();
+            const centerX = previewDims.width / 2 - 100; // 100px = metade da largura da linha
+            const centerY = previewDims.height / 2 - 1; // 1px = metade da altura da linha
             
             line.style.left = centerX + 'px';
             line.style.top = centerY + 'px';
+            
+            // Armazenar coordenadas normalizadas
+            const normalizedPos = CoordinateSystem.normalizePosition(centerX, centerY, previewDims.width, previewDims.height);
+            const normalizedSize = CoordinateSystem.normalizeSize(200, 2, previewDims.width, previewDims.height);
+            
+            line.dataset.normalizedLeft = normalizedPos.x;
+            line.dataset.normalizedTop = normalizedPos.y;
+            line.dataset.normalizedWidth = normalizedSize.width;
+            line.dataset.normalizedHeight = normalizedSize.height;
             
             // Adicionar ao canvas
             canvas.appendChild(line);
@@ -3403,6 +3667,30 @@
                     isDragging = false;
                     element.style.cursor = 'move';
                     element.style.zIndex = '10'; // Voltar ao z-index normal
+                    
+                    // Atualizar coordenadas normalizadas após o movimento
+                    const previewDims = CoordinateSystem.getPreviewDimensions();
+                    const currentLeft = parseInt(element.style.left) || 0;
+                    const currentTop = parseInt(element.style.top) || 0;
+                    const currentWidth = parseInt(element.style.width) || 0;
+                    const currentHeight = parseInt(element.style.height) || 0;
+                    
+                    const normalizedPos = CoordinateSystem.normalizePosition(
+                        currentLeft, currentTop, previewDims.width, previewDims.height
+                    );
+                    const normalizedSize = CoordinateSystem.normalizeSize(
+                        currentWidth, currentHeight, previewDims.width, previewDims.height
+                    );
+                    
+                    element.dataset.normalizedLeft = normalizedPos.x;
+                    element.dataset.normalizedTop = normalizedPos.y;
+                    element.dataset.normalizedWidth = normalizedSize.width;
+                    element.dataset.normalizedHeight = normalizedSize.height;
+                    
+                    console.log('🔄 Coordenadas normalizadas atualizadas:', {
+                        id: element.id,
+                        normalized: { left: normalizedPos.x, top: normalizedPos.y, width: normalizedSize.width, height: normalizedSize.height }
+                    });
                 }
             });
         }
@@ -3717,6 +4005,134 @@
             // Video functionality moved to /create-video page
         });
 
+        // Função para renderizar canvas final com dimensões reais do template
+        function renderFinalCanvas() {
+            return new Promise((resolve) => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Usar dimensões originais do template atual
+                const originalDims = CoordinateSystem.getOriginalDimensions();
+                canvas.width = originalDims.width;
+                canvas.height = originalDims.height;
+                
+                console.log('🎨 Renderizando canvas final:', {
+                    width: canvas.width,
+                    height: canvas.height,
+                    template: currentTemplate.name
+                });
+                
+                // Preencher fundo branco
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Obter elementos do canvas de preview
+                const previewCanvas = document.getElementById('canvas');
+                if (!previewCanvas) {
+                    resolve(canvas.toDataURL('image/png'));
+                    return;
+                }
+                
+                const elements = previewCanvas.querySelectorAll('.draggable-element');
+                
+                // Renderizar cada elemento nas dimensões originais
+                elements.forEach(element => {
+                    const normalizedLeft = parseFloat(element.dataset.normalizedLeft) || 0;
+                    const normalizedTop = parseFloat(element.dataset.normalizedTop) || 0;
+                    const normalizedWidth = parseFloat(element.dataset.normalizedWidth) || 0;
+                    const normalizedHeight = parseFloat(element.dataset.normalizedHeight) || 0;
+                    
+                    // Converter coordenadas normalizadas para dimensões originais
+                    const finalPos = CoordinateSystem.denormalizePosition(
+                        normalizedLeft, normalizedTop, canvas.width, canvas.height
+                    );
+                    const finalSize = CoordinateSystem.denormalizeSize(
+                        normalizedWidth, normalizedHeight, canvas.width, canvas.height
+                    );
+                    
+                    // Renderizar elemento baseado no tipo
+                    if (element.id.startsWith('circle-')) {
+                        renderCircleOnCanvas(ctx, finalPos, finalSize, element);
+                    } else if (element.id.startsWith('rectangle-')) {
+                        renderRectangleOnCanvas(ctx, finalPos, finalSize, element);
+                    } else if (element.id.startsWith('line-')) {
+                        renderLineOnCanvas(ctx, finalPos, finalSize, element);
+                    } else if (element.id.startsWith('icon-')) {
+                        renderIconOnCanvas(ctx, finalPos, finalSize, element);
+                    }
+                });
+                
+                resolve(canvas.toDataURL('image/png'));
+            });
+        }
+        
+        // Funções auxiliares para renderizar elementos no canvas
+        function renderCircleOnCanvas(ctx, pos, size, element) {
+            const centerX = pos.x + size.width / 2;
+            const centerY = pos.y + size.height / 2;
+            const radius = size.width / 2;
+            
+            ctx.fillStyle = element.style.backgroundColor || '#3b82f6';
+            ctx.globalAlpha = parseFloat(element.style.opacity) || 1;
+            
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Renderizar texto se houver
+            const textElement = element.querySelector('div');
+            if (textElement) {
+                ctx.fillStyle = 'white';
+                ctx.font = `${Math.round(size.width * 0.12)}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(textElement.textContent, centerX, centerY);
+            }
+        }
+        
+        function renderRectangleOnCanvas(ctx, pos, size, element) {
+            ctx.fillStyle = element.style.backgroundColor || '#3b82f6';
+            ctx.globalAlpha = parseFloat(element.style.opacity) || 1;
+            
+            ctx.fillRect(pos.x, pos.y, size.width, size.height);
+            
+            // Renderizar texto se houver
+            const textElement = element.querySelector('div');
+            if (textElement) {
+                ctx.fillStyle = 'white';
+                ctx.font = `${Math.round(size.width * 0.09)}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(textElement.textContent, pos.x + size.width / 2, pos.y + size.height / 2);
+            }
+        }
+        
+        function renderLineOnCanvas(ctx, pos, size, element) {
+            ctx.strokeStyle = element.style.backgroundColor || '#3b82f6';
+            ctx.globalAlpha = parseFloat(element.style.opacity) || 1;
+            ctx.lineWidth = size.height;
+            
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y + size.height / 2);
+            ctx.lineTo(pos.x + size.width, pos.y + size.height / 2);
+            ctx.stroke();
+        }
+        
+        function renderIconOnCanvas(ctx, pos, size, element) {
+            // Para ícones, vamos renderizar um círculo simples por enquanto
+            // Em uma implementação completa, você usaria uma biblioteca de ícones SVG
+            const centerX = pos.x + size.width / 2;
+            const centerY = pos.y + size.height / 2;
+            const radius = Math.min(size.width, size.height) / 2;
+            
+            ctx.fillStyle = element.style.backgroundColor || '#3b82f6';
+            ctx.globalAlpha = parseFloat(element.style.opacity) || 1;
+            
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+            ctx.fill();
+        }
+
         // Submit do formulário
         document.getElementById('createPostForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -3796,9 +4212,26 @@
                     console.log(`🎨 Posição do elemento:`, element.style.left, element.style.top);
                     console.log(`🎨 Tamanho do elemento:`, element.style.width, element.style.height);
                     
+                    // Obter coordenadas normalizadas
+                    const normalizedLeft = parseFloat(element.dataset.normalizedLeft) || 0;
+                    const normalizedTop = parseFloat(element.dataset.normalizedTop) || 0;
+                    const normalizedWidth = parseFloat(element.dataset.normalizedWidth) || 0;
+                    const normalizedHeight = parseFloat(element.dataset.normalizedHeight) || 0;
+                    
                     const elementData = {
                         id: element.id,
                         type: element.className.includes('draggable-element') ? 'draggable' : 'unknown',
+                        // Usar coordenadas normalizadas para salvamento
+                        normalizedPosition: {
+                            left: normalizedLeft,
+                            top: normalizedTop,
+                            zIndex: element.style.zIndex || '5'
+                        },
+                        normalizedSize: {
+                            width: normalizedWidth,
+                            height: normalizedHeight
+                        },
+                        // Manter coordenadas absolutas para compatibilidade
                         position: {
                             left: element.style.left,
                             top: element.style.top,
@@ -3844,6 +4277,15 @@
                     console.log('⚠️ Nenhum elemento do canvas encontrado para salvar');
                 }
             }
+            
+            // Adicionar informações do template atual
+            customizationSettings.currentTemplate = {
+                id: currentTemplate.id,
+                name: currentTemplate.name,
+                originalWidth: currentTemplate.metadata.originalWidth,
+                originalHeight: currentTemplate.metadata.originalHeight,
+                aspectRatio: currentTemplate.aspectRatio
+            };
             
             formData.append('customization', JSON.stringify(customizationSettings));
             
