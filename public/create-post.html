@@ -2646,8 +2646,8 @@
                 metadata: {
                     originalWidth: 1080,
                     originalHeight: 1920,
-                    previewMaxWidth: 300,
-                    previewMaxHeight: 400
+                    previewMaxWidth: 270,
+                    previewMaxHeight: 480
                 }
             },
             {
@@ -2660,8 +2660,8 @@
                 metadata: {
                     originalWidth: 1200,
                     originalHeight: 630,
-                    previewMaxWidth: 400,
-                    previewMaxHeight: 210
+                    previewMaxWidth: 480,
+                    previewMaxHeight: 252
                 }
             },
             {
@@ -2688,8 +2688,8 @@
                 metadata: {
                     originalWidth: 1280,
                     originalHeight: 720,
-                    previewMaxWidth: 400,
-                    previewMaxHeight: 225
+                    previewMaxWidth: 480,
+                    previewMaxHeight: 270
                 }
             }
         ];
@@ -2776,6 +2776,11 @@
             
             // Inicializar com template padrão
             initializeDefaultTemplate();
+            
+            // Normalizar elementos existentes após um pequeno delay para garantir que o DOM está pronto
+            setTimeout(() => {
+                normalizeExistingElements();
+            }, 100);
         });
 
         // Função para inicializar template padrão
@@ -2802,6 +2807,24 @@
                 
                 previewCanvas.style.width = Math.round(previewWidth) + 'px';
                 previewCanvas.style.height = Math.round(previewHeight) + 'px';
+                
+                // CORREÇÃO: Aplicar aspect-ratio dinâmico ao container do preview
+                const canvasBox = document.getElementById('canvasBox');
+                if (canvasBox) {
+                    // Calcular aspect-ratio do template padrão
+                    const aspectRatio = currentTemplate.metadata.originalWidth / currentTemplate.metadata.originalHeight;
+                    
+                    // Aplicar aspect-ratio dinâmico ao container
+                    canvasBox.style.aspectRatio = `${currentTemplate.metadata.originalWidth} / ${currentTemplate.metadata.originalHeight}`;
+                    canvasBox.style.maxWidth = '640px';
+                    canvasBox.style.width = '100%';
+                    
+                    console.log('📐 Aspect-ratio padrão aplicado:', {
+                        template: currentTemplate.name,
+                        aspectRatio: aspectRatio,
+                        dimensions: `${currentTemplate.metadata.originalWidth} / ${currentTemplate.metadata.originalHeight}`
+                    });
+                }
                 
                 // Configurar dimensões do template nas configurações
                 customizationSettings.templateDimensions = {
@@ -2871,6 +2894,24 @@
                         previewCanvas.style.width = Math.round(previewWidth) + 'px';
                         previewCanvas.style.height = Math.round(previewHeight) + 'px';
                         
+                        // CORREÇÃO: Aplicar aspect-ratio dinâmico ao container do preview
+                        const canvasBox = document.getElementById('canvasBox');
+                        if (canvasBox) {
+                            // Calcular aspect-ratio do template
+                            const aspectRatio = template.metadata.originalWidth / template.metadata.originalHeight;
+                            
+                            // Aplicar aspect-ratio dinâmico ao container
+                            canvasBox.style.aspectRatio = `${template.metadata.originalWidth} / ${template.metadata.originalHeight}`;
+                            canvasBox.style.maxWidth = '640px';
+                            canvasBox.style.width = '100%';
+                            
+                            console.log('📐 Aspect-ratio aplicado:', {
+                                template: template.name,
+                                aspectRatio: aspectRatio,
+                                dimensions: `${template.metadata.originalWidth} / ${template.metadata.originalHeight}`
+                            });
+                        }
+                        
                         // SALVAR DIMENSÕES DO TEMPLATE para usar no salvamento
                         customizationSettings.templateDimensions = {
                             originalWidth: template.metadata.originalWidth,
@@ -2904,6 +2945,48 @@
             });
             
             console.log('📋 Botões de templates renderizados:', templates.length);
+        }
+
+        // Função para normalizar elementos existentes que não têm coordenadas normalizadas
+        function normalizeExistingElements() {
+            const canvas = document.getElementById('canvas');
+            if (!canvas) return;
+            
+            const previewDims = CoordinateSystem.getPreviewDimensions();
+            const elements = canvas.querySelectorAll('.draggable-element');
+            
+            console.log('🔄 Verificando elementos existentes:', elements.length);
+            
+            elements.forEach(element => {
+                // Verificar se já tem coordenadas normalizadas
+                if (!element.dataset.normalizedLeft || !element.dataset.normalizedTop) {
+                    console.log('🔄 Normalizando elemento existente:', element.id);
+                    
+                    const currentLeft = parseInt(element.style.left) || 0;
+                    const currentTop = parseInt(element.style.top) || 0;
+                    const currentWidth = parseInt(element.style.width) || 0;
+                    const currentHeight = parseInt(element.style.height) || 0;
+                    
+                    // Normalizar posições e tamanhos
+                    const normalizedPos = CoordinateSystem.normalizePosition(
+                        currentLeft, currentTop, previewDims.width, previewDims.height
+                    );
+                    const normalizedSize = CoordinateSystem.normalizeSize(
+                        currentWidth, currentHeight, previewDims.width, previewDims.height
+                    );
+                    
+                    // Armazenar coordenadas normalizadas
+                    element.dataset.normalizedLeft = normalizedPos.x;
+                    element.dataset.normalizedTop = normalizedPos.y;
+                    element.dataset.normalizedWidth = normalizedSize.width;
+                    element.dataset.normalizedHeight = normalizedSize.height;
+                    
+                    console.log('✅ Elemento normalizado:', {
+                        id: element.id,
+                        normalized: { left: normalizedPos.x, top: normalizedPos.y, width: normalizedSize.width, height: normalizedSize.height }
+                    });
+                }
+            });
         }
 
         // Função para normalizar todos os elementos do canvas
@@ -3134,13 +3217,22 @@
             iconSvg.innerHTML = `<i data-lucide="${iconName}" class="w-6 h-6" style="color: #3b82f6;"></i>`;
             iconElement.appendChild(iconSvg);
             
-            // Posicionar no centro do canvas
-            const canvasRect = canvas.getBoundingClientRect();
-            const centerX = canvasRect.width / 2 - 20;
-            const centerY = canvasRect.height / 2 - 20;
+            // Posicionar no centro do canvas usando coordenadas normalizadas
+            const previewDims = CoordinateSystem.getPreviewDimensions();
+            const centerX = previewDims.width / 2 - 20; // 20px = metade da largura do ícone
+            const centerY = previewDims.height / 2 - 20; // 20px = metade da altura do ícone
             
             iconElement.style.left = centerX + 'px';
             iconElement.style.top = centerY + 'px';
+            
+            // Armazenar coordenadas normalizadas
+            const normalizedPos = CoordinateSystem.normalizePosition(centerX, centerY, previewDims.width, previewDims.height);
+            const normalizedSize = CoordinateSystem.normalizeSize(40, 40, previewDims.width, previewDims.height);
+            
+            iconElement.dataset.normalizedLeft = normalizedPos.x;
+            iconElement.dataset.normalizedTop = normalizedPos.y;
+            iconElement.dataset.normalizedWidth = normalizedSize.width;
+            iconElement.dataset.normalizedHeight = normalizedSize.height;
             
             // Adicionar ao canvas
             canvas.appendChild(iconElement);
@@ -3609,8 +3701,14 @@
                 }
                 
                 isDragging = true;
-                startX = e.clientX;
-                startY = e.clientY;
+                
+                // Obter coordenadas relativas ao canvas
+                const canvas = document.getElementById('canvas');
+                if (!canvas) return;
+                
+                const canvasRect = canvas.getBoundingClientRect();
+                startX = e.clientX - canvasRect.left;
+                startY = e.clientY - canvasRect.top;
                 
                 // Usar posições atuais do elemento
                 initialX = parseInt(element.style.left) || 0;
@@ -3635,29 +3733,30 @@
             document.addEventListener('mousemove', function(e) {
                 if (!isDragging) return;
                 
-                const deltaX = e.clientX - startX;
-                const deltaY = e.clientY - startY;
+                // Obter coordenadas relativas ao canvas
+                const canvas = document.getElementById('canvas');
+                if (!canvas) return;
+                
+                const canvasRect = canvas.getBoundingClientRect();
+                const currentX = e.clientX - canvasRect.left;
+                const currentY = e.clientY - canvasRect.top;
+                
+                const deltaX = currentX - startX;
+                const deltaY = currentY - startY;
                 
                 // Calcular novas posições
                 const newX = initialX + deltaX;
                 const newY = initialY + deltaY;
                 
-                // Limitar movimento dentro do canvas
-                const canvas = document.getElementById('canvas');
-                if (canvas) {
-                    const canvasRect = canvas.getBoundingClientRect();
-                    // Detectar tamanho do elemento para limitar movimento
-                    const elementWidth = element.offsetWidth || 100;
-                    const elementHeight = element.offsetHeight || 100;
-                    const maxX = canvasRect.width - elementWidth;
-                    const maxY = canvasRect.height - elementHeight;
-                    
-                    element.style.left = Math.max(0, Math.min(newX, maxX)) + 'px';
-                    element.style.top = Math.max(0, Math.min(newY, maxY)) + 'px';
-                } else {
-                    element.style.left = newX + 'px';
-                    element.style.top = newY + 'px';
-                }
+                // Limitar movimento dentro do canvas usando dimensões do preview
+                const previewDims = CoordinateSystem.getPreviewDimensions();
+                const elementWidth = parseInt(element.style.width) || 100;
+                const elementHeight = parseInt(element.style.height) || 100;
+                const maxX = previewDims.width - elementWidth;
+                const maxY = previewDims.height - elementHeight;
+                
+                element.style.left = Math.max(0, Math.min(newX, maxX)) + 'px';
+                element.style.top = Math.max(0, Math.min(newY, maxY)) + 'px';
                 
                 e.preventDefault();
             });
@@ -4011,32 +4110,56 @@
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 
-                // Usar dimensões originais do template atual
+                // CORREÇÃO CRÍTICA: Usar dimensões originais do template atual
                 const originalDims = CoordinateSystem.getOriginalDimensions();
+                
+                // VERIFICAÇÃO CRÍTICA: Garantir que temos um template válido
+                if (!currentTemplate || !currentTemplate.metadata) {
+                    console.error('❌ ERRO CRÍTICO: Template atual não está definido!');
+                    console.error('❌ currentTemplate:', currentTemplate);
+                    resolve(canvas.toDataURL('image/png'));
+                    return;
+                }
+                
                 canvas.width = originalDims.width;
                 canvas.height = originalDims.height;
                 
-                console.log('🎨 Renderizando canvas final:', {
-                    width: canvas.width,
-                    height: canvas.height,
-                    template: currentTemplate.name
+                console.log('🎨 CORREÇÃO CRÍTICA - Canvas final:', {
+                    template: currentTemplate.name,
+                    templateId: currentTemplate.id,
+                    canvasWidth: canvas.width,
+                    canvasHeight: canvas.height,
+                    expectedDimensions: `${originalDims.width}x${originalDims.height}`,
+                    aspectRatio: (originalDims.width / originalDims.height).toFixed(2)
                 });
                 
                 // Preencher fundo branco
                 ctx.fillStyle = '#ffffff';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 
-                // Obter elementos do canvas de preview
+                // CORREÇÃO: Renderizar imagem de fundo se existir
                 const previewCanvas = document.getElementById('canvas');
+                if (previewCanvas) {
+                    const backgroundImage = previewCanvas.style.backgroundImage;
+                    if (backgroundImage && backgroundImage !== 'none') {
+                        console.log('🖼️ Renderizando imagem de fundo:', backgroundImage);
+                        // Para agora, vamos apenas logar - em uma implementação completa,
+                        // você carregaria a imagem e a desenharia no canvas
+                    }
+                }
+                
+                // Obter elementos do canvas de preview
                 if (!previewCanvas) {
+                    console.log('❌ Canvas de preview não encontrado');
                     resolve(canvas.toDataURL('image/png'));
                     return;
                 }
                 
                 const elements = previewCanvas.querySelectorAll('.draggable-element');
+                console.log('🎨 Elementos encontrados para renderizar:', elements.length);
                 
                 // Renderizar cada elemento nas dimensões originais
-                elements.forEach(element => {
+                elements.forEach((element, index) => {
                     const normalizedLeft = parseFloat(element.dataset.normalizedLeft) || 0;
                     const normalizedTop = parseFloat(element.dataset.normalizedTop) || 0;
                     const normalizedWidth = parseFloat(element.dataset.normalizedWidth) || 0;
@@ -4050,6 +4173,12 @@
                         normalizedWidth, normalizedHeight, canvas.width, canvas.height
                     );
                     
+                    console.log(`🎨 Elemento ${index + 1} (${element.id}):`, {
+                        normalized: { left: normalizedLeft, top: normalizedTop, width: normalizedWidth, height: normalizedHeight },
+                        final: { left: finalPos.x, top: finalPos.y, width: finalSize.width, height: finalSize.height },
+                        canvasDimensions: { width: canvas.width, height: canvas.height }
+                    });
+                    
                     // Renderizar elemento baseado no tipo
                     if (element.id.startsWith('circle-')) {
                         renderCircleOnCanvas(ctx, finalPos, finalSize, element);
@@ -4059,7 +4188,15 @@
                         renderLineOnCanvas(ctx, finalPos, finalSize, element);
                     } else if (element.id.startsWith('icon-')) {
                         renderIconOnCanvas(ctx, finalPos, finalSize, element);
+                    } else {
+                        console.log('⚠️ Tipo de elemento não reconhecido:', element.id);
                     }
+                });
+                
+                console.log('✅ Canvas final renderizado com dimensões corretas:', {
+                    width: canvas.width,
+                    height: canvas.height,
+                    aspectRatio: (canvas.width / canvas.height).toFixed(2)
                 });
                 
                 resolve(canvas.toDataURL('image/png'));
@@ -4072,50 +4209,89 @@
             const centerY = pos.y + size.height / 2;
             const radius = size.width / 2;
             
-            ctx.fillStyle = element.style.backgroundColor || '#3b82f6';
+            // Capturar cor de fundo com fallback
+            const backgroundColor = element.style.backgroundColor || '#3b82f6';
+            ctx.fillStyle = backgroundColor;
             ctx.globalAlpha = parseFloat(element.style.opacity) || 1;
             
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-            ctx.fill();
+            // Aplicar border-radius se existir
+            const borderRadius = element.style.borderRadius;
+            if (borderRadius && borderRadius !== '50%') {
+                // Para círculos, sempre usar 50%
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+                ctx.fill();
+            } else {
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+                ctx.fill();
+            }
             
             // Renderizar texto se houver
             const textElement = element.querySelector('div');
-            if (textElement) {
+            if (textElement && textElement.textContent.trim()) {
                 ctx.fillStyle = 'white';
                 ctx.font = `${Math.round(size.width * 0.12)}px Arial`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillText(textElement.textContent, centerX, centerY);
             }
+            
+            console.log('🎨 Círculo renderizado:', { centerX, centerY, radius, backgroundColor });
         }
         
         function renderRectangleOnCanvas(ctx, pos, size, element) {
-            ctx.fillStyle = element.style.backgroundColor || '#3b82f6';
+            // Capturar cor de fundo com fallback
+            const backgroundColor = element.style.backgroundColor || '#3b82f6';
+            ctx.fillStyle = backgroundColor;
             ctx.globalAlpha = parseFloat(element.style.opacity) || 1;
             
-            ctx.fillRect(pos.x, pos.y, size.width, size.height);
+            // Aplicar border-radius se existir
+            const borderRadius = element.style.borderRadius;
+            if (borderRadius && borderRadius !== '0px') {
+                const radius = parseInt(borderRadius) || 8;
+                // Desenhar retângulo com bordas arredondadas
+                ctx.beginPath();
+                ctx.roundRect(pos.x, pos.y, size.width, size.height, radius);
+                ctx.fill();
+            } else {
+                ctx.fillRect(pos.x, pos.y, size.width, size.height);
+            }
             
             // Renderizar texto se houver
             const textElement = element.querySelector('div');
-            if (textElement) {
+            if (textElement && textElement.textContent.trim()) {
                 ctx.fillStyle = 'white';
                 ctx.font = `${Math.round(size.width * 0.09)}px Arial`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillText(textElement.textContent, pos.x + size.width / 2, pos.y + size.height / 2);
             }
+            
+            console.log('🎨 Retângulo renderizado:', { pos, size, backgroundColor });
         }
         
         function renderLineOnCanvas(ctx, pos, size, element) {
-            ctx.strokeStyle = element.style.backgroundColor || '#3b82f6';
+            // Capturar cor com fallback
+            const strokeColor = element.style.backgroundColor || '#3b82f6';
+            ctx.strokeStyle = strokeColor;
             ctx.globalAlpha = parseFloat(element.style.opacity) || 1;
             ctx.lineWidth = size.height;
+            
+            // Aplicar border-radius se existir (para linhas com bordas arredondadas)
+            const borderRadius = element.style.borderRadius;
+            if (borderRadius && borderRadius !== '0px') {
+                ctx.lineCap = 'round';
+            } else {
+                ctx.lineCap = 'square';
+            }
             
             ctx.beginPath();
             ctx.moveTo(pos.x, pos.y + size.height / 2);
             ctx.lineTo(pos.x + size.width, pos.y + size.height / 2);
             ctx.stroke();
+            
+            console.log('🎨 Linha renderizada:', { pos, size, strokeColor });
         }
         
         function renderIconOnCanvas(ctx, pos, size, element) {
@@ -4286,6 +4462,24 @@
                 originalHeight: currentTemplate.metadata.originalHeight,
                 aspectRatio: currentTemplate.aspectRatio
             };
+            
+            // CORREÇÃO: Renderizar canvas final com formas geométricas
+            console.log('🎨 CORREÇÃO CRÍTICA - Iniciando renderização do canvas final...');
+            console.log('🎨 Template atual:', {
+                id: currentTemplate.id,
+                name: currentTemplate.name,
+                originalWidth: currentTemplate.metadata.originalWidth,
+                originalHeight: currentTemplate.metadata.originalHeight,
+                aspectRatio: currentTemplate.aspectRatio
+            });
+            
+            try {
+                const finalCanvasDataURL = await renderFinalCanvas();
+                formData.append('finalCanvas', finalCanvasDataURL);
+                console.log('✅ Canvas final renderizado com sucesso - dimensões corretas aplicadas');
+            } catch (error) {
+                console.error('❌ Erro ao renderizar canvas final:', error);
+            }
             
             formData.append('customization', JSON.stringify(customizationSettings));
             

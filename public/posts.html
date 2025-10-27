@@ -528,7 +528,11 @@
                             backgroundImage: customization.backgroundImage || null,
                             partialImage: customization.partialImage || null,
                             narration: customization.narration || null,
-                            canvasElements: customization.canvasElements || []
+                            canvasElements: customization.canvasElements || [],
+                            // CORREÇÃO CRÍTICA: Adicionar propriedades que estavam faltando
+                            templateDimensions: customization.templateDimensions || null,
+                            textPosition: customization.textPosition || 'center',
+                            currentTemplate: customization.currentTemplate || null
                         };
                         
                         // Debug dos elementos do canvas
@@ -564,6 +568,12 @@
                         console.log(`🎨 Post ${post.id} - Customização aplicada:`, customStyle);
                         console.log(`🎨 Post ${post.id} - Cor escolhida:`, customization.color);
                         console.log(`🎨 Post ${post.id} - Cor aplicada:`, customStyle.color);
+                        
+                        // CORREÇÃO: Debug das propriedades críticas
+                        console.log(`🔍 DEBUG CRÍTICO - Template dimensions:`, customStyle.templateDimensions);
+                        console.log(`🔍 DEBUG CRÍTICO - Text position:`, customStyle.textPosition);
+                        console.log(`🔍 DEBUG CRÍTICO - Current template:`, customStyle.currentTemplate);
+                        console.log(`🔍 DEBUG CRÍTICO - Canvas elements:`, customStyle.canvasElements?.length || 0);
                     } catch (e) {
                         console.log('Erro ao parsear customização:', e);
                         customStyle = templateStyle;
