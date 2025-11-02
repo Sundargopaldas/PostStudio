@@ -46,6 +46,76 @@
             font-weight: 500 !important;
         }
         
+        /* Forçar select com fundo azul, borda branca E setinha */
+        #captionFont,
+        #captionSize,
+        #voiceSelect,
+        #narrationSpeed,
+        select {
+            background-color: rgba(102, 126, 234, 0.3) !important;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") !important;
+            background-repeat: no-repeat !important;
+            background-position: right 0.75rem center !important;
+            background-size: 1.25em 1.25em !important;
+            color: white !important;
+            border: 2px solid rgba(255, 255, 255, 0.8) !important;
+            font-weight: 500 !important;
+            padding-right: 2.5rem !important;
+        }
+        
+        /* Forçar fundo azul no focus COM setinha */
+        #captionFont:focus,
+        #captionSize:focus,
+        #voiceSelect:focus,
+        #narrationSpeed:focus,
+        select:focus {
+            background-color: rgba(102, 126, 234, 0.45) !important;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") !important;
+            background-repeat: no-repeat !important;
+            background-position: right 0.75rem center !important;
+            background-size: 1.25em 1.25em !important;
+            outline: none !important;
+            border: 2px solid white !important;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.5) !important;
+        }
+        
+        /* Corrigir cores das options do select - Azul */
+        select option {
+            background-color: rgba(102, 126, 234, 0.95) !important;
+            color: white !important;
+            padding: 10px !important;
+        }
+        
+        /* Hover nas options */
+        select option:hover {
+            background-color: rgba(118, 75, 162, 0.95) !important;
+        }
+        
+        /* Option selecionada */
+        select option:checked {
+            background-color: rgba(118, 75, 162, 1) !important;
+            color: white !important;
+        }
+        
+        /* Remover aparência padrão do navegador para select e adicionar seta branca */
+        select {
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
+            appearance: none !important;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") !important;
+            background-repeat: no-repeat !important;
+            background-position: right 0.75rem center !important;
+            background-size: 1.25em 1.25em !important;
+            padding-right: 2.5rem !important;
+        }
+        
+        /* Garantir que a setinha apareça em todos os estados */
+        select:hover,
+        select:focus,
+        select:active {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") !important;
+        }
+        
         /* Estilo para o player de vídeo */
         .video-player {
             position: relative;
@@ -240,51 +310,25 @@
             z-index: 100;
         }
         
-        /* Forçar select com fundo escuro específico */
-        #captionFont,
+        /* CSS consolidado acima - removido duplicação */
+        
+        /* Remover aparência padrão do navegador para select e adicionar seta branca */
         select {
-            background-color: rgba(30, 30, 30, 0.9) !important;
-            background-image: none !important;
-            color: white !important;
-            border: 1px solid rgba(255, 255, 255, 0.3) !important;
-        }
-        
-        /* Forçar fundo escuro no focus */
-        select:focus {
-            background-color: rgba(40, 40, 40, 0.95) !important;
-            background-image: none !important;
-            outline: none !important;
-            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.5) !important;
-        }
-        
-        /* Corrigir cores das options do select */
-        select option {
-            background-color: #1a1a1a !important;
-            color: white !important;
-            padding: 10px !important;
-        }
-        
-        /* Hover nas options */
-        select option:hover {
-            background-color: #2a2a2a !important;
-        }
-        
-        /* Option selecionada */
-        select option:checked {
-            background-color: #667eea !important;
-            color: white !important;
-        }
-        
-        /* Remover aparência padrão do navegador para select */
-        select {
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
+            appearance: none !important;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") !important;
             background-repeat: no-repeat !important;
-            background-position: right 0.7rem center !important;
-            background-size: 1.2em !important;
+            background-position: right 0.75rem center !important;
+            background-size: 1.25em 1.25em !important;
             padding-right: 2.5rem !important;
+        }
+        
+        /* Garantir que a setinha apareça em todos os estados */
+        select:hover,
+        select:focus,
+        select:active {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") !important;
         }
     </style>
 </head>
