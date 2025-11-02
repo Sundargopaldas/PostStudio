@@ -10,7 +10,7 @@
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <!-- Typed.js para efeito typewriter -->
     <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&family=Montserrat:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&family=Open+Sans:wght@300;400;600;700;800&family=Lato:wght@300;400;700;900&family=Source+Sans+Pro:wght@300;400;600;700;900&family=Nunito:wght@300;400;600;700;800;900&family=Quicksand:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700;800;900&family=Abril+Fatface&family=Merriweather:wght@300;400;700;900&family=PT+Serif:wght@400;700&family=Work+Sans:wght@300;400;600;700;800&family=Oswald:wght@300;400;500;600;700&family=Lobster&family=Pacifico&family=Dancing+Script:wght@400;500;600;700&family=Great+Vibes&family=Satisfy&family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&family=Montserrat:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&family=Open+Sans:wght@300;400;600;700;800&family=Lato:wght@300;400;700;900&family=Source+Sans+Pro:wght@300;400;600;700;900&family=Nunito:wght@300;400;600;700;800;900&family=Quicksand:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700;800;900&family=Abril+Fatface&family=Merriweather:wght@300;400;700;900&family=PT+Serif:wght@400;700&family=Work+Sans:wght@300;400;600;700;800&family=Oswald:wght@300;400;500;600;700&family=Lobster&family=Pacifico&family=Dancing+Script:wght@400;500;600;700&family=Great+Vibes&family=Satisfy&family=Ubuntu:wght@300;400;500;700&family=Bebas+Neue&family=Anton&family=Rubik:wght@300;400;500;600;700;800;900&family=Comfortaa:wght@300;400;500;600;700&family=Cinzel:wght@400;500;600;700;800;900&family=Righteous&family=Bangers&family=Alfa+Slab+One&family=Permanent+Marker&family=Audiowide&family=Teko:wght@300;400;500;600;700&family=Lexend:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         .gradient-bg {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -271,27 +271,85 @@
             }
         }
 
+        // Mapeamento de fontes
+        const fontMapping = {
+            // Sans Serif - Modernas
+            'font-inter': 'Inter, sans-serif',
+            'font-roboto': 'Roboto, sans-serif',
+            'font-open-sans': 'Open Sans, sans-serif',
+            'font-montserrat': 'Montserrat, sans-serif',
+            'font-poppins': 'Poppins, sans-serif',
+            'font-lato': 'Lato, sans-serif',
+            'font-nunito': 'Nunito, sans-serif',
+            'font-rubik': 'Rubik, sans-serif',
+            'font-lexend': 'Lexend, sans-serif',
+            'font-space-grotesk': 'Space Grotesk, sans-serif',
+            'font-comfortaa': 'Comfortaa, cursive',
+            // Serif - Elegantes
+            'font-playfair': 'Playfair Display, serif',
+            'font-merriweather': 'Merriweather, serif',
+            'font-pt-serif': 'PT Serif, serif',
+            'font-cinzel': 'Cinzel, serif',
+            // Display - Impactantes
+            'font-bebas': 'Bebas Neue, cursive',
+            'font-anton': 'Anton, sans-serif',
+            'font-righteous': 'Righteous, cursive',
+            'font-bangers': 'Bangers, cursive',
+            'font-alfa-slab': 'Alfa Slab One, cursive',
+            'font-oswald': 'Oswald, sans-serif',
+            'font-audiowide': 'Audiowide, cursive',
+            'font-teko': 'Teko, sans-serif',
+            // Decorativas
+            'font-abril': 'Abril Fatface, cursive',
+            'font-lobster': 'Lobster, cursive',
+            'font-pacifico': 'Pacifico, cursive',
+            'font-dancing': 'Dancing Script, cursive',
+            'font-permanent-marker': 'Permanent Marker, cursive',
+            // Padrão
+            'Arial': 'Arial, sans-serif'
+        };
+
         // Função para mostrar legendas com animação palavra por palavra
         function animateVideoCaption(postId, caption, font) {
             const captionElement = document.getElementById(`videoCaption-${postId}`);
             
             if (!captionElement || !caption) {
+                console.log('❌ Elemento de legenda ou texto não encontrado');
                 return;
+            }
+            
+            console.log(`🎬 animateVideoCaption - Post: ${postId}, Font: ${font}`);
+            
+            // Parar qualquer animação anterior
+            if (captionElement.animationTimeout) {
+                clearTimeout(captionElement.animationTimeout);
+                captionElement.animationTimeout = null;
             }
             
             // Verificar se já está animando para evitar duplicação
             if (captionElement.isAnimating) {
-                return;
+                console.log('⏸️ Legenda já está animando, resetando...');
+                captionElement.isAnimating = false;
             }
+            
+            // Limpar conteúdo anterior
+            captionElement.innerHTML = '';
+            captionElement.textContent = '';
             
             // Marcar como animando
             captionElement.isAnimating = true;
             
-            // Aplicar fonte e exibir
-            captionElement.style.fontFamily = font;
+            // Aplicar fonte usando o mapeamento
+            const fontFamily = fontMapping[font] || font || 'Arial, sans-serif';
+            captionElement.style.fontFamily = fontFamily;
             captionElement.style.opacity = '1';
             captionElement.style.display = 'flex';
             captionElement.style.visibility = 'visible';
+            captionElement.style.flexDirection = 'column';
+            captionElement.style.justifyContent = 'center';
+            captionElement.style.alignItems = 'center';
+            
+            console.log(`📝 Iniciando animação palavra por palavra: "${caption}"`);
             
             // Animar palavra por palavra
             animateTextWithAPI(captionElement, caption);
@@ -299,16 +357,20 @@
         
         // Função para animar texto usando API gratuita (CORRIGIDA)
         function animateTextWithAPI(element, text) {
+            console.log(`🎬 animateTextWithAPI iniciando - Texto: "${text.substring(0, 50)}..."`);
+            
             // Parar animação anterior se existir
             if (element.animationTimeout) {
                 clearTimeout(element.animationTimeout);
             }
             
             const words = text.split(' ');
+            console.log(`📝 Total de palavras: ${words.length}`);
+            
             let currentIndex = 0;
             let currentLine = '';
             let lineCount = 0;
-            const maxWordsPerLine = 8; // Máximo de palavras por linha
+            const maxWordsPerLine = 12; // Máximo de palavras por linha
             
             // Limpar elemento completamente
             element.innerHTML = '';
@@ -331,11 +393,14 @@
                         lineDiv.style.opacity = '0';
                         lineDiv.style.transition = 'opacity 0.3s ease-in-out';
                         lineDiv.style.color = 'white';
-                        lineDiv.style.fontWeight = 'bold';
+                        lineDiv.style.fontWeight = '400';
                         lineDiv.style.display = 'block';
                         lineDiv.style.textAlign = 'center';
-                        lineDiv.style.marginBottom = lineCount > 0 ? '0.25rem' : '0';
+                        lineDiv.style.marginBottom = lineCount > 0 ? '0.15rem' : '0';
+                        lineDiv.style.fontSize = '0.85rem';
                         element.appendChild(lineDiv);
+                        
+                        console.log(`➕ Linha ${lineCount + 1} adicionada: "${currentLine}"`);
                         
                         // Animar entrada da linha
                         setTimeout(() => {
@@ -349,10 +414,11 @@
                     
                     currentIndex++;
                     
-                    // Continuar com próxima palavra
-                    element.animationTimeout = setTimeout(showNextWord, 150);
+                    // Continuar com próxima palavra (velocidade mais rápida)
+                    element.animationTimeout = setTimeout(showNextWord, 100); // 100ms entre palavras (era 150ms)
                 } else {
                     // Animação concluída
+                    console.log(`✅ Animação concluída - ${lineCount} linhas criadas`);
                     element.animationTimeout = null;
                     element.isAnimating = false; // Marcar como não animando
                 }
@@ -753,7 +819,45 @@
                                         console.log('🔍 Condição para criar:', !!customStyle.videoCaption);
                                         if (customStyle.videoCaption) {
                                             console.log('✅ Criando elemento de legenda');
-                                            return `<div id="videoCaption-${post.id}" class="absolute bottom-4 left-4 right-4 text-white text-sm px-3 py-2 rounded-lg z-10" style="font-family: '${customStyle.videoCaptionFont || 'Arial'}', sans-serif; word-wrap: break-word; max-width: calc(100% - 2rem); line-height: 1.4; text-align: center; backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1);"></div>`;
+                                            // Mapear fonte corretamente
+                                            const fontMap = {
+                                                // Sans Serif - Modernas
+                                                'font-inter': 'Inter',
+                                                'font-roboto': 'Roboto',
+                                                'font-open-sans': 'Open Sans',
+                                                'font-montserrat': 'Montserrat',
+                                                'font-poppins': 'Poppins',
+                                                'font-lato': 'Lato',
+                                                'font-nunito': 'Nunito',
+                                                'font-rubik': 'Rubik',
+                                                'font-lexend': 'Lexend',
+                                                'font-space-grotesk': 'Space Grotesk',
+                                                'font-comfortaa': 'Comfortaa',
+                                                // Serif - Elegantes
+                                                'font-playfair': 'Playfair Display',
+                                                'font-merriweather': 'Merriweather',
+                                                'font-pt-serif': 'PT Serif',
+                                                'font-cinzel': 'Cinzel',
+                                                // Display - Impactantes
+                                                'font-bebas': 'Bebas Neue',
+                                                'font-anton': 'Anton',
+                                                'font-righteous': 'Righteous',
+                                                'font-bangers': 'Bangers',
+                                                'font-alfa-slab': 'Alfa Slab One',
+                                                'font-oswald': 'Oswald',
+                                                'font-audiowide': 'Audiowide',
+                                                'font-teko': 'Teko',
+                                                // Decorativas
+                                                'font-abril': 'Abril Fatface',
+                                                'font-lobster': 'Lobster',
+                                                'font-pacifico': 'Pacifico',
+                                                'font-dancing': 'Dancing Script',
+                                                'font-permanent-marker': 'Permanent Marker',
+                                                // Padrão
+                                                'Arial': 'Arial'
+                                            };
+                                            const fontName = fontMap[customStyle.videoCaptionFont] || customStyle.videoCaptionFont || 'Arial';
+                                            return `<div id="videoCaption-${post.id}" class="absolute bottom-4 left-4 right-4 text-white text-sm px-3 py-2 z-10" style="font-family: '${fontName}', sans-serif; word-wrap: break-word; max-width: calc(100% - 2rem); max-height: 80px; overflow: hidden; line-height: 1.3; text-align: center; background: transparent; border: none; font-size: 0.85rem; font-weight: 400;"></div>`;
                                         } else {
                                             console.log('❌ Não criando elemento de legenda');
                                             return '';
@@ -836,8 +940,73 @@
                 }
             }, 100);
             
-            // Legendas serão animadas automaticamente quando o vídeo for reproduzido
-            console.log('📝 Legendas configuradas para animação automática');
+            // Configurar animação de legendas ao reproduzir vídeo
+            console.log('📝 Configurando animação de legendas nos vídeos...');
+            setTimeout(() => {
+                postsToDisplay.forEach(post => {
+                    if (post.customization) {
+                        try {
+                            const customization = JSON.parse(post.customization);
+                            if (customization.videoCaption) {
+                                const video = document.getElementById(`video-${post.id}`);
+                                const videoCaptionFont = customization.videoCaptionFont || 'Arial';
+                                
+                                if (video) {
+                                    console.log(`📝 Adicionando event listener ao vídeo ${post.id}`);
+                                    
+                                    // Animar legenda quando o vídeo começar a tocar
+                                    video.addEventListener('play', () => {
+                                        console.log(`▶️ Vídeo ${post.id} começou - animando legenda`);
+                                        const captionElement = document.getElementById(`videoCaption-${post.id}`);
+                                        if (captionElement) {
+                                            // Resetar animação antes de começar
+                                            captionElement.isAnimating = false;
+                                            if (captionElement.animationTimeout) {
+                                                clearTimeout(captionElement.animationTimeout);
+                                            }
+                                            animateVideoCaption(post.id, customization.videoCaption, videoCaptionFont);
+                                        }
+                                    });
+                                    
+                                    // Esconder legenda quando pausar
+                                    video.addEventListener('pause', () => {
+                                        const captionElement = document.getElementById(`videoCaption-${post.id}`);
+                                        if (captionElement) {
+                                            captionElement.style.opacity = '0.5';
+                                        }
+                                    });
+                                    
+                                    // Resetar animação quando o vídeo acabar e esconder após 1s
+                                    video.addEventListener('ended', () => {
+                                        console.log(`🏁 Vídeo ${post.id} terminou`);
+                                        const captionElement = document.getElementById(`videoCaption-${post.id}`);
+                                        if (captionElement) {
+                                            // Esconder legenda após 1 segundo
+                                            setTimeout(() => {
+                                                captionElement.style.opacity = '0';
+                                                captionElement.style.visibility = 'hidden';
+                                                console.log(`👋 Legenda do post ${post.id} escondida`);
+                                                
+                                                // Resetar para próxima reprodução
+                                                captionElement.isAnimating = false;
+                                                if (captionElement.animationTimeout) {
+                                                    clearTimeout(captionElement.animationTimeout);
+                                                }
+                                            }, 1000);
+                                        }
+                                    });
+                                    
+                                    // Animar legenda imediatamente se o vídeo está visível
+                                    console.log(`📝 Animando legenda inicial do post ${post.id}`);
+                                    animateVideoCaption(post.id, customization.videoCaption, videoCaptionFont);
+                                }
+                            }
+                        } catch (e) {
+                            console.error('Erro ao processar customização:', e);
+                        }
+                    }
+                });
+            }, 500); // Aguardar 500ms para garantir que os elementos estão no DOM
         }
 
         // Função para determinar estilo do template
@@ -1185,6 +1354,19 @@
                         console.error('❌ Erro ao reproduzir narração automática:', error);
                     });
                     
+                    // Esconder legenda quando narração automática terminar
+                    audio.addEventListener('ended', () => {
+                        console.log(`🏁 Narração automática do post ${postId} terminou - escondendo legenda após 1s`);
+                        setTimeout(() => {
+                            const captionElement = document.getElementById(`videoCaption-${postId}`);
+                            if (captionElement) {
+                                captionElement.style.opacity = '0';
+                                captionElement.style.visibility = 'hidden';
+                                console.log(`👋 Legenda do post ${postId} escondida após narração automática`);
+                            }
+                        }, 1000);
+                    });
+                    
                 } else if (narrationData.text && narrationData.voiceId) {
                     console.log('🎤 Gerando narração em tempo real...');
                     
@@ -1215,6 +1397,19 @@
                             
                         }).catch(error => {
                             console.error('❌ Erro ao reproduzir narração gerada:', error);
+                        });
+                        
+                        // Esconder legenda quando narração gerada terminar
+                        audio.addEventListener('ended', () => {
+                            console.log(`🏁 Narração gerada do post ${postId} terminou - escondendo legenda após 1s`);
+                            setTimeout(() => {
+                                const captionElement = document.getElementById(`videoCaption-${postId}`);
+                                if (captionElement) {
+                                    captionElement.style.opacity = '0';
+                                    captionElement.style.visibility = 'hidden';
+                                    console.log(`👋 Legenda do post ${postId} escondida após narração gerada`);
+                                }
+                            }, 1000);
                         });
                         
                     } else {
@@ -1276,7 +1471,18 @@
                         alert('Erro ao reproduzir áudio salvo.');
                     });
                     
-                    // Áudio finalizado
+                    // Esconder legenda quando áudio terminar
+                    audio.addEventListener('ended', () => {
+                        console.log(`🏁 Áudio do post ${postId} terminou - escondendo legenda após 1s`);
+                        setTimeout(() => {
+                            const captionElement = document.getElementById(`videoCaption-${postId}`);
+                            if (captionElement) {
+                                captionElement.style.opacity = '0';
+                                captionElement.style.visibility = 'hidden';
+                                console.log(`👋 Legenda do post ${postId} escondida após áudio`);
+                            }
+                        }, 1000);
+                    });
                     
                 } else if (narrationData.text && narrationData.voiceId) {
                     console.log('🎤 Gerando narração em tempo real...');
@@ -1309,7 +1515,18 @@
                             alert('Erro ao reproduzir narração.');
                         });
                         
-                        // Narração finalizada
+                        // Esconder legenda quando narração terminar
+                        audio.addEventListener('ended', () => {
+                            console.log(`🏁 Narração do post ${postId} terminou - escondendo legenda após 1s`);
+                            setTimeout(() => {
+                                const captionElement = document.getElementById(`videoCaption-${postId}`);
+                                if (captionElement) {
+                                    captionElement.style.opacity = '0';
+                                    captionElement.style.visibility = 'hidden';
+                                    console.log(`👋 Legenda do post ${postId} escondida após narração`);
+                                }
+                            }, 1000);
+                        });
                         
                     } else {
                         console.error('❌ Erro ao gerar narração:', response.status);
@@ -1423,9 +1640,16 @@
                             const videoContainer = video.closest('.post-card');
                             if (videoContainer) {
                                 const videoCaption = videoContainer.dataset.videoCaption;
+                                const videoCaptionFont = videoContainer.dataset.videoCaptionFont || 'Arial';
                                 if (videoCaption) {
-                                    console.log('📝 Animando legenda:', videoCaption);
-                                    animateVideoCaption(postId, videoCaption, 'Arial');
+                                    console.log('📝 Animando legenda:', videoCaption, 'com fonte:', videoCaptionFont);
+                                    // Resetar animação antes de começar
+                                    if (captionElement.animationTimeout) {
+                                        clearTimeout(captionElement.animationTimeout);
+                                    }
+                                    captionElement.isAnimating = false;
+                                    captionElement.innerHTML = '';
+                                    animateVideoCaption(postId, videoCaption, videoCaptionFont);
                                 }
                             }
                         }

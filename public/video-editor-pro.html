@@ -6,7 +6,7 @@
     <title>PostStudio I.A - Editor de Vídeo Profissional</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&family=Montserrat:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&family=Open+Sans:wght@300;400;600;700;800&family=Lato:wght@300;400;700;900&family=Source+Sans+Pro:wght@300;400;600;700;900&family=Nunito:wght@300;400;600;700;800;900&family=Quicksand:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700;800;900&family=Abril+Fatface&family=Merriweather:wght@300;400;700;900&family=PT+Serif:wght@400;700&family=Work+Sans:wght@300;400;600;700;800&family=Oswald:wght@300;400;500;600;700&family=Lobster&family=Pacifico&family=Dancing+Script:wght@400;500;600;700&family=Great+Vibes&family=Satisfy&family=Ubuntu:wght@300;400;500;700&family=Bebas+Neue&family=Anton&family=Rubik:wght@300;400;500;600;700;800;900&family=Comfortaa:wght@300;400;500;600;700&family=Cinzel:wght@400;500;600;700;800;900&family=Righteous&family=Bangers&family=Alfa+Slab+One&family=Permanent+Marker&family=Audiowide&family=Teko:wght@300;400;500;600;700&family=Lexend:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         .gradient-bg {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -239,6 +239,53 @@
             transition: left 0.1s ease;
             z-index: 100;
         }
+        
+        /* Forçar select com fundo escuro específico */
+        #captionFont,
+        select {
+            background-color: rgba(30, 30, 30, 0.9) !important;
+            background-image: none !important;
+            color: white !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        }
+        
+        /* Forçar fundo escuro no focus */
+        select:focus {
+            background-color: rgba(40, 40, 40, 0.95) !important;
+            background-image: none !important;
+            outline: none !important;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.5) !important;
+        }
+        
+        /* Corrigir cores das options do select */
+        select option {
+            background-color: #1a1a1a !important;
+            color: white !important;
+            padding: 10px !important;
+        }
+        
+        /* Hover nas options */
+        select option:hover {
+            background-color: #2a2a2a !important;
+        }
+        
+        /* Option selecionada */
+        select option:checked {
+            background-color: #667eea !important;
+            color: white !important;
+        }
+        
+        /* Remover aparência padrão do navegador para select */
+        select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+            background-repeat: no-repeat !important;
+            background-position: right 0.7rem center !important;
+            background-size: 1.2em !important;
+            padding-right: 2.5rem !important;
+        }
     </style>
 </head>
 <body class="gradient-bg min-h-screen">
@@ -422,11 +469,42 @@
                                     id="captionFont" 
                                     class="w-full px-4 py-3 rounded-lg bg-white/20 border border-white/30 text-white focus:outline-none focus:ring-2 focus:ring-white/50"
                                 >
-                                    <option value="Arial">Arial</option>
-                                    <option value="Helvetica">Helvetica</option>
-                                    <option value="Times New Roman">Times New Roman</option>
-                                    <option value="Georgia">Georgia</option>
-                                    <option value="Verdana">Verdana</option>
+                                    <optgroup label="🔤 Sans Serif - Modernas">
+                                        <option value="font-inter">Inter</option>
+                                        <option value="font-roboto">Roboto</option>
+                                        <option value="font-open-sans">Open Sans</option>
+                                        <option value="font-montserrat">Montserrat</option>
+                                        <option value="font-poppins">Poppins</option>
+                                        <option value="font-lato">Lato</option>
+                                        <option value="font-nunito">Nunito</option>
+                                        <option value="font-rubik">Rubik</option>
+                                        <option value="font-lexend">Lexend</option>
+                                        <option value="font-space-grotesk">Space Grotesk</option>
+                                        <option value="font-comfortaa">Comfortaa</option>
+                                    </optgroup>
+                                    <optgroup label="📰 Serif - Elegantes">
+                                        <option value="font-playfair">Playfair Display</option>
+                                        <option value="font-merriweather">Merriweather</option>
+                                        <option value="font-pt-serif">PT Serif</option>
+                                        <option value="font-cinzel">Cinzel</option>
+                                    </optgroup>
+                                    <optgroup label="💪 Display - Impactantes">
+                                        <option value="font-bebas">Bebas Neue</option>
+                                        <option value="font-anton">Anton</option>
+                                        <option value="font-righteous">Righteous</option>
+                                        <option value="font-bangers">Bangers</option>
+                                        <option value="font-alfa-slab">Alfa Slab One</option>
+                                        <option value="font-oswald">Oswald</option>
+                                        <option value="font-audiowide">Audiowide</option>
+                                        <option value="font-teko">Teko</option>
+                                    </optgroup>
+                                    <optgroup label="✨ Decorativas">
+                                        <option value="font-lobster">Lobster</option>
+                                        <option value="font-pacifico">Pacifico</option>
+                                        <option value="font-dancing">Dancing Script</option>
+                                        <option value="font-permanent-marker">Permanent Marker</option>
+                                        <option value="font-abril">Abril Fatface</option>
+                                    </optgroup>
                                 </select>
                             </div>
                             
@@ -743,6 +821,7 @@
             
             // Legenda
             document.getElementById('captionText').addEventListener('input', updateCaption);
+            document.getElementById('captionFont').addEventListener('change', updateCaption);
             document.getElementById('testCaptionAnimation').addEventListener('click', testCaptionAnimation);
             
             // Narração
@@ -1115,6 +1194,24 @@
             playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
             playPauseBtn2.innerHTML = '<i class="fas fa-pause"></i>';
             
+            // Mostrar e re-animar legenda
+            const captionText = document.getElementById('captionText').value;
+            if (captionText) {
+                // Resetar flags para permitir re-animação
+                captionTextDisplay.hasBeenAnimated = false;
+                captionTextDisplay.isAnimating = false;
+                if (captionTextDisplay.animationTimeout) {
+                    clearTimeout(captionTextDisplay.animationTimeout);
+                }
+                
+                // Mostrar overlay e animar
+                captionOverlay.classList.add('show');
+                captionOverlay.style.opacity = '1';
+                captionTextDisplay.style.opacity = '1';
+                animateCaptionWordByWord(captionText);
+                console.log('▶️ Vídeo iniciado - legenda re-animada');
+            }
+            
             // Reproduzir narração se existir
             if (currentNarration) {
                 playNarration();
@@ -1145,6 +1242,15 @@
             if (currentNarration) {
                 stopNarration();
             }
+            
+            // Esconder legenda após 1 segundo
+            console.log('🏁 Vídeo terminou - escondendo legenda após 1s');
+            setTimeout(() => {
+                captionOverlay.classList.remove('show');
+                captionOverlay.style.opacity = '0';
+                captionTextDisplay.style.opacity = '0';
+                console.log('👋 Legenda escondida');
+            }, 1000);
         }
 
         function togglePlayPause() {
@@ -1230,6 +1336,44 @@
             }
         }
         
+        // Mapeamento de fontes
+        const fontMapping = {
+            // Sans Serif - Modernas
+            'font-inter': 'Inter, sans-serif',
+            'font-roboto': 'Roboto, sans-serif',
+            'font-open-sans': 'Open Sans, sans-serif',
+            'font-montserrat': 'Montserrat, sans-serif',
+            'font-poppins': 'Poppins, sans-serif',
+            'font-lato': 'Lato, sans-serif',
+            'font-nunito': 'Nunito, sans-serif',
+            'font-rubik': 'Rubik, sans-serif',
+            'font-lexend': 'Lexend, sans-serif',
+            'font-space-grotesk': 'Space Grotesk, sans-serif',
+            'font-comfortaa': 'Comfortaa, cursive',
+            // Serif - Elegantes
+            'font-playfair': 'Playfair Display, serif',
+            'font-merriweather': 'Merriweather, serif',
+            'font-pt-serif': 'PT Serif, serif',
+            'font-cinzel': 'Cinzel, serif',
+            // Display - Impactantes
+            'font-bebas': 'Bebas Neue, cursive',
+            'font-anton': 'Anton, sans-serif',
+            'font-righteous': 'Righteous, cursive',
+            'font-bangers': 'Bangers, cursive',
+            'font-alfa-slab': 'Alfa Slab One, cursive',
+            'font-oswald': 'Oswald, sans-serif',
+            'font-audiowide': 'Audiowide, cursive',
+            'font-teko': 'Teko, sans-serif',
+            // Decorativas
+            'font-abril': 'Abril Fatface, cursive',
+            'font-lobster': 'Lobster, cursive',
+            'font-pacifico': 'Pacifico, cursive',
+            'font-dancing': 'Dancing Script, cursive',
+            'font-permanent-marker': 'Permanent Marker, cursive',
+            // Padrão
+            'Arial': 'Arial, sans-serif'
+        };
+
         // Função para animar legenda palavra por palavra
         function animateCaptionWordByWord(text) {
             // Verificar se já está animando para evitar conflitos
@@ -1243,6 +1387,14 @@
                 clearTimeout(captionTextDisplay.animationTimeout);
                 captionTextDisplay.animationTimeout = null;
             }
+            
+            // Obter fonte selecionada
+            const selectedFont = document.getElementById('captionFont').value;
+            const fontFamily = fontMapping[selectedFont] || selectedFont || 'Arial, sans-serif';
+            
+            // Aplicar fonte ao elemento
+            captionTextDisplay.style.fontFamily = fontFamily;
+            console.log(`🎨 Fonte aplicada: ${fontFamily}`);
             
             const words = text.split(' ');
             let currentIndex = 0;
@@ -1267,7 +1419,7 @@
                     currentIndex++;
                     
                     // Continuar com próxima palavra (velocidade ajustável)
-                    captionTextDisplay.animationTimeout = setTimeout(showNextWord, 200); // 200ms entre palavras
+                    captionTextDisplay.animationTimeout = setTimeout(showNextWord, 100); // 100ms entre palavras
                 } else {
                     // Animação concluída
                     captionTextDisplay.animationTimeout = null;
@@ -1388,6 +1540,17 @@
                     const audioUrl = URL.createObjectURL(audioBlob);
                     currentNarration = new Audio(audioUrl);
                     currentNarration.volume = narrationVolume.value;
+                    
+                    // Adicionar event listener para quando a narração terminar
+                    currentNarration.addEventListener('ended', () => {
+                        console.log('🏁 Narração terminou - escondendo legenda após 1s');
+                        setTimeout(() => {
+                            captionOverlay.classList.remove('show');
+                            captionOverlay.style.opacity = '0';
+                            captionTextDisplay.style.opacity = '0';
+                            console.log('👋 Legenda escondida após narração');
+                        }, 1000);
+                    });
                     
                     narrationStatus.textContent = 'Gerada';
                     narrationStatus.className = 'text-green-400';

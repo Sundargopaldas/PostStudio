@@ -6,7 +6,7 @@
     <title>PostStudio I.A - Meus Vídeos</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&family=Montserrat:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&family=Open+Sans:wght@300;400;600;700;800&family=Lato:wght@300;400;700;900&family=Source+Sans+Pro:wght@300;400;600;700;900&family=Nunito:wght@300;400;600;700;800;900&family=Quicksand:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700;800;900&family=Abril+Fatface&family=Merriweather:wght@300;400;700;900&family=PT+Serif:wght@400;700&family=Work+Sans:wght@300;400;600;700;800&family=Oswald:wght@300;400;500;600;700&family=Lobster&family=Pacifico&family=Dancing+Script:wght@400;500;600;700&family=Great+Vibes&family=Satisfy&family=Ubuntu:wght@300;400;500;700&family=Bebas+Neue&family=Anton&family=Rubik:wght@300;400;500;600;700;800;900&family=Comfortaa:wght@300;400;500;600;700&family=Cinzel:wght@400;500;600;700;800;900&family=Righteous&family=Bangers&family=Alfa+Slab+One&family=Permanent+Marker&family=Audiowide&family=Teko:wght@300;400;500;600;700&family=Lexend:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         .gradient-bg {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -82,12 +82,14 @@
             bottom: 20px;
             left: 20px;
             right: 20px;
+            max-height: 80px;
+            overflow: hidden;
             background: transparent;
             color: white;
-            padding: 0;
-            border-radius: 0;
-            font-size: 16px;
-            font-weight: 500;
+            padding: 8px 12px;
+            font-size: 0.85rem;
+            font-weight: 400;
+            line-height: 1.3;
             text-align: center;
             opacity: 0;
             transition: opacity 0.3s ease;
@@ -290,7 +292,7 @@
                             
                             <!-- Overlay de legenda -->
                             <div id="captionOverlay-${video.id}" class="caption-overlay" style="font-family: ${customization.videoCaptionFont || 'Arial'};">
-                                ${customization.videoCaption || ''}
+                                <!-- Legenda será preenchida pela animação palavra por palavra -->
                             </div>
                             
                             <!-- Vídeo limpo sem controles extras -->
@@ -343,8 +345,22 @@
             
             video.addEventListener('play', () => {
                 console.log(`▶️ Vídeo ${videoId} iniciado`);
-                // Mostrar legenda
+                
+                // Resetar flag de animação para permitir re-animação
+                const captionOverlay = document.getElementById(`captionOverlay-${videoId}`);
+                if (captionOverlay) {
+                    captionOverlay.hasBeenAnimated = false;
+                    // Limpar animação anterior
+                    if (captionOverlay.animationTimeout) {
+                        clearTimeout(captionOverlay.animationTimeout);
+                    }
+                    captionOverlay.isAnimating = false;
+                    captionOverlay.innerHTML = '';
+                }
+                
+                // Mostrar legenda com animação
                 updateCaptionDisplay(videoId);
+                
                 // Reproduzir narração se existir
                 playNarration(videoId);
             });
@@ -353,6 +369,19 @@
                 console.log(`⏸️ Vídeo ${videoId} pausado`);
                 // Pausar narração se existir
                 pauseNarration(videoId);
+            });
+            
+            video.addEventListener('ended', () => {
+                console.log(`🏁 Vídeo ${videoId} terminou`);
+                // Esconder legenda após 1 segundo
+                setTimeout(() => {
+                    const captionOverlay = document.getElementById(`captionOverlay-${videoId}`);
+                    if (captionOverlay) {
+                        captionOverlay.classList.remove('show');
+                        captionOverlay.style.opacity = '0';
+                        console.log(`👋 Legenda do vídeo ${videoId} escondida`);
+                    }
+                }, 1000);
             });
             
             video.addEventListener('error', (e) => {
@@ -401,6 +430,19 @@
                     const audio = new Audio(narration.audioUrl);
                     audio.volume = 0.8;
                     audio.play();
+                    
+                    // Esconder legenda quando narração terminar
+                    audio.addEventListener('ended', () => {
+                        console.log(`🏁 Narração do vídeo ${videoId} terminou - escondendo legenda após 1s`);
+                        setTimeout(() => {
+                            const captionOverlay = document.getElementById(`captionOverlay-${videoId}`);
+                            if (captionOverlay) {
+                                captionOverlay.classList.remove('show');
+                                captionOverlay.style.opacity = '0';
+                                console.log(`👋 Legenda do vídeo ${videoId} escondida após narração`);
+                            }
+                        }, 1000);
+                    });
                 } else if (narration.text && narration.voiceId) {
                     // Gerar narração em tempo real
                     const response = await fetch('/api/generate-narration', {
@@ -420,6 +462,19 @@
                         const audio = new Audio(audioUrl);
                         audio.volume = 0.8;
                         audio.play();
+                        
+                        // Esconder legenda quando narração terminar
+                        audio.addEventListener('ended', () => {
+                            console.log(`🏁 Narração do vídeo ${videoId} terminou - escondendo legenda após 1s`);
+                            setTimeout(() => {
+                                const captionOverlay = document.getElementById(`captionOverlay-${videoId}`);
+                                if (captionOverlay) {
+                                    captionOverlay.classList.remove('show');
+                                    captionOverlay.style.opacity = '0';
+                                    console.log(`👋 Legenda do vídeo ${videoId} escondida após narração`);
+                                }
+                            }, 1000);
+                        });
                     }
                 }
             } catch (error) {
@@ -435,19 +490,184 @@
             }
         }
 
-        // Atualizar exibição da legenda
+        // Mapeamento de fontes
+        const fontMapping = {
+            // Sans Serif - Modernas
+            'font-inter': 'Inter, sans-serif',
+            'font-roboto': 'Roboto, sans-serif',
+            'font-open-sans': 'Open Sans, sans-serif',
+            'font-montserrat': 'Montserrat, sans-serif',
+            'font-poppins': 'Poppins, sans-serif',
+            'font-lato': 'Lato, sans-serif',
+            'font-nunito': 'Nunito, sans-serif',
+            'font-rubik': 'Rubik, sans-serif',
+            'font-lexend': 'Lexend, sans-serif',
+            'font-space-grotesk': 'Space Grotesk, sans-serif',
+            'font-comfortaa': 'Comfortaa, cursive',
+            // Serif - Elegantes
+            'font-playfair': 'Playfair Display, serif',
+            'font-merriweather': 'Merriweather, serif',
+            'font-pt-serif': 'PT Serif, serif',
+            'font-cinzel': 'Cinzel, serif',
+            // Display - Impactantes
+            'font-bebas': 'Bebas Neue, cursive',
+            'font-anton': 'Anton, sans-serif',
+            'font-righteous': 'Righteous, cursive',
+            'font-bangers': 'Bangers, cursive',
+            'font-alfa-slab': 'Alfa Slab One, cursive',
+            'font-oswald': 'Oswald, sans-serif',
+            'font-audiowide': 'Audiowide, cursive',
+            'font-teko': 'Teko, sans-serif',
+            // Decorativas
+            'font-abril': 'Abril Fatface, cursive',
+            'font-lobster': 'Lobster, cursive',
+            'font-pacifico': 'Pacifico, cursive',
+            'font-dancing': 'Dancing Script, cursive',
+            'font-permanent-marker': 'Permanent Marker, cursive',
+            // Padrão
+            'Arial': 'Arial, sans-serif'
+        };
+
+        // Atualizar exibição da legenda COM ANIMAÇÃO PALAVRA POR PALAVRA
         function updateCaptionDisplay(videoId) {
             const video = document.getElementById(`video-${videoId}`);
             const captionOverlay = document.getElementById(`captionOverlay-${videoId}`);
             
             if (video && captionOverlay) {
+                const videoObj = videos.find(v => v.id === videoId);
+                if (!videoObj) return;
+                
+                const customization = JSON.parse(videoObj.customization);
+                const caption = customization.videoCaption;
+                const captionFont = customization.videoCaptionFont || 'Arial';
+                
                 // Mostrar legenda quando vídeo estiver tocando
                 if (!video.paused && video.currentTime > 0) {
                     captionOverlay.classList.add('show');
+                    
+                    // Animar legenda palavra por palavra apenas uma vez
+                    if (caption && !captionOverlay.hasBeenAnimated) {
+                        console.log(`📝 Animando legenda do vídeo ${videoId}: "${caption}"`);
+                        animateVideoCaption(videoId, caption, captionFont);
+                        captionOverlay.hasBeenAnimated = true;
+                    }
                 } else {
                     captionOverlay.classList.remove('show');
                 }
             }
+        }
+        
+        // Função para animar legenda palavra por palavra
+        function animateVideoCaption(videoId, caption, font) {
+            const captionElement = document.getElementById(`captionOverlay-${videoId}`);
+            
+            if (!captionElement || !caption) {
+                console.log('❌ Elemento de legenda ou texto não encontrado');
+                return;
+            }
+            
+            console.log(`🎬 animateVideoCaption - Vídeo: ${videoId}, Font: ${font}`);
+            
+            // Parar qualquer animação anterior
+            if (captionElement.animationTimeout) {
+                clearTimeout(captionElement.animationTimeout);
+                captionElement.animationTimeout = null;
+            }
+            
+            // Verificar se já está animando
+            if (captionElement.isAnimating) {
+                console.log('⏸️ Legenda já está animando, resetando...');
+                captionElement.isAnimating = false;
+            }
+            
+            // Limpar conteúdo anterior
+            captionElement.innerHTML = '';
+            captionElement.textContent = '';
+            
+            // Marcar como animando
+            captionElement.isAnimating = true;
+            
+            // Aplicar fonte usando o mapeamento
+            const fontFamily = fontMapping[font] || font || 'Arial, sans-serif';
+            captionElement.style.fontFamily = fontFamily;
+            
+            console.log(`📝 Iniciando animação palavra por palavra: "${caption}"`);
+            
+            // Animar palavra por palavra
+            animateTextWithAPI(captionElement, caption);
+        }
+        
+        // Função para animar texto palavra por palavra
+        function animateTextWithAPI(element, text) {
+            console.log(`🎬 animateTextWithAPI iniciando - Texto: "${text.substring(0, 50)}..."`);
+            
+            // Parar animação anterior se existir
+            if (element.animationTimeout) {
+                clearTimeout(element.animationTimeout);
+            }
+            
+            const words = text.split(' ');
+            console.log(`📝 Total de palavras: ${words.length}`);
+            
+            let currentIndex = 0;
+            let currentLine = '';
+            let lineCount = 0;
+            const maxWordsPerLine = 12; // Máximo de palavras por linha
+            
+            // Limpar elemento completamente
+            element.innerHTML = '';
+            element.textContent = '';
+            
+            // Função para mostrar próxima palavra
+            function showNextWord() {
+                if (currentIndex < words.length) {
+                    // Adicionar palavra atual à linha atual
+                    currentLine += (currentLine ? ' ' : '') + words[currentIndex];
+                    
+                    // Verificar se precisa quebrar linha
+                    const shouldBreakLine = (currentIndex + 1) % maxWordsPerLine === 0 || 
+                                         currentIndex === words.length - 1;
+                    
+                    if (shouldBreakLine) {
+                        // Criar linha
+                        const lineDiv = document.createElement('div');
+                        lineDiv.textContent = currentLine;
+                        lineDiv.style.opacity = '0';
+                        lineDiv.style.transition = 'opacity 0.3s ease-in-out';
+                        lineDiv.style.color = 'white';
+                        lineDiv.style.fontWeight = '400';
+                        lineDiv.style.display = 'block';
+                        lineDiv.style.textAlign = 'center';
+                        lineDiv.style.marginBottom = lineCount > 0 ? '0.15rem' : '0';
+                        lineDiv.style.fontSize = '0.85rem';
+                        element.appendChild(lineDiv);
+                        
+                        console.log(`➕ Linha ${lineCount + 1} adicionada: "${currentLine}"`);
+                        
+                        // Animar entrada da linha
+                        setTimeout(() => {
+                            lineDiv.style.opacity = '1';
+                        }, 50);
+                        
+                        // Reset para próxima linha
+                        currentLine = '';
+                        lineCount++;
+                    }
+                    
+                    currentIndex++;
+                    
+                    // Continuar com próxima palavra
+                    element.animationTimeout = setTimeout(showNextWord, 100); // 100ms entre palavras
+                } else {
+                    // Animação concluída
+                    console.log(`✅ Animação concluída - ${lineCount} linhas criadas`);
+                    element.animationTimeout = null;
+                    element.isAnimating = false;
+                }
+            }
+            
+            // Iniciar animação
+            showNextWord();
         }
 
         // Excluir vídeo
