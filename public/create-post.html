@@ -614,6 +614,55 @@
                                 </div>
                             </div>
                         </div>
+                        
+                        <!-- NOVO: Upload de Logo -->
+                        <div class="mt-6">
+                            <div class="bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-400/30 rounded-lg p-4">
+                                <label class="block text-sm font-medium text-white mb-3">
+                                    <i class="fas fa-image mr-2"></i>Logo Sobreposta (Opcional)
+                                </label>
+                                <input type="file" id="logoImage" accept="image/*" class="w-full text-white bg-white/10 border border-white/20 rounded-lg px-3 py-2 mb-3" />
+                                
+                                <!-- Controles de Logo -->
+                                <div id="logoControls" style="display: none;" class="mt-4 space-y-3">
+                                    <div>
+                                        <label class="block text-xs text-white/80 mb-2">
+                                            <i class="fas fa-expand-arrows-alt mr-1"></i>Tamanho da Logo: <span id="logoSizeValue">30%</span>
+                                        </label>
+                                        <input type="range" id="logoSize" min="10" max="80" value="30" class="w-full" />
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-xs text-white/80 mb-2">
+                                            <i class="fas fa-arrows-alt mr-1"></i>Posição Horizontal: <span id="logoXValue">50%</span>
+                                        </label>
+                                        <input type="range" id="logoX" min="0" max="100" value="50" class="w-full" />
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-xs text-white/80 mb-2">
+                                            <i class="fas fa-arrows-alt-v mr-1"></i>Posição Vertical: <span id="logoYValue">50%</span>
+                                        </label>
+                                        <input type="range" id="logoY" min="0" max="100" value="50" class="w-full" />
+                                    </div>
+                                    
+                                    <button 
+                                        id="removeLogo" 
+                                        class="w-full bg-red-500/20 border border-red-400/30 text-red-300 px-4 py-2 rounded-lg hover:bg-red-500/30 transition-colors"
+                                    >
+                                        <i class="fas fa-trash mr-2"></i>Remover Logo
+                                    </button>
+                                </div>
+                                
+                                <div class="mt-3 flex items-start space-x-2">
+                                    <i class="fas fa-info-circle text-blue-300 mt-1"></i>
+                                    <div class="text-xs text-white/70">
+                                        <p><strong>Dica:</strong> Faça upload de uma logo em PNG com fundo transparente para melhor resultado</p>
+                                        <p class="mt-1">A logo será posicionada sobre a imagem de fundo</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
 
@@ -1315,6 +1364,263 @@
                 updatePreview();
             });
 
+        // ============================================
+        // LOGO SOBREPOSTA - NOVA FUNCIONALIDADE
+        // ============================================
+        
+        let selectedLogo = null;
+        let logoSettings = {
+            size: 30,
+            x: 50,
+            y: 50
+        };
+        
+        // Upload de logo
+        const logoImageInput = document.getElementById('logoImage');
+        const logoControls = document.getElementById('logoControls');
+        
+        logoImageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            // Verificar se é imagem
+            if (!file.type.startsWith('image/')) {
+                alert('Por favor, selecione um arquivo de imagem válido!');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                selectedLogo = event.target.result;
+                logoControls.style.display = 'block';
+                updateLogoPreview();
+                console.log('✅ Logo carregada com sucesso!');
+                console.log('📏 Tamanho da logo (base64):', selectedLogo.length, 'caracteres');
+                console.log('🔍 selectedLogo definido globalmente:', typeof selectedLogo, selectedLogo.substring(0, 50) + '...');
+            };
+            reader.readAsDataURL(file);
+        });
+        
+        // Controles de logo
+        document.getElementById('logoSize').addEventListener('input', (e) => {
+            logoSettings.size = e.target.value;
+            document.getElementById('logoSizeValue').textContent = `${e.target.value}%`;
+            updateLogoPreview();
+        });
+        
+        document.getElementById('logoX').addEventListener('input', (e) => {
+            logoSettings.x = e.target.value;
+            document.getElementById('logoXValue').textContent = `${e.target.value}%`;
+            updateLogoPreview();
+        });
+        
+        document.getElementById('logoY').addEventListener('input', (e) => {
+            logoSettings.y = e.target.value;
+            document.getElementById('logoYValue').textContent = `${e.target.value}%`;
+            updateLogoPreview();
+        });
+        
+        document.getElementById('removeLogo').addEventListener('click', () => {
+            selectedLogo = null;
+            logoImageInput.value = '';
+            logoControls.style.display = 'none';
+            logoSettings = { size: 30, x: 50, y: 50 };
+            document.getElementById('logoSize').value = 30;
+            document.getElementById('logoX').value = 50;
+            document.getElementById('logoY').value = 50;
+            updateLogoPreview();
+            console.log('🗑️ Logo removida');
+        });
+        
+        // Atualizar logo no preview
+        function updateLogoPreview() {
+            const canvas = document.getElementById('canvas');
+            if (!canvas) return;
+            
+            // Remover logo anterior se existir
+            const existingLogo = document.getElementById('previewLogo');
+            if (existingLogo) {
+                existingLogo.remove();
+            }
+            
+            // Se não há logo, para por aqui
+            if (!selectedLogo) return;
+            
+            // Criar container para logo com handles
+            const logoContainer = document.createElement('div');
+            logoContainer.id = 'previewLogo';
+            logoContainer.style.cssText = `
+                position: absolute;
+                width: ${logoSettings.size}%;
+                left: ${logoSettings.x}%;
+                top: ${logoSettings.y}%;
+                transform: translate(-50%, -50%);
+                z-index: 100;
+                cursor: move;
+                user-select: none;
+            `;
+            
+            // Criar elemento de logo
+            const logoElement = document.createElement('img');
+            logoElement.src = selectedLogo;
+            logoElement.style.cssText = `
+                width: 100%;
+                height: auto;
+                display: block;
+                object-fit: contain;
+                pointer-events: none;
+            `;
+            
+            // Criar handles de redimensionamento
+            const resizeHandle = document.createElement('div');
+            resizeHandle.className = 'logo-resize-handle';
+            resizeHandle.style.cssText = `
+                position: absolute;
+                bottom: -5px;
+                right: -5px;
+                width: 20px;
+                height: 20px;
+                background: white;
+                border: 2px solid #667eea;
+                border-radius: 50%;
+                cursor: nwse-resize;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+                z-index: 101;
+            `;
+            
+            // Adicionar elementos
+            logoContainer.appendChild(logoElement);
+            logoContainer.appendChild(resizeHandle);
+            
+            // Adicionar ao canvas
+            canvas.style.position = 'relative';
+            canvas.appendChild(logoContainer);
+            
+            // Tornar arrastável
+            makeLogoDraggable(logoContainer, canvas);
+            
+            // Tornar redimensionável
+            makeLogoResizable(logoContainer, resizeHandle, canvas);
+            
+            console.log('🖼️ Logo atualizada no preview (arrastável e redimensionável)');
+        }
+        
+        // Tornar logo arrastável
+        function makeLogoDraggable(logoElement, canvas) {
+            let isDragging = false;
+            let startX, startY, initialX, initialY;
+            
+            logoElement.addEventListener('mousedown', (e) => {
+                // Não iniciar drag se clicar no handle de resize
+                if (e.target.classList.contains('logo-resize-handle')) return;
+                
+                isDragging = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                
+                // Pegar posição atual em pixels
+                const rect = logoElement.getBoundingClientRect();
+                const canvasRect = canvas.getBoundingClientRect();
+                initialX = rect.left + rect.width / 2 - canvasRect.left;
+                initialY = rect.top + rect.height / 2 - canvasRect.top;
+                
+                logoElement.style.cursor = 'grabbing';
+                e.preventDefault();
+            });
+            
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                
+                const deltaX = e.clientX - startX;
+                const deltaY = e.clientY - startY;
+                
+                const canvasRect = canvas.getBoundingClientRect();
+                const newX = initialX + deltaX;
+                const newY = initialY + deltaY;
+                
+                // Converter para porcentagem
+                const xPercent = (newX / canvasRect.width) * 100;
+                const yPercent = (newY / canvasRect.height) * 100;
+                
+                // Limitar aos limites do canvas
+                logoSettings.x = Math.max(0, Math.min(100, xPercent));
+                logoSettings.y = Math.max(0, Math.min(100, yPercent));
+                
+                // Atualizar posição
+                logoElement.style.left = `${logoSettings.x}%`;
+                logoElement.style.top = `${logoSettings.y}%`;
+                
+                // Atualizar sliders
+                document.getElementById('logoX').value = Math.round(logoSettings.x);
+                document.getElementById('logoY').value = Math.round(logoSettings.y);
+                document.getElementById('logoXValue').textContent = `${Math.round(logoSettings.x)}%`;
+                document.getElementById('logoYValue').textContent = `${Math.round(logoSettings.y)}%`;
+            });
+            
+            document.addEventListener('mouseup', () => {
+                if (isDragging) {
+                    isDragging = false;
+                    logoElement.style.cursor = 'move';
+                    console.log(`📍 Logo posicionada em: ${Math.round(logoSettings.x)}%, ${Math.round(logoSettings.y)}%`);
+                }
+            });
+        }
+        
+        // Tornar logo redimensionável
+        function makeLogoResizable(logoContainer, resizeHandle, canvas) {
+            let isResizing = false;
+            let startX, startWidth;
+            
+            resizeHandle.addEventListener('mousedown', (e) => {
+                isResizing = true;
+                startX = e.clientX;
+                const rect = logoContainer.getBoundingClientRect();
+                const canvasRect = canvas.getBoundingClientRect();
+                startWidth = (rect.width / canvasRect.width) * 100;
+                e.stopPropagation();
+                e.preventDefault();
+            });
+            
+            document.addEventListener('mousemove', (e) => {
+                if (!isResizing) return;
+                
+                const deltaX = e.clientX - startX;
+                const canvasRect = canvas.getBoundingClientRect();
+                const deltaPercent = (deltaX / canvasRect.width) * 100;
+                
+                let newSize = startWidth + deltaPercent;
+                newSize = Math.max(10, Math.min(80, newSize)); // Limites
+                
+                logoSettings.size = newSize;
+                logoContainer.style.width = `${newSize}%`;
+                
+                // Atualizar slider
+                document.getElementById('logoSize').value = Math.round(newSize);
+                document.getElementById('logoSizeValue').textContent = `${Math.round(newSize)}%`;
+            });
+            
+            document.addEventListener('mouseup', () => {
+                if (isResizing) {
+                    isResizing = false;
+                    console.log(`📏 Logo redimensionada para: ${Math.round(logoSettings.size)}%`);
+                }
+            });
+            
+            // Redimensionar com scroll do mouse
+            logoContainer.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? -2 : 2;
+                let newSize = logoSettings.size + delta;
+                newSize = Math.max(10, Math.min(80, newSize));
+                
+                logoSettings.size = newSize;
+                logoContainer.style.width = `${newSize}%`;
+                
+                document.getElementById('logoSize').value = Math.round(newSize);
+                document.getElementById('logoSizeValue').textContent = `${Math.round(newSize)}%`;
+            });
+        }
+
         // Selecionar template
         function selectTemplate(template) {
             selectedTemplate = template;
@@ -1597,6 +1903,11 @@
                     if (existingIndicator) {
                         existingIndicator.remove();
                     }
+                }
+                
+                // Atualizar logo se houver
+                if (typeof updateLogoPreview === 'function') {
+                    updateLogoPreview();
                 }
             }
             // Aplicar posicionamento do texto
@@ -4479,6 +4790,16 @@
                 console.log('✅ Canvas final renderizado com sucesso - dimensões corretas aplicadas');
             } catch (error) {
                 console.error('❌ Erro ao renderizar canvas final:', error);
+            }
+            
+            // Adicionar logo ao customizationSettings
+            if (selectedLogo) {
+                customizationSettings.logo = {
+                    image: selectedLogo,
+                    size: logoSettings.size,
+                    x: logoSettings.x,
+                    y: logoSettings.y
+                };
             }
             
             formData.append('customization', JSON.stringify(customizationSettings));

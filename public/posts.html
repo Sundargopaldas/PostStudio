@@ -582,7 +582,10 @@
                 let customStyle = {};
                 if (post.customization) {
                     try {
-                        const customization = JSON.parse(post.customization);
+                        // Se já for objeto, usar direto; se for string, parsear
+                        const customization = typeof post.customization === 'string' 
+                            ? JSON.parse(post.customization) 
+                            : post.customization;
                         customStyle = {
                             font: customization.font || templateStyle.fontFamily,
                             color: customization.color || templateStyle.textColor,
@@ -598,7 +601,8 @@
                             // CORREÇÃO CRÍTICA: Adicionar propriedades que estavam faltando
                             templateDimensions: customization.templateDimensions || null,
                             textPosition: customization.textPosition || 'center',
-                            currentTemplate: customization.currentTemplate || null
+                            currentTemplate: customization.currentTemplate || null,
+                            logo: customization.logo || null // 🖼️ LOGO ADICIONADA!
                         };
                         
                         // Debug dos elementos do canvas
@@ -802,6 +806,26 @@
                                         }).join('')}
                                     </div>
                                 ` : ''}
+                                
+                                <!-- Logo Sobreposta (DENTRO da mesma div do background) -->
+                                ${(() => {
+                                    if (customStyle.logo) {
+                                        return `
+                                            <img src="${customStyle.logo.image}" 
+                                                 style="position: absolute; 
+                                                        width: ${customStyle.logo.size}%; 
+                                                        height: auto; 
+                                                        left: ${customStyle.logo.x}%; 
+                                                        top: ${customStyle.logo.y}%; 
+                                                        transform: translate(-50%, -50%); 
+                                                        z-index: 500; 
+                                                        object-fit: contain; 
+                                                        pointer-events: none;" 
+                                                 alt="Logo" />
+                                        `;
+                                    }
+                                    return '';
+                                })()}
                             </div>
                             
                             <!-- Conteúdo adicional (vídeos, imagens, etc.) -->
@@ -946,7 +970,10 @@
                 postsToDisplay.forEach(post => {
                     if (post.customization) {
                         try {
-                            const customization = JSON.parse(post.customization);
+                            // Se já for objeto, usar direto; se for string, parsear
+                            const customization = typeof post.customization === 'string' 
+                                ? JSON.parse(post.customization) 
+                                : post.customization;
                             if (customization.videoCaption) {
                                 const video = document.getElementById(`video-${post.id}`);
                                 const videoCaptionFont = customization.videoCaptionFont || 'Arial';
@@ -1320,7 +1347,10 @@
                 let narrationData = null;
                 if (post.customization) {
                     try {
-                        const customization = JSON.parse(post.customization);
+                        // Se já for objeto, usar direto; se for string, parsear
+                        const customization = typeof post.customization === 'string' 
+                            ? JSON.parse(post.customization) 
+                            : post.customization;
                         console.log('🔍 Customização parseada:', customization);
                         narrationData = customization.narration;
                     } catch (e) {
@@ -1438,7 +1468,10 @@
                 let narrationData = null;
                 if (post.customization) {
                     try {
-                        const customization = JSON.parse(post.customization);
+                        // Se já for objeto, usar direto; se for string, parsear
+                        const customization = typeof post.customization === 'string' 
+                            ? JSON.parse(post.customization) 
+                            : post.customization;
                         narrationData = customization.narration;
                     } catch (e) {
                         console.error('❌ Erro ao parsear customização:', e);

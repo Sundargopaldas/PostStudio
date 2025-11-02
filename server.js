@@ -74,6 +74,23 @@ const upload = multer({
     }
 });
 
+// Garantir que o diretório uploads existe
+async function ensureUploadsDirectory() {
+    try {
+        await fs.access('uploads');
+        console.log('✅ Diretório uploads existe');
+    } catch {
+        console.log('📁 Criando diretório uploads...');
+        await fs.mkdir('uploads', { recursive: true });
+        console.log('✅ Diretório uploads criado com sucesso');
+    }
+}
+
+// Criar diretório uploads ao iniciar
+ensureUploadsDirectory().catch(err => {
+    console.error('❌ Erro ao criar diretório uploads:', err);
+});
+
 // Testar conexão com o banco
 async function testDatabaseConnection() {
     try {
@@ -1469,10 +1486,10 @@ app.post('/api/posts/json', upload.single('image'), async (req, res) => {
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
         `;
         
-        // Limitar tamanho do JSON de customização
+        // Limitar tamanho do JSON de customização (aumentado para suportar logos em Base64)
         let finalCustomization = JSON.stringify(customizationData);
-        if (finalCustomization.length > 10000) {
-            console.log('⚠️ Customização muito grande, truncando...');
+        if (finalCustomization.length > 500000) { // Limite: 500KB
+            console.log('⚠️ Customização muito grande (>500KB), truncando...');
             finalCustomization = JSON.stringify({ 
                 error: 'Customização muito grande', 
                 originalSize: finalCustomization.length 
@@ -1554,11 +1571,10 @@ app.post('/api/posts', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'v
         if (req.body.customization) {
             try {
                 const customization = JSON.parse(req.body.customization);
-                console.log('🔍 Customização parseada no servidor:', customization);
-                console.log('🔍 Vídeo na customização:', customization.video);
-                console.log('🔍 Legenda na customização:', customization.videoCaption);
-                console.log('🔍 Narração na customização:', customization.narration);
-                console.log('🔍 POSIÇÃO DO TEXTO NO SERVIDOR:', customization.textPosition);
+                console.log('🔍 Customização recebida com', Object.keys(customization).length, 'propriedades');
+                if (customization.logo) {
+                    console.log('🖼️ Logo incluída no post');
+                }
             } catch (e) {
                 console.error('❌ Erro ao parsear customização no servidor:', e);
             }
@@ -2331,7 +2347,20 @@ app.get('/api/posts', async (req, res) => {
                 'SELECT * FROM posts WHERE user_id = ? ORDER BY created_at DESC',
                 [req.session.userId]
             );
-            posts = rows;
+            
+            // Parsear customization de STRING para OBJETO
+            posts = rows.map(post => {
+                if (post.customization && typeof post.customization === 'string') {
+                    try {
+                        post.customization = JSON.parse(post.customization);
+                    } catch (e) {
+                        console.error(`❌ Erro ao parsear customização do post ${post.id}:`, e);
+                        post.customization = {};
+                    }
+                }
+                return post;
+            });
+            
             console.log(`📊 ${posts.length} posts encontrados no banco de dados`);
         } catch (dbError) {
             console.log('🔄 Banco não disponível, usando modo demo...');
