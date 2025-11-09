@@ -611,6 +611,57 @@
             cursor: pointer;
             transition: all 0.3s ease;
         }
+        
+        /* Slideshow Styles */
+        .slideshow-upload-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            padding: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+            position: relative;
+        }
+        
+        .slideshow-upload-box:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: scale(1.02);
+        }
+        
+        .slideshow-upload-box.has-image {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        .slideshow-preview {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        
+        .slideshow-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .slideshow-dot.active {
+            background: #fff;
+            transform: scale(1.3);
+        }
 
         .close-modal:hover,
         .close-modal:focus {
@@ -749,6 +800,12 @@
                     <!-- Botão Logo -->
                     <button onclick="openModal('logoModal')" class="control-btn">
                         <span><i class="fas fa-stamp"></i> LOGO</span>
+                        <i class="fas fa-arrow-right arrow"></i>
+                    </button>
+
+                    <!-- Botão Slide de Imagens -->
+                    <button onclick="openSlideshowModal()" class="control-btn" style="background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);">
+                        <span><i class="fas fa-images"></i> SLIDE DE IMAGENS</span>
                         <i class="fas fa-arrow-right arrow"></i>
                     </button>
 
@@ -1097,13 +1154,6 @@
                         <i class="fas fa-upload mr-2"></i>Imagem de Fundo Personalizada
                     </label>
                     <input type="file" id="backgroundImage" accept="image/*" class="w-full text-white bg-white/10 border border-white/20 rounded-lg px-3 py-2" />
-                    <div class="mt-3 flex items-start space-x-2">
-                        <i class="fas fa-info-circle text-blue-300 mt-1"></i>
-                        <div class="text-xs text-white/70">
-                            <p><strong>Dica:</strong> Use imagens com baixo contraste para não interferir na legibilidade do texto</p>
-                            <p class="mt-1">Formatos aceitos: JPG, PNG, GIF (até 10MB)</p>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -1374,6 +1424,92 @@
         </div>
     </div>
 
+    <!-- Modal Slideshow -->
+    <div id="slideshowModal" class="modal">
+        <div class="modal-content" style="max-width: 900px;">
+            <span class="close-modal" onclick="closeSlideshowModal()">&times;</span>
+            <h3 class="text-2xl font-bold text-white mb-6">
+                <i class="fas fa-images mr-2"></i>Slide de Imagens
+            </h3>
+            <p class="text-white/80 mb-6">Faça upload de exatamente 4 imagens para criar um slideshow</p>
+            
+            <!-- Upload de 4 imagens -->
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="slideshow-upload-box" id="slideUploadBox1" onclick="document.getElementById('slideImg1').click()">
+                    <input type="file" id="slideImg1" accept="image/*" style="display: none;" onchange="handleSlideImageUpload(1, this)">
+                    <i class="fas fa-cloud-upload-alt text-4xl text-white/40 mb-2"></i>
+                    <p class="text-white/60 text-sm">Imagem 1</p>
+                    <img id="slidePreview1" class="slideshow-preview" style="display: none;">
+                </div>
+                <div class="slideshow-upload-box" id="slideUploadBox2" onclick="document.getElementById('slideImg2').click()">
+                    <input type="file" id="slideImg2" accept="image/*" style="display: none;" onchange="handleSlideImageUpload(2, this)">
+                    <i class="fas fa-cloud-upload-alt text-4xl text-white/40 mb-2"></i>
+                    <p class="text-white/60 text-sm">Imagem 2</p>
+                    <img id="slidePreview2" class="slideshow-preview" style="display: none;">
+                </div>
+                <div class="slideshow-upload-box" id="slideUploadBox3" onclick="document.getElementById('slideImg3').click()">
+                    <input type="file" id="slideImg3" accept="image/*" style="display: none;" onchange="handleSlideImageUpload(3, this)">
+                    <i class="fas fa-cloud-upload-alt text-4xl text-white/40 mb-2"></i>
+                    <p class="text-white/60 text-sm">Imagem 3</p>
+                    <img id="slidePreview3" class="slideshow-preview" style="display: none;">
+                </div>
+                <div class="slideshow-upload-box" id="slideUploadBox4" onclick="document.getElementById('slideImg4').click()">
+                    <input type="file" id="slideImg4" accept="image/*" style="display: none;" onchange="handleSlideImageUpload(4, this)">
+                    <i class="fas fa-cloud-upload-alt text-4xl text-white/40 mb-2"></i>
+                    <p class="text-white/60 text-sm">Imagem 4</p>
+                    <img id="slidePreview4" class="slideshow-preview" style="display: none;">
+                </div>
+            </div>
+            
+            <!-- Preview do Slideshow -->
+            <div class="bg-black/50 rounded-xl p-6 mb-6" id="slideshowPreviewContainer" style="display: none;">
+                <div class="flex items-center justify-between mb-4">
+                    <h4 class="text-white font-bold">
+                        <i class="fas fa-play-circle mr-2"></i>Preview do Slideshow
+                    </h4>
+                    <div class="flex gap-2">
+                        <button onclick="toggleSlideshowPreview()" id="slideshowPlayPauseBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                            <i class="fas fa-play mr-1"></i> Play
+                        </button>
+                        <button onclick="resetSlideshowPreview()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors">
+                            <i class="fas fa-redo mr-1"></i> Reiniciar
+                        </button>
+                    </div>
+                </div>
+                <div class="relative aspect-video bg-gray-900 rounded-lg overflow-hidden">
+                    <img id="slideshowActiveImage" class="w-full h-full object-cover" style="opacity: 0; transition: opacity 0.5s ease-in-out;">
+                    <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
+                        <span class="slideshow-dot active" data-index="0"></span>
+                        <span class="slideshow-dot" data-index="1"></span>
+                        <span class="slideshow-dot" data-index="2"></span>
+                        <span class="slideshow-dot" data-index="3"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Informações -->
+            <div class="bg-blue-500/10 border border-blue-400/30 rounded-lg p-4 mb-6">
+                <div class="flex items-start space-x-2">
+                    <i class="fas fa-info-circle text-blue-300 mt-1"></i>
+                    <div class="text-xs text-white/80">
+                        <p class="font-bold mb-1">Como funciona:</p>
+                        <ul class="list-disc list-inside space-y-1">
+                            <li>Cada imagem aparecerá por 4 segundos</li>
+                            <li>Transição suave com fade-in/fade-out</li>
+                            <li>O slideshow reinicia automaticamente</li>
+                            <li>Formatos aceitos: JPG, PNG (máx. 5MB cada)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Botão Aplicar -->
+            <button onclick="applySlideshowToPost()" id="applySlideshowBtn" class="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold py-3 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                <i class="fas fa-check mr-2"></i>Aplicar Slideshow ao Post
+            </button>
+        </div>
+    </div>
+
     <!-- Loading Overlay -->
     <div id="loadingOverlay" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden" style="z-index: 2000;">
         <div class="glass-effect rounded-2xl p-8 text-center">
@@ -1588,6 +1724,34 @@
                                             updateLogoPreview();
                                         }
                                     }, 900);
+                                }
+                                
+                                // CORREÇÃO: Restaurar slideshow quando editar
+                                if (custom.slideshow && custom.slideshow.enabled && custom.slideshow.images) {
+                                    console.log('🎬 Restaurando slideshow:', custom.slideshow);
+                                    
+                                    // Restaurar imagens do slideshow
+                                    slideshowImages = custom.slideshow.images;
+                                    customizationSettings.slideshow = {
+                                        enabled: true,
+                                        images: custom.slideshow.images,
+                                        interval: custom.slideshow.interval || 4000
+                                    };
+                                    
+                                    // Atualizar preview do slideshow no modal
+                                    const slideshowPreviewSection = document.querySelector('.slideshow-preview');
+                                    if (slideshowPreviewSection) {
+                                        slideshowPreviewSection.style.display = 'block';
+                                        const activeImage = document.getElementById('slideshowActiveImage');
+                                        if (activeImage && slideshowImages.length > 0) {
+                                            activeImage.src = slideshowImages[0];
+                                        }
+                                    }
+                                    
+                                    // Aplicar slideshow ao canvas principal
+                                    setTimeout(() => {
+                                        applySlideshowToCanvas();
+                                    }, 1000);
                                 }
                                 
                                 // Video functionality moved to /create-video page
@@ -6500,6 +6664,16 @@
             // Debug: Verificar se filtro está nas configurações
             console.log('📊 customizationSettings antes de enviar:', customizationSettings);
             console.log('🎨 Filtro de imagem nas configurações:', customizationSettings.imageFilter);
+            console.log('🎬 SLIDESHOW nas configurações:', customizationSettings.slideshow);
+            
+            if (customizationSettings.slideshow) {
+                console.log('✅ SLIDESHOW DETECTADO!');
+                console.log('  - Enabled:', customizationSettings.slideshow.enabled);
+                console.log('  - Images:', customizationSettings.slideshow.images ? customizationSettings.slideshow.images.length : 0);
+                console.log('  - Interval:', customizationSettings.slideshow.interval);
+            } else {
+                console.log('❌ SLIDESHOW NÃO DETECTADO!');
+            }
             
             formData.append('customization', JSON.stringify(customizationSettings));
             
@@ -6637,6 +6811,247 @@
                 document.getElementById('loadingOverlay').classList.add('hidden');
             }
         });
+
+        // ========== SLIDESHOW FUNCTIONS ==========
+        
+        let slideshowImages = [];
+        let slideshowInterval = null;
+        let currentSlideIndex = 0;
+        let isSlideshowPlaying = false;
+        
+        // Abrir modal de slideshow
+        function openSlideshowModal() {
+            document.getElementById('slideshowModal').style.display = 'flex';
+            resetSlideshowData();
+        }
+        
+        // Fechar modal de slideshow
+        function closeSlideshowModal() {
+            document.getElementById('slideshowModal').style.display = 'none';
+            stopSlideshowPreview();
+            resetSlideshowData();
+        }
+        
+        // Resetar dados do slideshow
+        function resetSlideshowData() {
+            slideshowImages = [];
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById(`slideImg${i}`).value = '';
+                document.getElementById(`slidePreview${i}`).style.display = 'none';
+                document.getElementById(`slidePreview${i}`).src = '';
+                document.getElementById(`slideUploadBox${i}`).classList.remove('has-image');
+                // Restaurar ícone e texto
+                document.getElementById(`slideUploadBox${i}`).innerHTML = `
+                    <input type="file" id="slideImg${i}" accept="image/*" style="display: none;" onchange="handleSlideImageUpload(${i}, this)">
+                    <i class="fas fa-cloud-upload-alt text-4xl text-white/40 mb-2"></i>
+                    <p class="text-white/60 text-sm">Imagem ${i}</p>
+                    <img id="slidePreview${i}" class="slideshow-preview" style="display: none;">
+                `;
+            }
+            document.getElementById('slideshowPreviewContainer').style.display = 'none';
+            document.getElementById('applySlideshowBtn').disabled = true;
+            stopSlideshowPreview();
+        }
+        
+        // Handle upload de imagem
+        async function handleSlideImageUpload(index, input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            // Validar tamanho (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Arquivo muito grande! Tamanho máximo: 5MB');
+                input.value = '';
+                return;
+            }
+            
+            // Validar tipo
+            if (!file.type.startsWith('image/')) {
+                alert('Por favor, selecione uma imagem válida');
+                input.value = '';
+                return;
+            }
+            
+            // Ler arquivo
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64 = e.target.result;
+                slideshowImages[index - 1] = base64;
+                
+                // Mostrar preview
+                const preview = document.getElementById(`slidePreview${index}`);
+                const box = document.getElementById(`slideUploadBox${index}`);
+                preview.src = base64;
+                preview.style.display = 'block';
+                box.classList.add('has-image');
+                
+                // Esconder ícone e texto
+                box.querySelector('.fa-cloud-upload-alt').style.display = 'none';
+                box.querySelector('p').style.display = 'none';
+                
+                // Verificar se todas as 4 imagens foram carregadas
+                checkAllImagesUploaded();
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // Verificar se todas as imagens foram carregadas
+        function checkAllImagesUploaded() {
+            const allUploaded = slideshowImages.filter(img => img).length === 4;
+            
+            if (allUploaded) {
+                document.getElementById('slideshowPreviewContainer').style.display = 'block';
+                document.getElementById('applySlideshowBtn').disabled = false;
+                // Iniciar preview automaticamente
+                setTimeout(() => {
+                    startSlideshowPreview();
+                }, 300);
+            }
+        }
+        
+        // Iniciar preview do slideshow
+        function startSlideshowPreview() {
+            if (slideshowImages.length < 4) return;
+            
+            isSlideshowPlaying = true;
+            currentSlideIndex = 0;
+            
+            const activeImage = document.getElementById('slideshowActiveImage');
+            const playPauseBtn = document.getElementById('slideshowPlayPauseBtn');
+            
+            playPauseBtn.innerHTML = '<i class="fas fa-pause mr-1"></i> Pausar';
+            
+            // Mostrar primeira imagem
+            showSlideImage(0);
+            
+            // Iniciar intervalo
+            slideshowInterval = setInterval(() => {
+                currentSlideIndex = (currentSlideIndex + 1) % 4;
+                showSlideImage(currentSlideIndex);
+            }, 4000); // 4 segundos por imagem
+        }
+        
+        // Parar preview do slideshow
+        function stopSlideshowPreview() {
+            if (slideshowInterval) {
+                clearInterval(slideshowInterval);
+                slideshowInterval = null;
+            }
+            isSlideshowPlaying = false;
+            
+            const playPauseBtn = document.getElementById('slideshowPlayPauseBtn');
+            if (playPauseBtn) {
+                playPauseBtn.innerHTML = '<i class="fas fa-play mr-1"></i> Play';
+            }
+        }
+        
+        // Mostrar imagem específica com transição suave
+        function showSlideImage(index) {
+            const activeImage = document.getElementById('slideshowActiveImage');
+            const dots = document.querySelectorAll('.slideshow-dot');
+            
+            // Fade out suave (500ms)
+            activeImage.style.transition = 'opacity 0.5s ease-in-out';
+            activeImage.style.opacity = '0';
+            
+            // Aguardar fade out completar antes de trocar imagem
+            setTimeout(() => {
+                activeImage.src = slideshowImages[index];
+                
+                // Fade in suave (500ms)
+                setTimeout(() => {
+                    activeImage.style.opacity = '1';
+                }, 50);
+                
+                // Atualizar dots
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle('active', i === index);
+                });
+            }, 500);
+        }
+        
+        // Toggle play/pause
+        function toggleSlideshowPreview() {
+            if (isSlideshowPlaying) {
+                stopSlideshowPreview();
+            } else {
+                startSlideshowPreview();
+            }
+        }
+        
+        // Resetar preview
+        function resetSlideshowPreview() {
+            stopSlideshowPreview();
+            currentSlideIndex = 0;
+            const activeImage = document.getElementById('slideshowActiveImage');
+            activeImage.style.opacity = '0';
+            
+            const dots = document.querySelectorAll('.slideshow-dot');
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === 0);
+            });
+        }
+        
+        // Aplicar slideshow ao post
+        function applySlideshowToPost() {
+            if (slideshowImages.filter(img => img).length !== 4) {
+                alert('Por favor, faça upload de todas as 4 imagens');
+                return;
+            }
+            
+            // Salvar no customizationSettings
+            customizationSettings.slideshow = {
+                enabled: true,
+                images: slideshowImages,
+                interval: 4000 // 4 segundos
+            };
+            
+            // Aplicar ao canvas de preview
+            applySlideshowToCanvas();
+            
+            // Fechar modal
+            closeSlideshowModal();
+            
+            alert('✅ Slideshow aplicado com sucesso!');
+        }
+        
+        // Aplicar slideshow ao canvas com transição suave
+        function applySlideshowToCanvas() {
+            const canvas = document.getElementById('canvas');
+            if (!canvas || !customizationSettings.slideshow) return;
+            
+            let currentIndex = 0;
+            
+            // Função para atualizar fundo com fade
+            function updateBackground() {
+                if (!customizationSettings.slideshow || !customizationSettings.slideshow.enabled) return;
+                
+                const images = customizationSettings.slideshow.images;
+                
+                // Fade out suave
+                canvas.style.opacity = '0';
+                canvas.style.transition = 'opacity 0.5s ease-in-out';
+                
+                // Aguardar fade out completar antes de trocar imagem
+                setTimeout(() => {
+                    canvas.style.backgroundImage = `url(${images[currentIndex]})`;
+                    canvas.style.backgroundSize = 'cover';
+                    canvas.style.backgroundPosition = 'center';
+                    
+                    // Fade in suave
+                    setTimeout(() => {
+                        canvas.style.opacity = '1';
+                    }, 50);
+                    
+                    currentIndex = (currentIndex + 1) % images.length;
+                }, 500);
+            }
+            
+            // Iniciar slideshow
+            updateBackground();
+            setInterval(updateBackground, customizationSettings.slideshow.interval);
+        }
+        
     </script>
     
     <!-- Modal de �cones -->
