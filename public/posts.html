@@ -428,6 +428,40 @@
             showNextWord();
         }
 
+        // Helper para verificar se uma URL de vídeo é válida
+        function isValidVideoUrl(url) {
+            if (!url) return false;
+            if (typeof url !== 'string') return false;
+            if (url === '') return false;
+            if (url === 'null' || url === 'undefined') return false;
+            // Verificar se começa com http/https ou blob ou /uploads
+            return url.startsWith('http') || url.startsWith('blob:') || url.startsWith('/uploads/');
+        }
+
+        // Helper para verificar se um post é um vídeo
+        function isPostVideo(post) {
+            if (!post.customization) return false;
+            
+            // Verificar se customização é inválida
+            if (post.customization === '[object Object]' || post.customization === 'undefined') {
+                return false;
+            }
+            
+            try {
+                let customization;
+                if (typeof post.customization === 'string') {
+                    customization = JSON.parse(post.customization);
+                } else {
+                    customization = post.customization;
+                }
+                
+                // Considerar vídeo se tem URL de vídeo válida
+                return !!customization.video && isValidVideoUrl(customization.video);
+            } catch (e) {
+                return false;
+            }
+        }
+
         // Carregar posts
         async function loadPosts() {
             try {
@@ -451,9 +485,13 @@
                 console.log('📡 Response OK?', response.ok);
                 
                 if (response.ok) {
-                    const posts = await response.json();
-                    console.log('📊 Posts recebidos:', posts);
-                    console.log('📊 Número de posts:', posts.length);
+                    const allPosts = await response.json();
+                    console.log('📊 Todos os posts recebidos:', allPosts.length);
+                    
+                    // FILTRAR: Excluir posts que são vídeos
+                    const posts = allPosts.filter(post => !isPostVideo(post));
+                    console.log('📊 Posts (excluindo vídeos):', posts.length);
+                    console.log('📊 Vídeos excluídos:', allPosts.length - posts.length);
                     
                     if (posts.length > 0) {
                         console.log('✅ Exibindo posts...');
@@ -482,7 +520,10 @@
                         // Tentar carregar posts novamente
                         const retryResponse = await fetch('/api/posts');
                         if (retryResponse.ok) {
-                            const posts = await retryResponse.json();
+                            const allPosts = await retryResponse.json();
+                            // FILTRAR: Excluir posts que são vídeos
+                            const posts = allPosts.filter(post => !isPostVideo(post));
+                            console.log('📊 Posts após retry (excluindo vídeos):', posts.length);
                             displayPosts(posts);
                         } else {
                             console.log('⚠️ Ainda não autenticado após login automático');
