@@ -5982,27 +5982,35 @@
                 ctx.fillStyle = '#ffffff';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 
-                // CORRE��O: Renderizar imagem de fundo se existir
                 const previewCanvas = document.getElementById('canvas');
-                if (previewCanvas) {
-                    const backgroundImage = previewCanvas.style.backgroundImage;
-                    if (backgroundImage && backgroundImage !== 'none') {
-                        console.log('??? Renderizando imagem de fundo:', backgroundImage);
-                        // Para agora, vamos apenas logar - em uma implementa��o completa,
-                        // voc� carregaria a imagem e a desenharia no canvas
-                    }
-                }
-                
-                // Obter elementos do canvas de preview
                 if (!previewCanvas) {
-                    console.error('❌❌❌ ERRO: Canvas de preview n�o encontrado!');
-                    console.error('❌ RETORNANDO CANVAS SEM ELEMENTOS - ESTE É O PROBLEMA!');
+                    console.error('❌ Canvas de preview não encontrado');
                     resolve(canvas.toDataURL('image/png'));
                     return;
                 }
                 
-                const elements = previewCanvas.querySelectorAll('.draggable-element');
-                console.log('?? Elementos encontrados para renderizar:', elements.length);
+                // Capturar título e conteúdo AGORA
+                const title = titleParam || document.getElementById('postTitle')?.value || '';
+                const content = contentParam || document.getElementById('postContent')?.value || '';
+                console.log('📝 TEXTO CAPTURADO:', title, content);
+                
+                // Verificar se há slideshow ou imagem de fundo
+                let backgroundImageURL = null;
+                if (customizationSettings.slideshow && customizationSettings.slideshow.enabled && customizationSettings.slideshow.images && customizationSettings.slideshow.images.length > 0) {
+                    backgroundImageURL = customizationSettings.slideshow.images[0];
+                    console.log('🎬 SLIDESHOW DETECTADO! Usando primeira imagem');
+                } else if (previewCanvas.style.backgroundImage && previewCanvas.style.backgroundImage !== 'none') {
+                    const match = previewCanvas.style.backgroundImage.match(/url\(["']?([^"']*)["']?\)/);
+                    if (match && match[1]) {
+                        backgroundImageURL = match[1];
+                        console.log('🖼️ IMAGEM DE FUNDO DETECTADA');
+                    }
+                }
+                
+                // Função para renderizar resto (formas + texto)
+                function renderRestOfCanvas() {
+                    const elements = previewCanvas.querySelectorAll('.draggable-element');
+                    console.log('?? Elementos encontrados:', elements.length);
                 
                 // CORREÇÃO CRÍTICA: Renderizar TODAS as formas ANTES do texto
                 // O texto sempre será renderizado por último para garantir que apareça por cima
@@ -6310,6 +6318,27 @@
                     // Se não houver logo, renderizar texto IMEDIATAMENTE após todas as formas
                     console.log('📝 Não há logo, renderizando texto POR ÚLTIMO após todas as formas');
                     renderTextOnCanvas();
+                }
+                } // Fim de renderRestOfCanvas()
+                
+                // CARREGAR IMAGEM DE FUNDO E DEPOIS RENDERIZAR RESTO
+                if (backgroundImageURL) {
+                    console.log('📷 Carregando imagem de fundo...');
+                    const bgImg = new Image();
+                    bgImg.crossOrigin = 'anonymous';
+                    bgImg.onload = () => {
+                        console.log('✅ Imagem carregada! Desenhando...');
+                        ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+                        console.log('✅ Imagem desenhada! Renderizando texto...');
+                        renderRestOfCanvas();
+                    };
+                    bgImg.onerror = (err) => {
+                        console.error('❌ Erro ao carregar imagem:', err);
+                        renderRestOfCanvas(); // Continuar mesmo sem imagem
+                    };
+                    bgImg.src = backgroundImageURL;
+                } else {
+                    renderRestOfCanvas();
                 }
             });
         }
