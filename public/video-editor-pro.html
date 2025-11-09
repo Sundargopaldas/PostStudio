@@ -241,14 +241,29 @@
             opacity: 0;
             transition: opacity 0.3s ease;
             line-height: 1.4;
-            max-height: 60px;
-            overflow: hidden;
+            max-height: 200px; /* Aumentado para comportar textos longos */
+            overflow-y: auto; /* Permite scroll se necessário */
+            overflow-x: hidden; /* Evita scroll horizontal */
             z-index: 10;
             pointer-events: none;
+            /* Quebra de linha automática para textos longos */
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: normal;
         }
         
         .caption-overlay.show {
             opacity: 1;
+        }
+        
+        /* Garantir que o texto dentro da legenda também quebre corretamente */
+        .caption-overlay span,
+        #captionTextDisplay {
+            display: inline-block;
+            width: 100%;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: normal;
         }
         
         /* Estilo para narração */
@@ -598,9 +613,23 @@
                                     id="voiceSelect" 
                                     class="w-full px-4 py-3 rounded-lg bg-white/20 border border-white/30 text-white focus:outline-none focus:ring-2 focus:ring-white/50"
                                 >
-                                    <option value="ohZOfA9iwlZ5nOsoY7LB">🎤 Sua Voz 1</option>
-                                    <option value="oJebhZNaPllxk6W0LSBA">🎤 Sua Voz 2</option>
-                                    <option value="liAlPCvGDJ0qsfPupueo">🎤 Sua Voz 3</option>
+                                    <!-- Vozes ElevenLabs Originais -->
+                                    <option value="21m00Tcm4TlvDq8ikWAM">Rachel</option>
+                                    <option value="AZnzlk1XvdvUeBnXmlld">Domi</option>
+                                    <option value="EXAVITQu4vr4xnSDxMaL">Bella</option>
+                                    <option value="ErXwobaYiN019PkySvjV">Antoni</option>
+                                    <option value="MF3mGyEYCl7XYWbV9V6O">Elli</option>
+                                    <option value="TxGEqnHWrfWFTfGW9XjX">Josh</option>
+                                    <option value="VR6AewLTigWG4xSOukaG">Arnold</option>
+                                    <option value="pNInz6obpgDQGcFmaJgB">Adam</option>
+                                    <option value="yoZ06aMxZJJ28mfd3POQ">Sam</option>
+                                    
+                                    <!-- Vozes Personalizadas -->
+                                    <option value="Qrdut83w0Cr152Yb4Xn3">🎤 Voice 1</option>
+                                    <option value="YU8EsJtXFMyKMxYtheDk">🎤 Voice 2</option>
+                                    <option value="TzryZkieeczAsBkDJXcH">🎤 Voice 3</option>
+                                    <option value="y3X5crcIDtFawPx7bcNq">🎤 Voice 4</option>
+                                    <option value="eUAnqvLQWNX29twcYLUM">🎤 Voice 5</option>
                                 </select>
                             </div>
                             

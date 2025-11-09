@@ -180,7 +180,7 @@
                 </div>
                 <div class="flex flex-wrap gap-4">
                     <div class="flex space-x-2">
-                        <button onclick="window.location.href='/create-post'" class="bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition-all transform hover:scale-105">
+                        <button onclick="window.location.href='/create-post-new'" class="bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition-all transform hover:scale-105">
                             <i class="fas fa-plus mr-2"></i>Novo Post
                         </button>
                         <button onclick="window.location.href='/dashboard'" class="bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-all transform hover:scale-105">
@@ -215,7 +215,7 @@
             <i class="fas fa-file-alt text-6xl text-white/50 mb-4"></i>
             <h3 class="text-2xl font-bold text-white mb-2">Nenhum post encontrado</h3>
             <p class="text-white/80 mb-6">Crie seu primeiro post para começar!</p>
-            <button onclick="window.location.href='/create-post'" class="bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition-all">
+            <button onclick="window.location.href='/create-post-new'" class="bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition-all">
                 <i class="fas fa-plus mr-2"></i>Criar Primeiro Post
             </button>
         </div>
@@ -602,7 +602,8 @@
                             templateDimensions: customization.templateDimensions || null,
                             textPosition: customization.textPosition || 'center',
                             currentTemplate: customization.currentTemplate || null,
-                            logo: customization.logo || null // 🖼️ LOGO ADICIONADA!
+                            logo: customization.logo || null, // 🖼️ LOGO ADICIONADA!
+                            imageFilter: customization.imageFilter || null // 🎨 FILTRO DE IMAGEM ADICIONADO!
                         };
                         
                         // Debug dos elementos do canvas
@@ -735,6 +736,9 @@
                 console.log(`📝 Título do post:`, post.title);
                 console.log(`📝 Conteúdo do post:`, post.content);
                 console.log(`📝 CustomStyle completo:`, customStyle);
+                console.log(`🎨 Background aplicado:`, customStyle.background);
+                console.log(`🖼️ BackgroundImage:`, customStyle.backgroundImage);
+                console.log(`🎨 ImageFilter:`, customStyle.imageFilter);
                 console.log(`📝 Post completo:`, post);
                 console.log(`📝 Título sendo renderizado:`, post.title);
                 console.log(`📝 Conteúdo sendo renderizado:`, post.content);
@@ -766,14 +770,33 @@
                     });
                 }
                 
+                // SOLUÇÃO DEFINITIVA: Se temos image_url (finalCanvas), usar a imagem diretamente
+                console.log('🖼️ Verificando image_url:', post.image_url);
+                const useDirectImage = post.image_url && post.image_url.includes('final-canvas');
+                console.log('🎯 Usar imagem direta?', useDirectImage);
+                
                 // Criar o card do post
-                postCard.innerHTML = `
-                    <div class="relative">
-                        <div>
-                            <!-- SOLUÇÃO FINAL - COM BACKGROUND -->
-                            <div class="mb-6 rounded-xl overflow-hidden shadow-lg ${customStyle.background || 'bg-gradient-to-br from-blue-400 to-purple-500'}" style="width: ${customStyle.templateDimensions ? customStyle.templateDimensions.previewWidth + 'px' : '100%'}; max-width: ${customStyle.templateDimensions ? customStyle.templateDimensions.previewWidth + 'px' : '640px'}; height: ${customStyle.templateDimensions ? customStyle.templateDimensions.previewHeight + 'px' : '400px'}; background-position: center; background-size: cover; background-repeat: no-repeat; ${customStyle.backgroundImage ? `background-image: url('${customStyle.backgroundImage}');` : ''} display: flex; flex-direction: column; align-items: center; text-align: center; padding: 24px; ${customStyle.textPosition === 'top' ? 'justify-content: flex-start;' : customStyle.textPosition === 'bottom' ? 'justify-content: flex-end;' : 'justify-content: center;'} position: relative;">
-                                <h3 class="text-2xl font-bold ${resolvedFontClass} mb-4" style="${resolvedFontStyle} color: ${customStyle.color} !important; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">${post.title}</h3>
-                                <p class="text-base leading-relaxed ${resolvedFontClass}" style="${resolvedFontStyle} color: ${customStyle.color} !important; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">${post.content.substring(0, 200)}${post.content.length > 200 ? '...' : ''}</p>
+                if (useDirectImage) {
+                    // USAR IMAGEM FINAL RENDERIZADA (contém texto e formas)
+                    console.log('✅ Usando imagem final renderizada:', post.image_url);
+                    postCard.innerHTML = `
+                        <div class="relative">
+                            <div>
+                                <!-- IMAGEM FINAL RENDERIZADA (com texto) -->
+                                <div class="mb-6 rounded-xl overflow-hidden shadow-lg" style="width: ${customStyle.templateDimensions ? customStyle.templateDimensions.previewWidth + 'px' : '100%'}; max-width: ${customStyle.templateDimensions ? customStyle.templateDimensions.previewWidth + 'px' : '640px'}; height: ${customStyle.templateDimensions ? customStyle.templateDimensions.previewHeight + 'px' : '400px'};">
+                                    <img src="${post.image_url}" alt="${post.title}" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                                </div>
+                `;
+                } else {
+                    // RECRIAR POST (método antigo, para posts sem finalCanvas)
+                    console.log('⚠️ Recriando post (sem finalCanvas)');
+                    postCard.innerHTML = `
+                        <div class="relative">
+                            <div>
+                                <!-- SOLUÇÃO FINAL - COM BACKGROUND -->
+                                <div class="mb-6 rounded-xl overflow-hidden shadow-lg ${customStyle.backgroundImage ? '' : (customStyle.background || 'bg-gradient-to-br from-blue-400 to-purple-500')}" style="width: ${customStyle.templateDimensions ? customStyle.templateDimensions.previewWidth + 'px' : '100%'}; max-width: ${customStyle.templateDimensions ? customStyle.templateDimensions.previewWidth + 'px' : '640px'}; height: ${customStyle.templateDimensions ? customStyle.templateDimensions.previewHeight + 'px' : '400px'}; background-position: center; background-size: cover; background-repeat: no-repeat; ${customStyle.backgroundImage ? `background-image: url('${customStyle.backgroundImage}');` : ''} ${customStyle.imageFilter === 'grayscale' ? 'filter: grayscale(100%);' : customStyle.imageFilter === 'sepia' ? 'filter: sepia(80%);' : ''} display: flex; flex-direction: column; align-items: center; text-align: center; padding: 24px; ${customStyle.textPosition === 'top' ? 'justify-content: flex-start;' : customStyle.textPosition === 'bottom' ? 'justify-content: flex-end;' : 'justify-content: center;'} position: relative;">
+                                    <h3 class="text-2xl font-bold ${resolvedFontClass} mb-4" style="${resolvedFontStyle} color: ${customStyle.color} !important; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">${post.title}</h3>
+                                    <p class="text-base leading-relaxed ${resolvedFontClass}" style="${resolvedFontStyle} color: ${customStyle.color} !important; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">${post.content.substring(0, 200)}${post.content.length > 200 ? '...' : ''}</p>
                                 
                                 <!-- Elementos do Canvas (formas, ícones, etc.) -->
                                 ${customStyle.canvasElements && customStyle.canvasElements.length > 0 ? `
@@ -784,22 +807,30 @@
                                                 left: element.position.left,
                                                 top: element.position.top,
                                                 width: element.style.width,
-                                                height: element.style.height
+                                                height: element.style.height,
+                                                zIndex: element.position.zIndex || element.style.zIndex || '400'
                                             });
+                                            // CORREÇÃO: Usar z-index salvo do elemento
+                                            const elementZIndex = element.position.zIndex || element.style.zIndex || '400';
+                                            
                                             if (element.type === 'icon') {
-                                                return `<div class="absolute flex items-center justify-center" style="left: ${element.position.left}; top: ${element.position.top}; z-index: 400; width: ${element.style.width}; height: ${element.style.height}; opacity: ${element.style.opacity};">
+                                                return `<div class="absolute flex items-center justify-center" style="left: ${element.position.left}; top: ${element.position.top}; z-index: ${elementZIndex}; width: ${element.style.width}; height: ${element.style.height}; opacity: ${element.style.opacity || '1'};">
                                                     <i data-lucide="${element.iconName}" class="w-6 h-6" style="color: #3b82f6; width: 24px; height: 24px;"></i>
                                                 </div>`;
                                             } else if (element.type === 'circle') {
-                                                return `<div class="absolute flex items-center justify-center text-white text-sm font-medium" style="left: ${element.position.left}; top: ${element.position.top}; z-index: 400; width: ${element.style.width}; height: ${element.style.height}; background-color: ${element.style.backgroundColor}; border-radius: 50%; opacity: ${element.style.opacity};">
-                                                    ${element.content}
+                                                // CORREÇÃO: Para círculos, usar apenas texto (sem HTML de handles)
+                                                const textContent = typeof element.content === 'string' ? element.content : '';
+                                                return `<div class="absolute flex items-center justify-center text-white text-sm font-medium" style="left: ${element.position.left}; top: ${element.position.top}; z-index: ${elementZIndex}; width: ${element.style.width}; height: ${element.style.height}; background-color: ${element.style.backgroundColor}; border-radius: 50%; opacity: ${element.style.opacity || '1'};">
+                                                    ${textContent}
                                                 </div>`;
                                             } else if (element.type === 'rectangle') {
-                                                return `<div class="absolute flex items-center justify-center text-white text-sm font-medium" style="left: ${element.position.left}; top: ${element.position.top}; z-index: 400; width: ${element.style.width}; height: ${element.style.height}; background-color: ${element.style.backgroundColor}; border-radius: 8px; opacity: ${element.style.opacity};">
-                                                    ${element.content}
+                                                // CORREÇÃO: Para retângulos, usar apenas texto (sem HTML de handles)
+                                                const textContent = typeof element.content === 'string' ? element.content : '';
+                                                return `<div class="absolute flex items-center justify-center text-white text-sm font-medium" style="left: ${element.position.left}; top: ${element.position.top}; z-index: ${elementZIndex}; width: ${element.style.width}; height: ${element.style.height}; background-color: ${element.style.backgroundColor}; border-radius: 8px; opacity: ${element.style.opacity || '1'};">
+                                                    ${textContent}
                                                 </div>`;
                                             } else if (element.type === 'line') {
-                                                return `<div class="absolute" style="left: ${element.position.left}; top: ${element.position.top}; z-index: 400; width: ${element.style.width}; height: ${element.style.height}; background-color: ${element.style.backgroundColor}; opacity: ${element.style.opacity};">
+                                                return `<div class="absolute" style="left: ${element.position.left}; top: ${element.position.top}; z-index: ${elementZIndex}; width: ${element.style.width}; height: ${element.style.height}; background-color: ${element.style.backgroundColor}; opacity: ${element.style.opacity || '1'};">
                                                 </div>`;
                                             }
                                             return '';
@@ -881,7 +912,7 @@
                                                 'Arial': 'Arial'
                                             };
                                             const fontName = fontMap[customStyle.videoCaptionFont] || customStyle.videoCaptionFont || 'Arial';
-                                            return `<div id="videoCaption-${post.id}" class="absolute bottom-4 left-4 right-4 text-white text-sm px-3 py-2 z-10" style="font-family: '${fontName}', sans-serif; word-wrap: break-word; max-width: calc(100% - 2rem); max-height: 80px; overflow: hidden; line-height: 1.3; text-align: center; background: transparent; border: none; font-size: 0.85rem; font-weight: 400;"></div>`;
+                                            return `<div id="videoCaption-${post.id}" class="absolute bottom-4 left-4 right-4 text-white text-sm px-3 py-2 z-10" style="font-family: '${fontName}', sans-serif; word-wrap: break-word; overflow-wrap: break-word; white-space: normal; max-width: calc(100% - 2rem); max-height: 250px; overflow-y: auto; overflow-x: hidden; line-height: 1.4; text-align: center; background: rgba(0,0,0,0.7); border: none; font-size: 0.85rem; font-weight: 400; border-radius: 8px;"></div>`;
                                         } else {
                                             console.log('❌ Não criando elemento de legenda');
                                             return '';
@@ -892,28 +923,25 @@
                                 ` : ''}
                                 
                                 <!-- Imagens parciais removidas - apenas imagens de fundo -->
-                                
-                                <!-- Imagem de post separada (se não for parcial) -->
-                                ${post.image_url && post.image_url !== '' && post.image_url !== 'imagem_uploaded' && !customStyle.partialImage ? `
-                                    <div class="mt-4">
-                                        <img src="${post.image_url}" alt="Imagem do post" class="w-full h-64 object-cover rounded-xl border border-white/20">
-                                    </div>
-                                ` : ''}
-                            </div>
-                            
-                            <!-- Hashtags (sem ícones) -->
-                            ${post.hashtags ? `
-                                <div class="mb-4">
-                                    <p class="text-sm font-inter" style="color: ${customStyle.color} !important">${post.hashtags}</p>
-                                </div>
-                            ` : ''}
-                            
-                            <!-- Footer sem data -->
-                            <div class="flex items-center justify-between pt-4">
-                                <div></div>
-                                <div></div>
                             </div>
                         </div>
+                    </div>
+                `;
+                }
+                
+                // Adicionar informações extras do post (hashtags, etc.) - FORA do if/else
+                postCard.innerHTML += `
+                    <!-- Hashtags (sem ícones) -->
+                    ${post.hashtags ? `
+                        <div class="mb-4">
+                            <p class="text-sm font-inter text-white/80">${post.hashtags}</p>
+                        </div>
+                    ` : ''}
+                    
+                    <!-- Footer sem data -->
+                    <div class="flex items-center justify-between pt-4">
+                        <div></div>
+                        <div></div>
                     </div>
                 `;
                 
@@ -1124,8 +1152,8 @@
                 console.warn('Falha ao salvar dados no sessionStorage', e);
             }
             
-            // Redirecionar para a página principal de criação/edição
-            window.location.href = `/create-post?edit=${encodeURIComponent(postId)}`;
+            // Redirecionar para a página principal de criação/edição (NOVA)
+            window.location.href = `/create-post-new?edit=${encodeURIComponent(postId)}`;
         }
 
         // Deletar post

@@ -105,7 +105,12 @@ class ElevenLabsNarration {
             { voice_id: 'TxGEqnHWrfWFTfGW9XjX', name: 'Josh', category: 'premade' },
             { voice_id: 'VR6AewLTigWG4xSOukaG', name: 'Arnold', category: 'premade' },
             { voice_id: 'pNInz6obpgDQGcFmaJgB', name: 'Adam', category: 'premade' },
-            { voice_id: 'yoZ06aMxZJJ28mfd3POQ', name: 'Sam', category: 'premade' }
+            { voice_id: 'yoZ06aMxZJJ28mfd3POQ', name: 'Sam', category: 'premade' },
+            { voice_id: 'Qrdut83w0Cr152Yb4Xn3', name: 'Voice 1', category: 'premade' },
+            { voice_id: 'YU8EsJtXFMyKMxYtheDk', name: 'Voice 2', category: 'premade' },
+            { voice_id: 'TzryZkieeczAsBkDJXcH', name: 'Voice 3', category: 'premade' },
+            { voice_id: 'y3X5crcIDtFawPx7bcNq', name: 'Voice 4', category: 'premade' },
+            { voice_id: 'eUAnqvLQWNX29twcYLUM', name: 'Voice 5', category: 'premade' }
         ];
     }
 

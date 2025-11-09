@@ -288,8 +288,13 @@ app.get('/dashboard', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 
+// Redirecionar rota antiga para a nova
 app.get('/create-post', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'create-post.html'));
+    res.redirect('/create-post-new');
+});
+
+app.get('/create-post-new', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'create-post-new.html'));
 });
 
 app.get('/posts', (req, res) => {
@@ -316,18 +321,16 @@ app.get('/payment-success', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'payment-success.html'));
 });
 
+// Rotas de debug e teste de posts redirecionadas
 app.get('/debug-posts', (req, res) => {
-    // Redirecionar para a página principal de posts
     res.redirect('/posts');
 });
 
 app.get('/simple-posts', (req, res) => {
-    // Redirecionar para a página principal de posts
     res.redirect('/posts');
 });
 
 app.get('/force-login-posts', (req, res) => {
-    // Redirecionar para a página principal de posts
     res.redirect('/posts');
 });
 
@@ -339,29 +342,26 @@ app.get('/debug-404', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'debug-404.html'));
 });
 
+// Rotas obsoletas redirecionadas para a nova página
 app.get('/create-post-simple', (req, res) => {
-    // Redirecionar para a página principal de criação de posts (customização avançada)
-    res.redirect('/create-post');
+    res.redirect('/create-post-new');
 });
 
 app.get('/input-test', (req, res) => {
-    // Redirecionar para criação principal
-    res.redirect('/create-post');
+    res.redirect('/create-post-new');
 });
 
 app.get('/basic-test', (req, res) => {
-    // Redirecionar para criação principal
-    res.redirect('/create-post');
+    res.redirect('/create-post-new');
 });
 
 app.get('/working-test', (req, res) => {
-    // Redirecionar para criação principal
-    res.redirect('/create-post');
+    res.redirect('/create-post-new');
 });
 
 app.get('/visual-editor', (req, res) => {
-    // Unificar criação de posts na página de customização avançada
-    res.sendFile(path.join(__dirname, 'public', 'create-post.html'));
+    // Redirecionar para a nova página de criação
+    res.redirect('/create-post-new');
 });
 
 // Página dedicada para criação de vídeo dinâmico
@@ -1572,6 +1572,7 @@ app.post('/api/posts', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'v
             try {
                 const customization = JSON.parse(req.body.customization);
                 console.log('🔍 Customização recebida com', Object.keys(customization).length, 'propriedades');
+                console.log('🎨 Filtro de imagem:', customization.imageFilter || 'NÃO ENCONTRADO');
                 if (customization.logo) {
                     console.log('🖼️ Logo incluída no post');
                 }
@@ -1588,11 +1589,46 @@ app.post('/api/posts', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'v
         const platforms = req.body.platforms;
         const customization = req.body.customization;
         
+        // NOVO: Processar finalCanvas (imagem final renderizada)
+        let finalCanvasUrl = '';
+        if (req.body.finalCanvas) {
+            try {
+                console.log('🖼️🖼️🖼️ PROCESSANDO FINAL CANVAS - Tamanho:', req.body.finalCanvas.length);
+                console.log('🖼️ Primeiros 100 caracteres:', req.body.finalCanvas.substring(0, 100));
+                
+                // Extrair dados base64 da imagem
+                const base64Data = req.body.finalCanvas.replace(/^data:image\/png;base64,/, '');
+                const buffer = Buffer.from(base64Data, 'base64');
+                console.log('📦 Buffer criado, tamanho:', buffer.length, 'bytes');
+                
+                // Gerar nome único para a imagem
+                const filename = `final-canvas-${Date.now()}-${Math.random().toString(36).substring(7)}.png`;
+                const filepath = path.join(__dirname, 'public', 'uploads', filename);
+                console.log('📁 Salvando em:', filepath);
+                
+                // Salvar imagem (usando fs síncrono)
+                const fsSync = require('fs');
+                fsSync.writeFileSync(filepath, buffer);
+                finalCanvasUrl = `/uploads/${filename}`;
+                console.log('✅✅✅ FINAL CANVAS SALVO COM SUCESSO:', finalCanvasUrl);
+            } catch (error) {
+                console.error('❌❌❌ Erro ao salvar finalCanvas:', error);
+            }
+        } else {
+            console.log('⚠️ Nenhum finalCanvas recebido no body');
+        }
+        
         // Processar imagem se foi enviada
         let imageUrl = '';
         if (req.files && req.files.image && req.files.image[0]) {
             imageUrl = `/uploads/${req.files.image[0].filename}`;
             console.log('📸 Imagem salva:', imageUrl);
+        }
+        
+        // Se temos finalCanvas, usar ele como imagem principal
+        if (finalCanvasUrl) {
+            imageUrl = finalCanvasUrl;
+            console.log('🎯 Usando finalCanvas como imagem principal:', imageUrl);
         }
 
         // Processar vídeo se foi enviado
@@ -1908,6 +1944,17 @@ app.put('/api/posts/:id', upload.fields([{ name: 'image', maxCount: 1 }, { name:
         if (!req.session.userId) {
             console.log('❌ Usuário não autenticado');
             return res.status(401).json({ message: 'Usuário não autenticado' });
+        }
+        
+        // Debug específico da customização na atualização
+        if (customization) {
+            try {
+                const custom = JSON.parse(customization);
+                console.log('🔍 Customização recebida na atualização com', Object.keys(custom).length, 'propriedades');
+                console.log('🎨 Filtro de imagem:', custom.imageFilter || 'NÃO ENCONTRADO');
+            } catch (e) {
+                console.error('❌ Erro ao parsear customização na atualização:', e);
+            }
         }
 
         if (!title || !content) {

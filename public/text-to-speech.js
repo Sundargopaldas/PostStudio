@@ -58,13 +58,30 @@ class TextToSpeechManager {
             
         } catch (error) {
             console.error('❌ Erro ao carregar vozes:', error);
-            // Fallback voices em português
+            // Fallback voices - ElevenLabs + Português
             this.voices = [
-                { voice_id: 'pt-br-female-1', name: 'Ana (Feminina)', category: 'portuguese', gender: 'female', language: 'pt-BR' },
-                { voice_id: 'pt-br-male-1', name: 'João (Masculina)', category: 'portuguese', gender: 'male', language: 'pt-BR' },
-                { voice_id: 'pt-br-neutral-1', name: 'Alex (Neutra)', category: 'portuguese', gender: 'neutral', language: 'pt-BR' }
+                // Vozes ElevenLabs Originais
+                { voice_id: '21m00Tcm4TlvDq8ikWAM', name: 'Rachel', category: 'premade' },
+                { voice_id: 'AZnzlk1XvdvUeBnXmlld', name: 'Domi', category: 'premade' },
+                { voice_id: 'EXAVITQu4vr4xnSDxMaL', name: 'Bella', category: 'premade' },
+                { voice_id: 'ErXwobaYiN019PkySvjV', name: 'Antoni', category: 'premade' },
+                { voice_id: 'MF3mGyEYCl7XYWbV9V6O', name: 'Elli', category: 'premade' },
+                { voice_id: 'TxGEqnHWrfWFTfGW9XjX', name: 'Josh', category: 'premade' },
+                { voice_id: 'VR6AewLTigWG4xSOukaG', name: 'Arnold', category: 'premade' },
+                { voice_id: 'pNInz6obpgDQGcFmaJgB', name: 'Adam', category: 'premade' },
+                { voice_id: 'yoZ06aMxZJJ28mfd3POQ', name: 'Sam', category: 'premade' },
+                // Vozes Novas Adicionadas
+                { voice_id: 'Qrdut83w0Cr152Yb4Xn3', name: 'Voice 1', category: 'premade' },
+                { voice_id: 'YU8EsJtXFMyKMxYtheDk', name: 'Voice 2', category: 'premade' },
+                { voice_id: 'TzryZkieeczAsBkDJXcH', name: 'Voice 3', category: 'premade' },
+                { voice_id: 'y3X5crcIDtFawPx7bcNq', name: 'Voice 4', category: 'premade' },
+                { voice_id: 'eUAnqvLQWNX29twcYLUM', name: 'Voice 5', category: 'premade' },
+                // Vozes em Português
+                { voice_id: 'pt-br-female-1', name: '🇧🇷 Ana (Feminina)', category: 'portuguese', gender: 'female', language: 'pt-BR' },
+                { voice_id: 'pt-br-male-1', name: '🇧🇷 João (Masculina)', category: 'portuguese', gender: 'male', language: 'pt-BR' },
+                { voice_id: 'pt-br-neutral-1', name: '🇧🇷 Alex (Neutra)', category: 'portuguese', gender: 'neutral', language: 'pt-BR' }
             ];
-            console.log('🔄 Usando vozes de fallback em português:', this.voices.length);
+            console.log('🔄 Usando vozes de fallback (ElevenLabs + Português):', this.voices.length);
         }
     }
 
@@ -81,11 +98,13 @@ class TextToSpeechManager {
             { voice_id: 'pt-br-neutral-2', name: '🇧🇷 Sam (Neutra)', category: 'portuguese', gender: 'neutral', language: 'pt-BR' }
         ];
         
-        // Suas vozes específicas ElevenLabs
+        // Suas vozes específicas ElevenLabs (atualizadas)
         const userSpecificVoices = [
-            { voice_id: 'ohZOfA9iwlZ5nOsoY7LB', name: '🎤 Sua Voz 1', category: 'user', gender: 'unknown', language: 'multilingual' },
-            { voice_id: 'oJebhZNaPllxk6W0LSBA', name: '🎤 Sua Voz 2', category: 'user', gender: 'unknown', language: 'multilingual' },
-            { voice_id: 'liAlPCvGDJ0qsfPupueo', name: '🎤 Sua Voz 3', category: 'user', gender: 'unknown', language: 'multilingual' }
+            { voice_id: 'Qrdut83w0Cr152Yb4Xn3', name: '🎤 Voice 1', category: 'user', gender: 'unknown', language: 'multilingual' },
+            { voice_id: 'YU8EsJtXFMyKMxYtheDk', name: '🎤 Voice 2', category: 'user', gender: 'unknown', language: 'multilingual' },
+            { voice_id: 'TzryZkieeczAsBkDJXcH', name: '🎤 Voice 3', category: 'user', gender: 'unknown', language: 'multilingual' },
+            { voice_id: 'y3X5crcIDtFawPx7bcNq', name: '🎤 Voice 4', category: 'user', gender: 'unknown', language: 'multilingual' },
+            { voice_id: 'eUAnqvLQWNX29twcYLUM', name: '🎤 Voice 5', category: 'user', gender: 'unknown', language: 'multilingual' }
         ];
         
         console.log('🎤 Vozes originais da ElevenLabs:', apiVoices.length);

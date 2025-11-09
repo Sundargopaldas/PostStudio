@@ -191,6 +191,29 @@
         let videos = [];
         let currentPlayingVideo = null;
 
+        // Helper para parsear customização com segurança
+        function parseCustomization(customization) {
+            if (!customization) return null;
+            
+            // Se for string inválida, retornar null
+            if (customization === '[object Object]' || customization === 'undefined') {
+                return null;
+            }
+            
+            // Se já for objeto, retornar diretamente
+            if (typeof customization === 'object') {
+                return customization;
+            }
+            
+            // Se for string, tentar parsear
+            try {
+                return JSON.parse(customization);
+            } catch (e) {
+                console.error('❌ Erro ao parsear customização:', e);
+                return null;
+            }
+        }
+
         // Inicialização
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🎬 Carregando página de vídeos...');
@@ -215,8 +238,16 @@
                             return false;
                         }
                         
+                        // Verificar se customização é inválida
+                        if (post.customization === '[object Object]' || post.customization === 'undefined') {
+                            console.warn('⚠️ Customização inválida para post:', post.title);
+                            return false;
+                        }
+                        
                         try {
-                            const customization = JSON.parse(post.customization);
+                            const customization = parseCustomization(post.customization);
+                            if (!customization) return false;
+                            
                             const hasVideo = !!customization.video;
                             const hasCaption = !!customization.videoCaption;
                             const hasNarration = !!customization.narration;
@@ -265,7 +296,8 @@
             noVideosMessage.classList.add('hidden');
             
             container.innerHTML = videos.map(video => {
-                const customization = JSON.parse(video.customization);
+                const customization = parseCustomization(video.customization);
+                if (!customization) return '';
                 const hasCaption = !!customization.videoCaption;
                 const hasNarration = !!customization.narration;
                 
@@ -412,7 +444,8 @@
                 const video = videos.find(v => v.id === videoId);
                 if (!video) return;
                 
-                const customization = JSON.parse(video.customization);
+                const customization = parseCustomization(video.customization);
+                if (!customization) return;
                 const narration = customization.narration;
                 
                 if (!narration) return;
@@ -537,7 +570,8 @@
                 const videoObj = videos.find(v => v.id === videoId);
                 if (!videoObj) return;
                 
-                const customization = JSON.parse(videoObj.customization);
+                const customization = parseCustomization(videoObj.customization);
+                if (!customization) return;
                 const caption = customization.videoCaption;
                 const captionFont = customization.videoCaptionFont || 'Arial';
                 
