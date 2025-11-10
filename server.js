@@ -1550,7 +1550,13 @@ app.post('/api/posts/json', upload.single('image'), async (req, res) => {
 
 
 // Rota para criar posts com upload de imagem
-app.post('/api/posts', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'video', maxCount: 1 }, { name: 'backgroundImage', maxCount: 1 }, { name: 'narrationAudio', maxCount: 1 }]), async (req, res) => {
+app.post('/api/posts', upload.fields([
+    { name: 'image', maxCount: 1 }, 
+    { name: 'video', maxCount: 1 }, 
+    { name: 'backgroundImage', maxCount: 1 }, 
+    { name: 'narrationAudio', maxCount: 1 },
+    { name: 'finalCanvas', maxCount: 1 }  // NOVO: aceitar finalCanvas como arquivo
+]), async (req, res) => {
     try {
         console.log('📝 POST /api/posts - Iniciando criação de post');
         console.log('📊 Dados recebidos:', {
@@ -1589,33 +1595,26 @@ app.post('/api/posts', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'v
         const platforms = req.body.platforms;
         const customization = req.body.customization;
         
-        // NOVO: Processar finalCanvas (imagem final renderizada)
+        // NOVO: Processar finalCanvas (imagem final renderizada como ARQUIVO)
+        console.log('🔍🔍🔍 DEBUG - Verificando req.files.finalCanvas:', !!req.files?.finalCanvas);
+        console.log('🔍 Keys do req.files:', req.files ? Object.keys(req.files) : 'nenhum arquivo');
+        
         let finalCanvasUrl = '';
-        if (req.body.finalCanvas) {
+        if (req.files && req.files.finalCanvas && req.files.finalCanvas[0]) {
             try {
-                console.log('🖼️🖼️🖼️ PROCESSANDO FINAL CANVAS - Tamanho:', req.body.finalCanvas.length);
-                console.log('🖼️ Primeiros 100 caracteres:', req.body.finalCanvas.substring(0, 100));
-                
-                // Extrair dados base64 da imagem
-                const base64Data = req.body.finalCanvas.replace(/^data:image\/png;base64,/, '');
-                const buffer = Buffer.from(base64Data, 'base64');
-                console.log('📦 Buffer criado, tamanho:', buffer.length, 'bytes');
-                
-                // Gerar nome único para a imagem
-                const filename = `final-canvas-${Date.now()}-${Math.random().toString(36).substring(7)}.png`;
-                const filepath = path.join(__dirname, 'public', 'uploads', filename);
-                console.log('📁 Salvando em:', filepath);
-                
-                // Salvar imagem (usando fs síncrono)
-                const fsSync = require('fs');
-                fsSync.writeFileSync(filepath, buffer);
-                finalCanvasUrl = `/uploads/${filename}`;
+                const finalCanvasFile = req.files.finalCanvas[0];
+                finalCanvasUrl = `/uploads/${finalCanvasFile.filename}`;
                 console.log('✅✅✅ FINAL CANVAS SALVO COM SUCESSO:', finalCanvasUrl);
+                console.log('📦 Tamanho do arquivo:', finalCanvasFile.size, 'bytes');
+                console.log('📦 Nome do arquivo:', finalCanvasFile.filename);
             } catch (error) {
-                console.error('❌❌❌ Erro ao salvar finalCanvas:', error);
+                console.error('❌❌❌ Erro ao processar finalCanvas:', error);
+                console.error('❌ Stack:', error.stack);
             }
         } else {
-            console.log('⚠️ Nenhum finalCanvas recebido no body');
+            console.error('❌❌❌ NENHUM finalCanvas recebido no req.files!');
+            console.error('❌ Verifique se o frontend está enviando o campo "finalCanvas" como Blob');
+            console.error('❌ Keys disponíveis no files:', req.files ? Object.keys(req.files) : 'nenhum');
         }
         
         // Processar imagem se foi enviada
@@ -1628,7 +1627,10 @@ app.post('/api/posts', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'v
         // Se temos finalCanvas, usar ele como imagem principal
         if (finalCanvasUrl) {
             imageUrl = finalCanvasUrl;
-            console.log('🎯 Usando finalCanvas como imagem principal:', imageUrl);
+            console.log('🎯🎯🎯 Usando finalCanvas como image_url:', imageUrl);
+            console.log('🎯 Substituindo imageUrl de', imageUrl === finalCanvasUrl ? '(vazio)' : imageUrl, 'para', finalCanvasUrl);
+        } else {
+            console.log('⚠️ Nenhum finalCanvas disponível, usando imageUrl padrão:', imageUrl || '(vazio)');
         }
 
         // Processar vídeo se foi enviado
@@ -1916,7 +1918,13 @@ app.post('/api/posts', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'v
 });
 
 // Atualizar post existente
-app.put('/api/posts/:id', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'video', maxCount: 1 }, { name: 'backgroundImage', maxCount: 1 }, { name: 'narrationAudio', maxCount: 1 }]), async (req, res) => {
+app.put('/api/posts/:id', upload.fields([
+    { name: 'image', maxCount: 1 }, 
+    { name: 'video', maxCount: 1 }, 
+    { name: 'backgroundImage', maxCount: 1 }, 
+    { name: 'narrationAudio', maxCount: 1 },
+    { name: 'finalCanvas', maxCount: 1 }  // NOVO: aceitar finalCanvas na edição
+]), async (req, res) => {
     try {
         console.log('🔄 PUT /api/posts/:id - Iniciando atualização');
         const postId = req.params.id;
@@ -1961,6 +1969,26 @@ app.put('/api/posts/:id', upload.fields([{ name: 'image', maxCount: 1 }, { name:
             return res.status(400).json({ message: 'Título e conteúdo são obrigatórios' });
         }
 
+        // NOVO: Processar finalCanvas (imagem final renderizada como ARQUIVO) na EDIÇÃO
+        console.log('🔍🔍🔍 DEBUG EDIÇÃO - Verificando req.files.finalCanvas:', !!req.files?.finalCanvas);
+        console.log('🔍 Keys do req.files:', req.files ? Object.keys(req.files) : 'nenhum arquivo');
+        
+        let finalCanvasUrl = '';
+        if (req.files && req.files.finalCanvas && req.files.finalCanvas[0]) {
+            try {
+                const finalCanvasFile = req.files.finalCanvas[0];
+                finalCanvasUrl = `/uploads/${finalCanvasFile.filename}`;
+                console.log('✅✅✅ FINAL CANVAS SALVO COM SUCESSO (EDIÇÃO):', finalCanvasUrl);
+                console.log('📦 Tamanho do arquivo:', finalCanvasFile.size, 'bytes');
+                console.log('📦 Nome do arquivo:', finalCanvasFile.filename);
+            } catch (error) {
+                console.error('❌❌❌ Erro ao processar finalCanvas (EDIÇÃO):', error);
+                console.error('❌ Stack:', error.stack);
+            }
+        } else {
+            console.log('ℹ️ Nenhum finalCanvas recebido na edição');
+        }
+        
         // Processar imagem se enviada
         let imageUrl = undefined;
         if (req.files && req.files.image && req.files.image[0]) {
@@ -2028,6 +2056,15 @@ app.put('/api/posts/:id', upload.fields([{ name: 'image', maxCount: 1 }, { name:
         } else {
             console.log('ℹ️ Nenhuma nova imagem enviada - mantendo imagem atual');
         }
+        
+        // Se temos finalCanvas, usar ele como imagem principal (EDIÇÃO)
+        if (finalCanvasUrl) {
+            imageUrl = finalCanvasUrl;
+            console.log('🎯🎯🎯 Usando finalCanvas como image_url (EDIÇÃO):', imageUrl);
+        } else if (imageUrl) {
+            console.log('⚠️ Nenhum finalCanvas disponível na edição, usando imageUrl padrão:', imageUrl);
+        }
+        
         let videoUrl = undefined;
         if (req.files && req.files.video && req.files.video[0]) {
             console.log('🎬 Novo vídeo detectado - iniciando processo de substituição');

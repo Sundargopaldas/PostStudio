@@ -863,7 +863,7 @@
                                 <div id="canvas" class="rounded-xl overflow-hidden shadow-lg" style="position: relative; width: 100%; height: 400px; background-position: center; background-size: cover; background-repeat: no-repeat;">
                                     <!-- Conteúdo textual sobreposto -->
                                     <div id="previewContent" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; z-index: 100; pointer-events: none;">
-                                        <i class="fas fa-image text-6xl text-white/40 mb-4"></i>
+                                        <p id="previewPlaceholder" class="text-white/50 text-lg">Seu post aparecerá aqui</p>
                                         <h3 id="previewTitle" class="text-2xl font-bold mb-4" style="display: none;">Seu Título Aqui</h3>
                                         <p id="previewText" class="leading-relaxed" style="display: none;">Seu conteúdo aparecerá aqui com a fonte e estilo selecionados...</p>
                                     </div>
@@ -1580,11 +1580,10 @@
                         if (titleInput) titleInput.value = post.title || '';
                         if (contentInput) contentInput.value = post.content || '';
                         
-                        // Esconder ícone e mostrar texto se houver conteúdo
+                        // Esconder placeholder e mostrar texto se houver conteúdo
                         const previewTitle = document.getElementById('previewTitle');
                         const previewText = document.getElementById('previewText');
-                        const previewContent = document.getElementById('previewContent');
-                        const previewIcon = previewContent?.querySelector('.fas.fa-image');
+                        const previewPlaceholder = document.getElementById('previewPlaceholder');
                         
                         if (post.title || post.content) {
                             if (previewTitle && post.title) {
@@ -1595,7 +1594,7 @@
                                 previewText.textContent = post.content;
                                 previewText.style.display = 'block';
                             }
-                            if (previewIcon) previewIcon.style.display = 'none';
+                            if (previewPlaceholder) previewPlaceholder.style.display = 'none';
                         }
                         
                         // Carregar imagem existente do post se houver
@@ -2461,40 +2460,6 @@
                             top: ${absolutePos.y}px;
                         `;
                         
-                        // Adicionar texto se houver
-                        if (elementData.content) {
-                            const textElement = document.createElement('div');
-                            textElement.style.cssText = `
-                                color: white;
-                                font-size: 12px;
-                                font-weight: bold;
-                                text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-                                word-wrap: break-word;
-                                max-width: 90px;
-                                line-height: 1.2;
-                                pointer-events: none;
-                            `;
-                            textElement.textContent = elementData.content;
-                            newElement.appendChild(textElement);
-                            addTextEditFunctionality(newElement, textElement);
-                        } else {
-                            // Criar elemento de texto vazio
-                            const textElement = document.createElement('div');
-                            textElement.style.cssText = `
-                                color: white;
-                                font-size: 12px;
-                                font-weight: bold;
-                                text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-                                word-wrap: break-word;
-                                max-width: 90px;
-                                line-height: 1.2;
-                                pointer-events: none;
-                            `;
-                            textElement.textContent = '';
-                            newElement.appendChild(textElement);
-                            addTextEditFunctionality(newElement, textElement);
-                        }
-                        
                         // Armazenar coordenadas normalizadas
                         newElement.dataset.normalizedLeft = elementData.normalizedPosition.left;
                         newElement.dataset.normalizedTop = elementData.normalizedPosition.top;
@@ -2526,40 +2491,6 @@
                             left: ${absolutePos.x}px;
                             top: ${absolutePos.y}px;
                         `;
-                        
-                        // Adicionar texto se houver
-                        if (elementData.content) {
-                            const textElement = document.createElement('div');
-                            textElement.style.cssText = `
-                                color: white;
-                                font-size: 14px;
-                                font-weight: bold;
-                                text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-                                word-wrap: break-word;
-                                max-width: 140px;
-                                line-height: 1.2;
-                                pointer-events: none;
-                            `;
-                            textElement.textContent = elementData.content;
-                            newElement.appendChild(textElement);
-                            addTextEditFunctionality(newElement, textElement);
-                        } else {
-                            // Criar elemento de texto vazio
-                            const textElement = document.createElement('div');
-                            textElement.style.cssText = `
-                                color: white;
-                                font-size: 14px;
-                                font-weight: bold;
-                                text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-                                word-wrap: break-word;
-                                max-width: 140px;
-                                line-height: 1.2;
-                                pointer-events: none;
-                            `;
-                            textElement.textContent = '';
-                            newElement.appendChild(textElement);
-                            addTextEditFunctionality(newElement, textElement);
-                        }
                         
                         // Armazenar coordenadas normalizadas
                         newElement.dataset.normalizedLeft = elementData.normalizedPosition.left;
@@ -3002,24 +2933,24 @@
             // Atualizar conteúdo se houver
             const titleInput = document.getElementById('postTitle');
             const contentInput = document.getElementById('postContent');
-            const previewIcon = previewContent.querySelector('.fas.fa-image');
+            const previewPlaceholder = document.getElementById('previewPlaceholder');
             
             if (titleInput && titleInput.value) {
                 previewTitle.textContent = titleInput.value;
                 previewTitle.style.display = 'block';
-                if (previewIcon) previewIcon.style.display = 'none';
+                if (previewPlaceholder) previewPlaceholder.style.display = 'none';
             } else {
                 previewTitle.style.display = 'none';
-                if (previewIcon) previewIcon.style.display = 'block';
+                if (previewPlaceholder && !contentInput?.value) previewPlaceholder.style.display = 'block';
             }
             
             if (contentInput && contentInput.value) {
                 previewText.textContent = contentInput.value;
                 previewText.style.display = 'block';
-                if (previewIcon && !titleInput?.value) previewIcon.style.display = 'none';
+                if (previewPlaceholder) previewPlaceholder.style.display = 'none';
             } else {
                 previewText.style.display = 'none';
-                if (previewIcon && !titleInput?.value) previewIcon.style.display = 'block';
+                if (previewPlaceholder && !titleInput?.value) previewPlaceholder.style.display = 'block';
             }
         }
 
@@ -4735,21 +4666,6 @@
             
             console.log('✅ Círculo criado com z-index inicial:', circle.style.zIndex);
             
-            // Adicionar texto ao c�rculo
-            const textElement = document.createElement('div');
-            textElement.style.cssText = `
-                color: white;
-                font-size: 12px;
-                font-weight: bold;
-                text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-                word-wrap: break-word;
-                max-width: 90px;
-                line-height: 1.2;
-                pointer-events: none;
-            `;
-            textElement.textContent = circleText || '';
-            circle.appendChild(textElement);
-            
             // Posicionar no centro do canvas usando coordenadas normalizadas
             const previewDims = CoordinateSystem.getPreviewDimensions();
             const centerX = previewDims.width / 2 - 50; // 50px = metade da largura do c�rculo
@@ -4777,11 +4693,8 @@
             // Tornar draggable
             makeDraggable(circle);
             
-            // Adicionar funcionalidade de edi��o de texto
-            addTextEditFunctionality(circle, textElement);
-            
-            console.log('✅ Círculo com texto adicionado ao canvas');
-            showNotification('Círculo com texto adicionado com sucesso!', 'success');
+            console.log('✅ Círculo adicionado ao canvas');
+            showNotification('Círculo decorativo adicionado com sucesso!', 'success');
         }
 
         // Fun��o para adicionar ret�ngulo ao canvas
@@ -4821,21 +4734,6 @@
             
             console.log('✅ Retângulo criado com z-index inicial:', rectangle.style.zIndex);
             
-            // Adicionar texto ao ret�ngulo
-            const textElement = document.createElement('div');
-            textElement.style.cssText = `
-                color: white;
-                font-size: 14px;
-                font-weight: bold;
-                text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-                word-wrap: break-word;
-                max-width: 140px;
-                line-height: 1.2;
-                pointer-events: none;
-            `;
-            textElement.textContent = rectangleText || '';
-            rectangle.appendChild(textElement);
-            
             // Posicionar no centro do canvas usando coordenadas normalizadas
             const previewDims = CoordinateSystem.getPreviewDimensions();
             const centerX = previewDims.width / 2 - 75; // 75px = metade da largura do ret�ngulo
@@ -4863,11 +4761,8 @@
             // Tornar draggable
             makeDraggable(rectangle);
             
-            // Adicionar funcionalidade de edi��o de texto
-            addTextEditFunctionality(rectangle, textElement);
-            
-            console.log('✅ Retângulo com texto adicionado ao canvas');
-            showNotification('Retângulo com texto adicionado com sucesso!', 'success');
+            console.log('✅ Retângulo adicionado ao canvas');
+            showNotification('Retângulo decorativo adicionado com sucesso!', 'success');
         }
 
         // Fun��o para adicionar linha ao canvas
@@ -5978,8 +5873,75 @@
                     aspectRatio: (originalDims.width / originalDims.height).toFixed(2)
                 });
                 
-                // Preencher fundo branco
-                ctx.fillStyle = '#ffffff';
+                // Renderizar background (gradiente ou cor sólida)
+                const backgroundClass = customizationSettings.background || 'bg-white';
+                console.log('🎨 Background a renderizar:', backgroundClass);
+                
+                // Mapear gradientes Tailwind para Canvas gradients
+                const gradientMap = {
+                    'bg-white': { type: 'solid', color: '#ffffff' },
+                    'bg-gray-100': { type: 'solid', color: '#f3f4f6' },
+                    'bg-gray-900': { type: 'solid', color: '#111827' },
+                    'bg-blue-500': { type: 'solid', color: '#3b82f6' },
+                    'bg-green-500': { type: 'solid', color: '#22c55e' },
+                    'bg-pink-500': { type: 'solid', color: '#ec4899' },
+                    'bg-purple-600': { type: 'solid', color: '#9333ea' },
+                    'bg-indigo-600': { type: 'solid', color: '#4f46e5' },
+                    'bg-yellow-400': { type: 'solid', color: '#facc15' },
+                    'gradient-1': { type: 'linear', colors: ['#3b82f6', '#8b5cf6', '#ec4899'], direction: 'to-br' },
+                    'gradient-2': { type: 'linear', colors: ['#f59e0b', '#ef4444', '#dc2626'], direction: 'to-br' },
+                    'gradient-3': { type: 'linear', colors: ['#10b981', '#3b82f6', '#6366f1'], direction: 'to-br' },
+                    'gradient-4': { type: 'linear', colors: ['#f59e0b', '#f97316', '#dc2626'], direction: 'to-br' },
+                    'gradient-5': { type: 'linear', colors: ['#ec4899', '#8b5cf6', '#3b82f6'], direction: 'to-br' },
+                    'bg-gradient-to-br from-yellow-400 via-orange-500 to-red-500': { type: 'linear', colors: ['#fbbf24', '#f97316', '#ef4444'], direction: 'to-br' },
+                    'bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500': { type: 'linear', colors: ['#60a5fa', '#a855f7', '#ec4899'], direction: 'to-br' },
+                    'bg-gradient-to-br from-green-400 via-teal-500 to-blue-500': { type: 'linear', colors: ['#4ade80', '#14b8a6', '#3b82f6'], direction: 'to-br' },
+                    'bg-gradient-to-br from-indigo-400 via-purple-500 to-pink-500': { type: 'linear', colors: ['#818cf8', '#a855f7', '#ec4899'], direction: 'to-br' },
+                    'bg-gradient-to-br from-emerald-400 via-cyan-500 to-blue-500': { type: 'linear', colors: ['#34d399', '#06b6d4', '#3b82f6'], direction: 'to-br' },
+                    'bg-gradient-to-br from-pink-400 via-red-500 to-orange-500': { type: 'linear', colors: ['#f472b6', '#ef4444', '#f97316'], direction: 'to-br' },
+                    'bg-gradient-to-br from-violet-400 via-purple-500 to-indigo-500': { type: 'linear', colors: ['#a78bfa', '#a855f7', '#6366f1'], direction: 'to-br' },
+                    'bg-gradient-to-br from-rose-400 via-pink-500 to-red-500': { type: 'linear', colors: ['#fb7185', '#ec4899', '#ef4444'], direction: 'to-br' },
+                    'bg-gradient-to-br from-sky-400 via-blue-500 to-indigo-500': { type: 'linear', colors: ['#38bdf8', '#3b82f6', '#6366f1'], direction: 'to-br' },
+                    'bg-gradient-to-br from-lime-400 via-green-500 to-emerald-500': { type: 'linear', colors: ['#a3e635', '#22c55e', '#10b981'], direction: 'to-br' },
+                    'bg-gradient-to-br from-blue-400 to-purple-500': { type: 'linear', colors: ['#60a5fa', '#a855f7'], direction: 'to-br' },
+                    'bg-gradient-to-br from-pink-400 to-red-500': { type: 'linear', colors: ['#f472b6', '#ef4444'], direction: 'to-br' },
+                    'bg-gradient-to-br from-green-400 to-blue-500': { type: 'linear', colors: ['#4ade80', '#3b82f6'], direction: 'to-br' },
+                    'bg-gradient-to-br from-orange-400 to-pink-500': { type: 'linear', colors: ['#fb923c', '#ec4899'], direction: 'to-br' },
+                    'bg-gradient-to-br from-purple-400 to-indigo-500': { type: 'linear', colors: ['#c084fc', '#6366f1'], direction: 'to-br' },
+                    'bg-gradient-to-br from-teal-400 to-green-500': { type: 'linear', colors: ['#2dd4bf', '#22c55e'], direction: 'to-br' },
+                    'bg-gradient-to-br from-orange-300 via-pink-400 to-fuchsia-500': { type: 'linear', colors: ['#fdba74', '#f472b6', '#d946ef'], direction: 'to-br' },
+                    'bg-gradient-to-br from-cyan-400 via-sky-500 to-blue-700': { type: 'linear', colors: ['#22d3ee', '#0ea5e9', '#1d4ed8'], direction: 'to-br' },
+                    'bg-gradient-to-br from-emerald-400 via-green-500 to-teal-600': { type: 'linear', colors: ['#34d399', '#22c55e', '#0d9488'], direction: 'to-br' },
+                    'bg-gradient-to-br from-red-400 via-orange-500 to-yellow-500': { type: 'linear', colors: ['#f87171', '#f97316', '#eab308'], direction: 'to-br' },
+                    'bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500': { type: 'linear', colors: ['#3b82f6', '#a855f7', '#ec4899'], direction: 'to-br' },
+                    'bg-gradient-to-br from-orange-400 via-red-500 to-red-600': { type: 'linear', colors: ['#fb923c', '#ef4444', '#dc2626'], direction: 'to-br' },
+                    'bg-gradient-to-br from-green-400 via-blue-500 to-indigo-500': { type: 'linear', colors: ['#4ade80', '#3b82f6', '#6366f1'], direction: 'to-br' },
+                    'bg-gradient-to-br from-amber-400 via-orange-500 to-red-600': { type: 'linear', colors: ['#fbbf24', '#f97316', '#dc2626'], direction: 'to-br' }
+                };
+                
+                const bgConfig = gradientMap[backgroundClass];
+                
+                if (bgConfig) {
+                    if (bgConfig.type === 'solid') {
+                        // Cor sólida
+                        ctx.fillStyle = bgConfig.color;
+                        console.log('✅ Cor sólida aplicada:', backgroundClass, bgConfig.color);
+                    } else if (bgConfig.type === 'linear') {
+                        // Gradiente linear (de cima-esquerda para baixo-direita)
+                        const canvasGradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+                        bgConfig.colors.forEach((color, index) => {
+                            const stop = index / (bgConfig.colors.length - 1);
+                            canvasGradient.addColorStop(stop, color);
+                        });
+                        ctx.fillStyle = canvasGradient;
+                        console.log('✅ Gradiente aplicado:', backgroundClass);
+                    }
+                } else {
+                    // Fundo branco padrão
+                    ctx.fillStyle = '#ffffff';
+                    console.log('⚠️ Background não mapeado, usando branco:', backgroundClass);
+                }
+                
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 
                 const previewCanvas = document.getElementById('canvas');
@@ -5996,15 +5958,23 @@
                 
                 // Verificar se há slideshow ou imagem de fundo
                 let backgroundImageURL = null;
+                console.log('🔍 Verificando slideshow:', {
+                    hasSlideshow: !!customizationSettings.slideshow,
+                    enabled: customizationSettings.slideshow?.enabled,
+                    imagesCount: customizationSettings.slideshow?.images?.length || 0
+                });
+                
                 if (customizationSettings.slideshow && customizationSettings.slideshow.enabled && customizationSettings.slideshow.images && customizationSettings.slideshow.images.length > 0) {
                     backgroundImageURL = customizationSettings.slideshow.images[0];
-                    console.log('🎬 SLIDESHOW DETECTADO! Usando primeira imagem');
+                    console.log('🎬🎬🎬 SLIDESHOW DETECTADO! Usando primeira imagem:', backgroundImageURL.substring(0, 100));
                 } else if (previewCanvas.style.backgroundImage && previewCanvas.style.backgroundImage !== 'none') {
                     const match = previewCanvas.style.backgroundImage.match(/url\(["']?([^"']*)["']?\)/);
                     if (match && match[1]) {
                         backgroundImageURL = match[1];
-                        console.log('🖼️ IMAGEM DE FUNDO DETECTADA');
+                        console.log('🖼️ IMAGEM DE FUNDO DETECTADA:', backgroundImageURL.substring(0, 100));
                     }
+                } else {
+                    console.log('ℹ️ Nenhuma imagem de fundo ou slideshow detectado');
                 }
                 
                 // Função para renderizar resto (formas + texto)
@@ -6182,56 +6152,56 @@
                         ctx.shadowOffsetX = 0;
                         ctx.shadowOffsetY = 0;
                         
-                        // RENDERIZAR TÍTULO COM FUNDO SEMI-TRANSPARENTE
+                        // RENDERIZAR TÍTULO
                         if (title && title.trim()) {
-                            // Medir texto para criar fundo
                             ctx.font = `bold ${Math.round(canvas.height * 0.08)}px Arial`;
-                            const titleMetrics = ctx.measureText(title);
-                            const titleWidth = titleMetrics.width;
-                            const titleHeight = canvas.height * 0.08;
                             
-                            // Desenhar fundo semi-transparente para o título
-                            ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-                            ctx.fillRect(
-                                (canvas.width - titleWidth) / 2 - 20,
-                                titleY - titleHeight / 2 - 10,
-                                titleWidth + 40,
-                                titleHeight + 20
-                            );
-                            
-                            // Desenhar o título
-                            ctx.fillStyle = textColor;
+                            // Usar a cor selecionada pelo usuário
+                            ctx.fillStyle = textColor || '#1f2937';
                             ctx.textAlign = 'center';
                             ctx.textBaseline = 'middle';
+                            
+                            // Adicionar sombra para ainda mais contraste
+                            ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+                            ctx.shadowBlur = 8;
+                            ctx.shadowOffsetX = 2;
+                            ctx.shadowOffsetY = 2;
                             
                             ctx.fillText(title, canvas.width / 2, titleY);
-                            console.log('✅ TÍTULO RENDERIZADO COM FUNDO:', title);
+                            
+                            // Resetar sombra
+                            ctx.shadowColor = 'transparent';
+                            ctx.shadowBlur = 0;
+                            ctx.shadowOffsetX = 0;
+                            ctx.shadowOffsetY = 0;
+                            
+                            console.log('✅ TÍTULO RENDERIZADO:', title);
                         }
                         
-                        // RENDERIZAR CONTEÚDO COM FUNDO SEMI-TRANSPARENTE
+                        // RENDERIZAR CONTEÚDO
                         if (content && content.trim()) {
-                            // Medir texto para criar fundo
                             ctx.font = `${Math.round(canvas.height * 0.04)}px Arial`;
-                            const contentMetrics = ctx.measureText(content);
-                            const contentWidth = contentMetrics.width;
-                            const contentHeight = canvas.height * 0.04;
                             
-                            // Desenhar fundo semi-transparente para o conteúdo
-                            ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-                            ctx.fillRect(
-                                (canvas.width - contentWidth) / 2 - 20,
-                                contentStartY - contentHeight / 2 - 10,
-                                contentWidth + 40,
-                                contentHeight + 20
-                            );
-                            
-                            // Desenhar o conteúdo
-                            ctx.fillStyle = textColor;
+                            // Usar a cor selecionada pelo usuário
+                            ctx.fillStyle = textColor || '#1f2937';
                             ctx.textAlign = 'center';
                             ctx.textBaseline = 'middle';
                             
+                            // Adicionar sombra para ainda mais contraste
+                            ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+                            ctx.shadowBlur = 8;
+                            ctx.shadowOffsetX = 2;
+                            ctx.shadowOffsetY = 2;
+                            
                             ctx.fillText(content, canvas.width / 2, contentStartY);
-                            console.log('✅ CONTEÚDO RENDERIZADO COM FUNDO:', content);
+                            
+                            // Resetar sombra
+                            ctx.shadowColor = 'transparent';
+                            ctx.shadowBlur = 0;
+                            ctx.shadowOffsetX = 0;
+                            ctx.shadowOffsetY = 0;
+                            
+                            console.log('✅ CONTEÚDO RENDERIZADO:', content);
                         }
                         
                         console.log('✅ Texto renderizado COM SUCESSO como última camada!');
@@ -6323,21 +6293,25 @@
                 
                 // CARREGAR IMAGEM DE FUNDO E DEPOIS RENDERIZAR RESTO
                 if (backgroundImageURL) {
-                    console.log('📷 Carregando imagem de fundo...');
+                    console.log('📷📷📷 Carregando imagem de fundo/slideshow...');
+                    console.log('📷 URL da imagem:', backgroundImageURL);
                     const bgImg = new Image();
                     bgImg.crossOrigin = 'anonymous';
                     bgImg.onload = () => {
-                        console.log('✅ Imagem carregada! Desenhando...');
+                        console.log('✅ Imagem carregada! Dimensões:', bgImg.width, 'x', bgImg.height);
+                        console.log('✅ Canvas dimensões:', canvas.width, 'x', canvas.height);
                         ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
-                        console.log('✅ Imagem desenhada! Renderizando texto...');
+                        console.log('✅✅✅ Imagem desenhada no canvas! Agora renderizando formas e texto POR CIMA...');
                         renderRestOfCanvas();
                     };
                     bgImg.onerror = (err) => {
-                        console.error('❌ Erro ao carregar imagem:', err);
+                        console.error('❌❌❌ Erro ao carregar imagem:', err);
+                        console.error('❌ URL que falhou:', backgroundImageURL);
                         renderRestOfCanvas(); // Continuar mesmo sem imagem
                     };
                     bgImg.src = backgroundImageURL;
                 } else {
+                    console.log('ℹ️ Sem imagem de fundo, renderizando direto...');
                     renderRestOfCanvas();
                 }
             });
@@ -6364,9 +6338,6 @@
             ctx.beginPath();
             ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
             ctx.fill();
-            
-            // NÃO renderizar texto interno - será renderizado separadamente depois
-            // O texto interno das formas não deve ser renderizado aqui
             
             // IMPORTANTE: Restaurar estado do contexto
             ctx.restore();
@@ -6397,9 +6368,6 @@
             } else {
                 ctx.fillRect(pos.x, pos.y, size.width, size.height);
             }
-            
-            // NÃO renderizar texto interno - será renderizado separadamente depois
-            // O texto interno das formas não deve ser renderizado aqui
             
             // IMPORTANTE: Restaurar estado do contexto
             ctx.restore();
@@ -6463,19 +6431,33 @@
         document.getElementById('createPostForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // Debug: verificar valores dos inputs
-            const title = document.getElementById('postTitle').value;
-            const content = document.getElementById('postContent').value;
+            // Debug: verificar valores dos inputs com FALLBACK para modal
+            let title = document.getElementById('postTitle').value;
+            let content = document.getElementById('postContent').value;
             const hashtags = document.getElementById('hashtags').value;
             
+            // FALLBACK: Pegar do modal CONTEÚDO se campos principais estiverem vazios
+            if (!title) {
+                title = document.getElementById('modalPostTitle')?.value || '';
+                if (title) {
+                    document.getElementById('postTitle').value = title; // Sincronizar
+                }
+            }
+            if (!content) {
+                content = document.getElementById('modalPostContent')?.value || '';
+                if (content) {
+                    document.getElementById('postContent').value = content; // Sincronizar
+                }
+            }
+            
             console.log('?? Debug - Valores capturados:');
-            console.log('T�tulo:', title);
-            console.log('Conte�do:', content);
+            console.log('Título:', title);
+            console.log('Conteúdo:', content);
             console.log('Hashtags:', hashtags);
             
-            // Verificar se os campos est�o vazios
+            // Verificar se os campos estão vazios
             if (!title || !content) {
-                alert('Por favor, preencha o t�tulo e o conte�do!');
+                alert('Por favor, preencha o título e o conteúdo no modal CONTEÚDO!');
                 return;
             }
             
@@ -6546,12 +6528,9 @@
                     
                     // CORREÇÃO: Obter conteúdo de texto sem handles de resize
                     let elementContent = '';
-                    // Para formas geométricas, pegar apenas o texto
+                    // Para formas geométricas (círculos/retângulos), não capturar texto (formas decorativas)
                     if (element.id.startsWith('circle-') || element.id.startsWith('rectangle-')) {
-                        const textElement = element.querySelector('div:not(.shape-resize-handle)');
-                        if (textElement && textElement.textContent && textElement.textContent.trim() !== '') {
-                            elementContent = textElement.textContent.trim();
-                        }
+                        elementContent = ''; // Formas são puramente decorativas
                     } else if (element.id.startsWith('icon-')) {
                         // Para ícones, manter o HTML do ícone mas remover handles
                         const clone = element.cloneNode(true);
@@ -6636,16 +6615,44 @@
                 aspectRatio: currentTemplate.aspectRatio
             };
             
-            // CORREÇÃO: Capturar título e conteúdo ANTES de renderizar o canvas
-            const titleForCanvas = document.getElementById('postTitle')?.value || '';
-            const contentForCanvas = document.getElementById('postContent')?.value || '';
+            // CORREÇÃO: Capturar título e conteúdo de MÚLTIPLAS fontes
+            let titleForCanvas = document.getElementById('postTitle')?.value || '';
+            let contentForCanvas = document.getElementById('postContent')?.value || '';
             
-            console.log('📝 CORREÇÃO CRÍTICA - Texto capturado para renderização:', {
+            // FALLBACK: Tentar pegar do modal se campos principais estiverem vazios
+            if (!titleForCanvas) {
+                titleForCanvas = document.getElementById('modalPostTitle')?.value || '';
+            }
+            if (!contentForCanvas) {
+                contentForCanvas = document.getElementById('modalPostContent')?.value || '';
+            }
+            
+            // FALLBACK 2: Tentar pegar do preview se ainda estiver vazio
+            if (!titleForCanvas) {
+                titleForCanvas = document.getElementById('previewTitle')?.textContent || '';
+            }
+            if (!contentForCanvas) {
+                contentForCanvas = document.getElementById('previewText')?.textContent || '';
+            }
+            
+            console.log('📝📝📝 CORREÇÃO CRÍTICA - Texto capturado para renderização:', {
                 title: titleForCanvas,
                 content: contentForCanvas,
                 titleLength: titleForCanvas.length,
-                contentLength: contentForCanvas.length
+                contentLength: contentForCanvas.length,
+                fontes: {
+                    postTitle: document.getElementById('postTitle')?.value,
+                    modalPostTitle: document.getElementById('modalPostTitle')?.value,
+                    previewTitle: document.getElementById('previewTitle')?.textContent
+                }
             });
+            
+            // ALERTA CRÍTICO: Verificar se título e conteúdo estão vazios
+            if (!titleForCanvas && !contentForCanvas) {
+                console.error('❌❌❌ ERRO CRÍTICO: Título e conteúdo estão VAZIOS em TODAS as fontes!');
+                alert('⚠️ ATENÇÃO: Preencha o Título e Conteúdo no modal CONTEÚDO antes de salvar!');
+                return; // PARAR o salvamento
+            }
             
             // CORRE��O: Renderizar canvas final com formas geom�tricas
             console.log('?? CORRE��O CR�TICA - Iniciando renderiza��o do canvas final...');
@@ -6659,10 +6666,25 @@
             
             try {
                 const finalCanvasDataURL = await renderFinalCanvas(titleForCanvas, contentForCanvas);
-                formData.append('finalCanvas', finalCanvasDataURL);
-                console.log('? Canvas final renderizado com sucesso - dimens�es corretas aplicadas');
+                
+                // Converter base64 para Blob para enviar como arquivo
+                const byteString = atob(finalCanvasDataURL.split(',')[1]);
+                const mimeString = finalCanvasDataURL.split(',')[0].split(':')[1].split(';')[0];
+                const ab = new ArrayBuffer(byteString.length);
+                const ia = new Uint8Array(ab);
+                for (let i = 0; i < byteString.length; i++) {
+                    ia[i] = byteString.charCodeAt(i);
+                }
+                const blob = new Blob([ab], { type: mimeString });
+                
+                // Adicionar como arquivo ao FormData
+                formData.append('finalCanvas', blob, 'final-canvas.png');
+                
+                console.log('✅✅✅ Canvas final renderizado com sucesso - dimensões corretas aplicadas');
+                console.log('📤📤📤 ENVIANDO finalCanvas para servidor como Blob - Tamanho:', blob.size, 'bytes');
+                console.log('📤 Tipo do blob:', blob.type);
             } catch (error) {
-                console.error('? Erro ao renderizar canvas final:', error);
+                console.error('❌❌❌ Erro ao renderizar canvas final:', error);
             }
             
             // Adicionar logo ao customizationSettings
@@ -6805,13 +6827,21 @@
                 }
                 
                 const data = await response.json();
-                console.log('? Dados recebidos:', data);
+                console.log('✅✅✅ Dados recebidos do servidor:', data);
+                console.log('🖼️🖼️🖼️ image_url retornado:', data.post?.image_url);
+                console.log('🖼️ postId:', data.postId || data.post?.id);
                 
                 if (editId) {
                     console.log('? Post atualizado com sucesso! ID:', editId);
                     alert('Post atualizado com sucesso!');
                 } else {
-                    console.log('? Post criado com sucesso!');
+                    console.log('✅ Post criado com sucesso!');
+                    console.log('🔍 Verificando se finalCanvas foi salvo...');
+                    if (data.post && data.post.image_url) {
+                        console.log('✅✅✅ FINALCANVAS SALVO COM SUCESSO! URL:', data.post.image_url);
+                    } else {
+                        console.error('❌❌❌ FINALCANVAS NÃO FOI SALVO! Verifique logs do servidor');
+                    }
                     alert('Post criado com sucesso!');
                 }
                 
@@ -7131,17 +7161,16 @@
             const contentInput = document.getElementById('modalPostContent');
             const previewTitle = document.getElementById('previewTitle');
             const previewText = document.getElementById('previewText');
-            const previewContent = document.getElementById('previewContent');
-            const previewIcon = previewContent?.querySelector('.fas.fa-image');
+            const previewPlaceholder = document.getElementById('previewPlaceholder');
             
             if (titleInput && previewTitle) {
                 if (titleInput.value) {
                     previewTitle.textContent = titleInput.value;
                     previewTitle.style.display = 'block';
-                    if (previewIcon) previewIcon.style.display = 'none';
+                    if (previewPlaceholder) previewPlaceholder.style.display = 'none';
                 } else {
                     previewTitle.style.display = 'none';
-                    if (previewIcon && !contentInput?.value) previewIcon.style.display = 'block';
+                    if (previewPlaceholder && !contentInput?.value) previewPlaceholder.style.display = 'block';
                 }
             }
             
@@ -7149,10 +7178,10 @@
                 if (contentInput.value) {
                     previewText.textContent = contentInput.value;
                     previewText.style.display = 'block';
-                    if (previewIcon && !titleInput?.value) previewIcon.style.display = 'none';
+                    if (previewPlaceholder) previewPlaceholder.style.display = 'none';
                 } else {
                     previewText.style.display = 'none';
-                    if (previewIcon && !titleInput?.value) previewIcon.style.display = 'block';
+                    if (previewPlaceholder && !titleInput?.value) previewPlaceholder.style.display = 'block';
                 }
             }
         }
