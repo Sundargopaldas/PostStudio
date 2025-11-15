@@ -1555,7 +1555,12 @@ app.post('/api/posts', upload.fields([
     { name: 'video', maxCount: 1 }, 
     { name: 'backgroundImage', maxCount: 1 }, 
     { name: 'narrationAudio', maxCount: 1 },
-    { name: 'finalCanvas', maxCount: 1 }  // NOVO: aceitar finalCanvas como arquivo
+    { name: 'finalCanvas', maxCount: 1 },  // Posts normais
+    // SLIDESHOW: aceitar 4 imagens separadas
+    { name: 'slideshow_1', maxCount: 1 },
+    { name: 'slideshow_2', maxCount: 1 },
+    { name: 'slideshow_3', maxCount: 1 },
+    { name: 'slideshow_4', maxCount: 1 }
 ]), async (req, res) => {
     try {
         console.log('📝 POST /api/posts - Iniciando criação de post');
@@ -1595,12 +1600,33 @@ app.post('/api/posts', upload.fields([
         const platforms = req.body.platforms;
         const customization = req.body.customization;
         
-        // NOVO: Processar finalCanvas (imagem final renderizada como ARQUIVO)
-        console.log('🔍🔍🔍 DEBUG - Verificando req.files.finalCanvas:', !!req.files?.finalCanvas);
-        console.log('🔍 Keys do req.files:', req.files ? Object.keys(req.files) : 'nenhum arquivo');
+        // NOVO: Processar finalCanvas OU slideshow (imagens renderizadas como ARQUIVOS)
+        console.log('🔍🔍🔍 DEBUG - Verificando arquivos recebidos:', req.files ? Object.keys(req.files) : 'nenhum');
         
         let finalCanvasUrl = '';
-        if (req.files && req.files.finalCanvas && req.files.finalCanvas[0]) {
+        let slideshowUrls = [];
+        
+        // Verificar se há slideshow (4 imagens)
+        if (req.files && req.files.slideshow_1 && req.files.slideshow_2 && req.files.slideshow_3 && req.files.slideshow_4) {
+            try {
+                console.log('🎬🎬🎬 SLIDESHOW DETECTADO - Processando 4 imagens!');
+                
+                for (let i = 1; i <= 4; i++) {
+                    const slideshowFile = req.files[`slideshow_${i}`][0];
+                    const slideshowUrl = `/uploads/${slideshowFile.filename}`;
+                    slideshowUrls.push(slideshowUrl);
+                    console.log(`✅ Imagem ${i}/4 do slideshow salva:`, slideshowUrl, `(${slideshowFile.size} bytes)`);
+                }
+                
+                // Usar primeira imagem como image_url principal
+                finalCanvasUrl = slideshowUrls[0];
+                console.log('✅✅✅ SLIDESHOW COMPLETO SALVO:', slideshowUrls.length, 'imagens');
+            } catch (error) {
+                console.error('❌❌❌ Erro ao processar slideshow:', error);
+                console.error('❌ Stack:', error.stack);
+            }
+        } else if (req.files && req.files.finalCanvas && req.files.finalCanvas[0]) {
+            // Post normal (sem slideshow)
             try {
                 const finalCanvasFile = req.files.finalCanvas[0];
                 finalCanvasUrl = `/uploads/${finalCanvasFile.filename}`;
@@ -1612,8 +1638,7 @@ app.post('/api/posts', upload.fields([
                 console.error('❌ Stack:', error.stack);
             }
         } else {
-            console.error('❌❌❌ NENHUM finalCanvas recebido no req.files!');
-            console.error('❌ Verifique se o frontend está enviando o campo "finalCanvas" como Blob');
+            console.error('❌❌❌ NENHUM finalCanvas ou slideshow recebido!');
             console.error('❌ Keys disponíveis no files:', req.files ? Object.keys(req.files) : 'nenhum');
         }
         
@@ -1624,10 +1649,34 @@ app.post('/api/posts', upload.fields([
             console.log('📸 Imagem salva:', imageUrl);
         }
         
+        // Processar customization e adicionar URLs do slideshow se necessário
+        let customizationData = {};
+        if (customization) {
+            try {
+                customizationData = JSON.parse(customization);
+                
+                // Adicionar URLs do slideshow salvo ao customization
+                if (slideshowUrls.length === 4) {
+                    console.log('🎬 Adicionando URLs do slideshow renderizado ao customization');
+                    if (!customizationData.slideshow) {
+                        customizationData.slideshow = {};
+                    }
+                    customizationData.slideshow.savedImages = slideshowUrls;
+                    console.log('✅ URLs do slideshow renderizado salvas:', slideshowUrls);
+                    
+                    // Atualizar o customization para salvar no banco
+                    req.body.customization = JSON.stringify(customizationData);
+                }
+            } catch (e) {
+                console.error('❌ Erro ao parsear customization:', e);
+                customizationData = {};
+            }
+        }
+        
         // Se temos finalCanvas, usar ele como imagem principal
         if (finalCanvasUrl) {
             imageUrl = finalCanvasUrl;
-            console.log('🎯🎯🎯 Usando finalCanvas como image_url:', imageUrl);
+            console.log('🎯🎯🎯 Usando finalCanvas/slideshow como image_url:', imageUrl);
             console.log('🎯 Substituindo imageUrl de', imageUrl === finalCanvasUrl ? '(vazio)' : imageUrl, 'para', finalCanvasUrl);
         } else {
             console.log('⚠️ Nenhum finalCanvas disponível, usando imageUrl padrão:', imageUrl || '(vazio)');
@@ -1923,7 +1972,12 @@ app.put('/api/posts/:id', upload.fields([
     { name: 'video', maxCount: 1 }, 
     { name: 'backgroundImage', maxCount: 1 }, 
     { name: 'narrationAudio', maxCount: 1 },
-    { name: 'finalCanvas', maxCount: 1 }  // NOVO: aceitar finalCanvas na edição
+    { name: 'finalCanvas', maxCount: 1 },  // Posts normais
+    // SLIDESHOW: aceitar 4 imagens separadas
+    { name: 'slideshow_1', maxCount: 1 },
+    { name: 'slideshow_2', maxCount: 1 },
+    { name: 'slideshow_3', maxCount: 1 },
+    { name: 'slideshow_4', maxCount: 1 }
 ]), async (req, res) => {
     try {
         console.log('🔄 PUT /api/posts/:id - Iniciando atualização');
@@ -1969,12 +2023,33 @@ app.put('/api/posts/:id', upload.fields([
             return res.status(400).json({ message: 'Título e conteúdo são obrigatórios' });
         }
 
-        // NOVO: Processar finalCanvas (imagem final renderizada como ARQUIVO) na EDIÇÃO
-        console.log('🔍🔍🔍 DEBUG EDIÇÃO - Verificando req.files.finalCanvas:', !!req.files?.finalCanvas);
-        console.log('🔍 Keys do req.files:', req.files ? Object.keys(req.files) : 'nenhum arquivo');
+        // NOVO: Processar finalCanvas OU slideshow (imagens renderizadas como ARQUIVOS) na EDIÇÃO
+        console.log('🔍🔍🔍 DEBUG EDIÇÃO - Verificando arquivos recebidos:', req.files ? Object.keys(req.files) : 'nenhum');
         
         let finalCanvasUrl = '';
-        if (req.files && req.files.finalCanvas && req.files.finalCanvas[0]) {
+        let slideshowUrls = [];
+        
+        // Verificar se há slideshow (4 imagens)
+        if (req.files && req.files.slideshow_1 && req.files.slideshow_2 && req.files.slideshow_3 && req.files.slideshow_4) {
+            try {
+                console.log('🎬🎬🎬 SLIDESHOW DETECTADO NA EDIÇÃO - Processando 4 imagens!');
+                
+                for (let i = 1; i <= 4; i++) {
+                    const slideshowFile = req.files[`slideshow_${i}`][0];
+                    const slideshowUrl = `/uploads/${slideshowFile.filename}`;
+                    slideshowUrls.push(slideshowUrl);
+                    console.log(`✅ Imagem ${i}/4 do slideshow salva (EDIÇÃO):`, slideshowUrl, `(${slideshowFile.size} bytes)`);
+                }
+                
+                // Usar primeira imagem como image_url principal
+                finalCanvasUrl = slideshowUrls[0];
+                console.log('✅✅✅ SLIDESHOW COMPLETO SALVO NA EDIÇÃO:', slideshowUrls.length, 'imagens');
+            } catch (error) {
+                console.error('❌❌❌ Erro ao processar slideshow (EDIÇÃO):', error);
+                console.error('❌ Stack:', error.stack);
+            }
+        } else if (req.files && req.files.finalCanvas && req.files.finalCanvas[0]) {
+            // Post normal (sem slideshow)
             try {
                 const finalCanvasFile = req.files.finalCanvas[0];
                 finalCanvasUrl = `/uploads/${finalCanvasFile.filename}`;
@@ -1986,7 +2061,26 @@ app.put('/api/posts/:id', upload.fields([
                 console.error('❌ Stack:', error.stack);
             }
         } else {
-            console.log('ℹ️ Nenhum finalCanvas recebido na edição');
+            console.log('ℹ️ Nenhum finalCanvas ou slideshow recebido na edição');
+        }
+        
+        // Processar customization e adicionar URLs do slideshow se necessário
+        if (slideshowUrls.length === 4 && customization) {
+            try {
+                const customizationData = JSON.parse(customization);
+                
+                console.log('🎬 Adicionando URLs do slideshow renderizado ao customization (EDIÇÃO)');
+                if (!customizationData.slideshow) {
+                    customizationData.slideshow = {};
+                }
+                customizationData.slideshow.savedImages = slideshowUrls;
+                console.log('✅ URLs do slideshow renderizado salvas (EDIÇÃO):', slideshowUrls);
+                
+                // Atualizar o customization para salvar no banco
+                req.body.customization = JSON.stringify(customizationData);
+            } catch (e) {
+                console.error('❌ Erro ao parsear customization (EDIÇÃO):', e);
+            }
         }
         
         // Processar imagem se enviada

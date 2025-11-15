@@ -860,7 +860,7 @@
                         <!-- Preview do Post -->
                         <div id="postPreview" class="custom-post-preview">
                             <div id="canvasBox" class="relative mx-auto" style="width: 100%; max-width: 640px;">
-                                <div id="canvas" class="rounded-xl overflow-hidden shadow-lg" style="position: relative; width: 100%; height: 400px; background-position: center; background-size: cover; background-repeat: no-repeat;">
+                                <div id="canvas" class="rounded-xl shadow-lg" style="position: relative; width: 100%; height: 400px; background-position: center; background-size: cover; background-repeat: no-repeat; overflow: visible;">
                                     <!-- Conteúdo textual sobreposto -->
                                     <div id="previewContent" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; z-index: 100; pointer-events: none;">
                                         <p id="previewPlaceholder" class="text-white/50 text-lg">Seu post aparecerá aqui</p>
@@ -883,38 +883,6 @@
                                 </div>
                             </div>
 
-                            <!-- Presets de Tamanho -->
-                            <div class="p-6 bg-white/5 rounded-xl">
-                                <h3 class="text-xl font-bold text-white mb-4 font-inter">
-                                    <i class="fas fa-expand-arrows-alt mr-2"></i>Presets de Tamanho
-                                </h3>
-                                <div class="grid grid-cols-3 gap-3">
-                                    <button onclick="resizeCanvas(1080, 1080)" class="size-preset-btn bg-blue-500/20 hover:bg-blue-500/40 text-white px-4 py-3 rounded-lg transition-all transform hover:scale-105 border border-blue-400/30 hover:border-blue-400/60">
-                                        <div class="flex items-center justify-center mb-2">
-                                            <div class="text-2xl mr-2">📱</div>
-                                            <div class="format-preview bg-blue-500" style="width: 28px; height: 28px;"></div>
-                                        </div>
-                                        <div class="text-sm font-medium">1:1 Post</div>
-                                        <div class="text-xs opacity-80">1080×1080</div>
-                                    </button>
-                                    <button onclick="resizeCanvas(1080, 1920)" class="size-preset-btn bg-green-500/20 hover:bg-green-500/40 text-white px-4 py-3 rounded-lg transition-all transform hover:scale-105 border border-green-400/30 hover:border-green-400/60">
-                                        <div class="flex items-center justify-center mb-2">
-                                            <div class="text-2xl mr-2">📲</div>
-                                            <div class="format-preview bg-green-500" style="width: 20px; height: 36px;"></div>
-                                        </div>
-                                        <div class="text-sm font-medium">9:16 Stories</div>
-                                        <div class="text-xs opacity-80">1080×1920</div>
-                                    </button>
-                                    <button onclick="resizeCanvas(1200, 628)" class="size-preset-btn bg-purple-500/20 hover:bg-purple-500/40 text-white px-4 py-3 rounded-lg transition-all transform hover:scale-105 border border-purple-400/30 hover:border-purple-400/60">
-                                        <div class="flex items-center justify-center mb-2">
-                                            <div class="text-2xl mr-2">💻</div>
-                                            <div class="format-preview bg-purple-500" style="width: 36px; height: 18px;"></div>
-                                        </div>
-                                        <div class="text-sm font-medium">Link Preview</div>
-                                        <div class="text-xs opacity-80">1200×628</div>
-                                    </button>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -1725,6 +1693,25 @@
                                     }, 900);
                                 }
                                 
+                                // CORREÇÃO CRÍTICA: Restaurar TEMPLATE primeiro (antes do slideshow)
+                                if (custom.templateDimensions) {
+                                    const savedTemplate = templates.find(t => 
+                                        t.metadata.originalWidth === custom.templateDimensions.originalWidth &&
+                                        t.metadata.originalHeight === custom.templateDimensions.originalHeight
+                                    );
+                                    
+                                    if (savedTemplate) {
+                                        currentTemplate = savedTemplate;
+                                        console.log('✅ Template restaurado:', savedTemplate.name);
+                                        
+                                        // Clicar no botão do template para aplicar
+                                        const templateBtn = document.getElementById(`template-${savedTemplate.id}`);
+                                        if (templateBtn) {
+                                            setTimeout(() => templateBtn.click(), 100);
+                                        }
+                                    }
+                                }
+                                
                                 // CORREÇÃO: Restaurar slideshow quando editar
                                 if (custom.slideshow && custom.slideshow.enabled && custom.slideshow.images) {
                                     console.log('🎬 Restaurando slideshow:', custom.slideshow);
@@ -1734,8 +1721,13 @@
                                     customizationSettings.slideshow = {
                                         enabled: true,
                                         images: custom.slideshow.images,
-                                        interval: custom.slideshow.interval || 4000
+                                        interval: custom.slideshow.interval || 4000,
+                                        templateDimensions: custom.slideshow.templateDimensions || null
                                     };
+                                    
+                                    if (custom.slideshow.templateDimensions) {
+                                        console.log('📐 Dimensões do template restauradas:', custom.slideshow.templateDimensions);
+                                    }
                                     
                                     // Atualizar preview do slideshow no modal
                                     const slideshowPreviewSection = document.querySelector('.slideshow-preview');
@@ -4144,7 +4136,7 @@
                     originalHeight: currentTemplate.metadata.originalHeight,
                     previewWidth: Math.round(previewWidth),
                     previewHeight: Math.round(previewHeight),
-                    scale: Math.round(previewWidth) / currentTemplate.metadata.originalWidth
+                    scale: previewWidth / currentTemplate.metadata.originalWidth
                 };
                 
                 console.log('? Template padr�o inicializado:', {
@@ -4224,7 +4216,8 @@
                             });
                         }
                         
-                        // SALVAR DIMENS�ES DO TEMPLATE para usar no salvamento
+                        // SALVAR DIMENSÕES DO TEMPLATE para usar no salvamento
+                        // CORREÇÃO: Usar previewWidth/previewHeight CALCULADOS, não os valores máximos
                         customizationSettings.templateDimensions = {
                             originalWidth: template.metadata.originalWidth,
                             originalHeight: template.metadata.originalHeight,
@@ -4232,6 +4225,8 @@
                             previewHeight: Math.round(previewHeight),
                             scale: Math.round(previewWidth) / template.metadata.originalWidth
                         };
+                        
+                        console.log('💾 templateDimensions SALVO:', customizationSettings.templateDimensions);
                         
                         console.log('?? Preview do template ajustado:', {
                             template: { 
@@ -4246,8 +4241,25 @@
                             scale: Math.round(previewWidth) / template.metadata.originalWidth
                         });
                         
-                        // Normalizar posi��es de todos os elementos existentes
+                        // CORREÇÃO CRÍTICA: Atualizar dimensões do slideshow se existir
+                        if (customizationSettings.slideshow && customizationSettings.slideshow.enabled) {
+                            customizationSettings.slideshow.templateDimensions = {
+                                width: template.metadata.originalWidth,
+                                height: template.metadata.originalHeight,
+                                templateName: template.name,
+                                templateId: template.id
+                            };
+                            console.log('🎬 Slideshow atualizado para novo template:', template.name);
+                        }
+                        
+                        // CORREÇÃO CRÍTICA: Normalizar E DEPOIS reposicionar elementos
                         normalizeAllElements();
+                        
+                        // Aguardar um momento para o DOM atualizar as dimensões
+                        setTimeout(() => {
+                            applyNormalizedCoordinates();
+                            console.log('✅ Elementos reposicionados para o novo template');
+                        }, 50);
                     }
                     
                     showNotification(`${template.name} selecionado`, 'success');
@@ -4317,13 +4329,27 @@
                 const currentWidth = parseFloat(element.style.width) || 0;
                 const currentHeight = parseFloat(element.style.height) || 0;
                 
-                // Normalizar posi��es e tamanhos
+                // Normalizar posições
                 const normalizedPos = CoordinateSystem.normalizePosition(
                     currentLeft, currentTop, previewDims.width, previewDims.height
                 );
-                const normalizedSize = CoordinateSystem.normalizeSize(
-                    currentWidth, currentHeight, previewDims.width, previewDims.height
-                );
+                
+                // CORREÇÃO: Para elementos proporcionais, usar valores FIXOS
+                let normalizedSize;
+                if (element.id.startsWith('icon-')) {
+                    normalizedSize = { width: 0.11, height: 0.11 }; // Ícone sempre 11%
+                } else if (element.id.startsWith('circle-')) {
+                    normalizedSize = { width: 0.15, height: 0.15 }; // Círculo sempre 15%
+                } else if (element.id.startsWith('rectangle-')) {
+                    normalizedSize = { width: 0.25, height: 0.15 }; // Retângulo sempre 25% x 15%
+                } else if (element.id.startsWith('line-')) {
+                    normalizedSize = { width: 0.30, height: 0.005 }; // Linha sempre 30% x fixo
+                } else {
+                    // Outros elementos: normalizar tamanho atual
+                    normalizedSize = CoordinateSystem.normalizeSize(
+                        currentWidth, currentHeight, previewDims.width, previewDims.height
+                    );
+                }
                 
                 // Armazenar coordenadas normalizadas no elemento
                 element.dataset.normalizedLeft = normalizedPos.x;
@@ -4331,7 +4357,7 @@
                 element.dataset.normalizedWidth = normalizedSize.width;
                 element.dataset.normalizedHeight = normalizedSize.height;
                 
-                console.log('?? Elemento normalizado:', {
+                console.log('🔄 Elemento normalizado:', {
                     id: element.id,
                     original: { left: currentLeft, top: currentTop, width: currentWidth, height: currentHeight },
                     normalized: { left: normalizedPos.x, top: normalizedPos.y, width: normalizedSize.width, height: normalizedSize.height }
@@ -4347,6 +4373,11 @@
             const previewDims = CoordinateSystem.getPreviewDimensions();
             const elements = canvas.querySelectorAll('.draggable-element');
             
+            console.log('🔄 Aplicando coordenadas normalizadas:', {
+                elementos: elements.length,
+                previewDims
+            });
+            
             elements.forEach(element => {
                 const normalizedLeft = parseFloat(element.dataset.normalizedLeft) || 0;
                 const normalizedTop = parseFloat(element.dataset.normalizedTop) || 0;
@@ -4357,16 +4388,79 @@
                 const absolutePos = CoordinateSystem.denormalizePosition(
                     normalizedLeft, normalizedTop, previewDims.width, previewDims.height
                 );
-                const absoluteSize = CoordinateSystem.denormalizeSize(
-                    normalizedWidth, normalizedHeight, previewDims.width, previewDims.height
-                );
                 
-                // Aplicar posi��es e tamanhos
-                element.style.left = Math.round(absolutePos.x) + 'px';
-                element.style.top = Math.round(absolutePos.y) + 'px';
-                element.style.width = Math.round(absoluteSize.width) + 'px';
-                element.style.height = Math.round(absoluteSize.height) + 'px';
+                let absoluteSize;
+                
+                // TRATAMENTO ESPECIAL PARA ELEMENTOS PROPORCIONAIS
+                const minDimension = Math.min(previewDims.width, previewDims.height);
+                
+                if (element.id.startsWith('icon-')) {
+                    // Ícone: 11% do menor lado (MIN 60px, MAX 100px)
+                    const iconSize = Math.min(Math.max(Math.round(minDimension * 0.11), 60), 100);
+                    absoluteSize = { width: iconSize, height: iconSize };
+                    
+                    const svgSize = Math.round(iconSize * 0.6);
+                    const iconSvg = element.querySelector('[data-lucide]');
+                    if (iconSvg) {
+                        iconSvg.style.width = svgSize + 'px';
+                        iconSvg.style.height = svgSize + 'px';
+                    }
+                } else if (element.id.startsWith('circle-')) {
+                    // Círculo: 15% do menor lado (quadrado)
+                    const circleSize = Math.max(Math.round(minDimension * 0.15), 60);
+                    absoluteSize = { width: circleSize, height: circleSize };
+                } else if (element.id.startsWith('rectangle-')) {
+                    // Retângulo: 25% x 15% do menor lado
+                    const rectWidth = Math.max(Math.round(minDimension * 0.25), 80);
+                    const rectHeight = Math.max(Math.round(minDimension * 0.15), 60);
+                    absoluteSize = { width: rectWidth, height: rectHeight };
+                } else if (element.id.startsWith('line-')) {
+                    // Linha: 30% largura x altura pequena
+                    const lineWidth = Math.max(Math.round(minDimension * 0.30), 100);
+                    absoluteSize = { width: lineWidth, height: 3 };
+                } else {
+                    // Outros elementos: usar desnormalização normal
+                    absoluteSize = CoordinateSystem.denormalizeSize(
+                        normalizedWidth, normalizedHeight, previewDims.width, previewDims.height
+                    );
+                }
+                
+                // GARANTIR que elementos não saiam do canvas (ajustar APENAS se necessário)
+                let finalX = Math.round(absolutePos.x);
+                let finalY = Math.round(absolutePos.y);
+                const finalWidth = Math.round(absoluteSize.width);
+                const finalHeight = Math.round(absoluteSize.height);
+                
+                // Ajustar apenas se estiver saindo
+                if (finalX < 0) finalX = 0;
+                if (finalY < 0) finalY = 0;
+                if (finalX + finalWidth > previewDims.width) {
+                    finalX = Math.max(0, previewDims.width - finalWidth);
+                }
+                if (finalY + finalHeight > previewDims.height) {
+                    finalY = Math.max(0, previewDims.height - finalHeight);
+                }
+                
+                // Aplicar posições e tamanhos
+                element.style.left = finalX + 'px';
+                element.style.top = finalY + 'px';
+                element.style.width = finalWidth + 'px';
+                element.style.height = finalHeight + 'px';
+                element.style.display = 'flex';
+                element.style.opacity = element.style.opacity || '1';
+                
+                console.log(`✅ ${element.id}:`, {
+                    original: absolutePos,
+                    adjusted: { x: finalX, y: finalY },
+                    size: { width: finalWidth, height: finalHeight }
+                });
             });
+            
+            // Reinicializar ícones Lucide após reposicionamento
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+                console.log('🎨 Ícones Lucide reinicializados');
+            }
         }
 
         // Fun��o para redimensionar o canvas
@@ -4436,7 +4530,16 @@
                 scale: newWidth / width
             });
             
-            showNotification(`Canvas redimensionado para ${width}�${height}px`, 'success');
+            // CORREÇÃO CRÍTICA: Normalizar e reposicionar elementos após resize
+            normalizeAllElements();
+            
+            // Aguardar DOM atualizar
+            setTimeout(() => {
+                applyNormalizedCoordinates();
+                console.log('✅ Elementos reposicionados após resize');
+            }, 50);
+            
+            showNotification(`Canvas redimensionado para ${width}×${height}px`, 'success');
         }
 
         // Lista de �cones populares do Lucide
@@ -4502,22 +4605,35 @@
 
         // Fun��o para adicionar �cone ao canvas
         function addIconToCanvas(iconName) {
-            console.log('?? Adicionando �cone ao canvas:', iconName);
+            console.log('📌 Adicionando ícone ao canvas:', iconName);
             
             const canvas = document.getElementById('canvas');
             if (!canvas) {
-                console.error('? Canvas n�o encontrado!');
+                console.error('❌ Canvas não encontrado!');
                 return;
             }
             
-            // Criar elemento div para o �cone
+            // TAMANHO PROPORCIONAL: 11% do menor lado (MIN 60px, MAX 100px)
+            const previewDims = CoordinateSystem.getPreviewDimensions();
+            const minDimension = Math.min(previewDims.width, previewDims.height);
+            const iconSize = Math.min(Math.max(Math.round(minDimension * 0.11), 60), 100);
+            
+            console.log('📐 Tamanho do ícone calculado:', {
+                previewWidth: previewDims.width,
+                previewHeight: previewDims.height,
+                minDimension,
+                iconSize: iconSize + 'px',
+                percentage: '11% do menor lado (min 60px, max 100px)'
+            });
+            
+            // Criar elemento div para o ícone
             const iconElement = document.createElement('div');
             iconElement.className = 'draggable-element';
             iconElement.id = 'icon-' + Date.now();
             iconElement.style.cssText = `
                 position: absolute;
-                width: 40px;
-                height: 40px;
+                width: ${iconSize}px;
+                height: ${iconSize}px;
                 cursor: move;
                 z-index: 5;
                 opacity: 1;
@@ -4530,22 +4646,25 @@
                 box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
             `;
             
-            // Adicionar �cone SVG
+            // Adicionar ícone SVG com tamanho proporcional
+            const svgSize = Math.round(iconSize * 0.6); // 60% do tamanho do container
             const iconSvg = document.createElement('div');
-            iconSvg.innerHTML = `<i data-lucide="${iconName}" class="w-6 h-6" style="color: #3b82f6;"></i>`;
+            iconSvg.innerHTML = `<i data-lucide="${iconName}" style="width: ${svgSize}px; height: ${svgSize}px; color: #3b82f6;"></i>`;
             iconElement.appendChild(iconSvg);
             
             // Posicionar no centro do canvas usando coordenadas normalizadas
-            const previewDims = CoordinateSystem.getPreviewDimensions();
-            const centerX = previewDims.width / 2 - 20; // 20px = metade da largura do �cone
-            const centerY = previewDims.height / 2 - 20; // 20px = metade da altura do �cone
+            const centerX = previewDims.width / 2 - iconSize / 2;
+            const centerY = previewDims.height / 2 - iconSize / 2;
             
             iconElement.style.left = centerX + 'px';
             iconElement.style.top = centerY + 'px';
             
-            // Armazenar coordenadas normalizadas
+            // CRÍTICO: Armazenar coordenadas normalizadas FIXAS (11% do menor lado, max 110px)
             const normalizedPos = CoordinateSystem.normalizePosition(centerX, centerY, previewDims.width, previewDims.height);
-            const normalizedSize = CoordinateSystem.normalizeSize(40, 40, previewDims.width, previewDims.height);
+            const normalizedSize = {
+                width: 0.11,  // 11% fixo (max 110px)
+                height: 0.11  // 11% fixo (mantém quadrado)
+            };
             
             iconElement.dataset.normalizedLeft = normalizedPos.x;
             iconElement.dataset.normalizedTop = normalizedPos.y;
@@ -4631,26 +4750,28 @@
 
         // Fun��o para adicionar c�rculo ao canvas
         function addCircle() {
-            console.log('?? Adicionando c�rculo ao canvas...');
+            console.log('🔵 Adicionando círculo ao canvas...');
             
             const canvas = document.getElementById('canvas');
             if (!canvas) {
-                console.error('? Canvas n�o encontrado');
-                showNotification('Erro: Canvas n�o encontrado', 'error');
+                console.error('❌ Canvas não encontrado');
+                showNotification('Erro: Canvas não encontrado', 'error');
                 return;
             }
             
-            // Texto padrão para o círculo
-            const circleText = '';
+            // TAMANHO PROPORCIONAL: 15% do menor lado
+            const previewDims = CoordinateSystem.getPreviewDimensions();
+            const minDimension = Math.min(previewDims.width, previewDims.height);
+            const circleSize = Math.max(Math.round(minDimension * 0.15), 60);
             
-            // Criar elemento div para o c�rculo
+            // Criar elemento div para o círculo
             const circle = document.createElement('div');
             circle.className = 'draggable-element';
             circle.id = 'circle-' + Date.now();
             circle.style.cssText = `
                 position: absolute;
-                width: 100px;
-                height: 100px;
+                width: ${circleSize}px;
+                height: ${circleSize}px;
                 background-color: ${selectedShapeColor};
                 border-radius: 50%;
                 cursor: move;
@@ -4664,19 +4785,19 @@
                 text-align: center;
             `;
             
-            console.log('✅ Círculo criado com z-index inicial:', circle.style.zIndex);
-            
-            // Posicionar no centro do canvas usando coordenadas normalizadas
-            const previewDims = CoordinateSystem.getPreviewDimensions();
-            const centerX = previewDims.width / 2 - 50; // 50px = metade da largura do c�rculo
-            const centerY = previewDims.height / 2 - 50; // 50px = metade da altura do c�rculo
+            // Posicionar no centro do canvas
+            const centerX = previewDims.width / 2 - circleSize / 2;
+            const centerY = previewDims.height / 2 - circleSize / 2;
             
             circle.style.left = centerX + 'px';
             circle.style.top = centerY + 'px';
             
-            // Armazenar coordenadas normalizadas
+            // Armazenar coordenadas normalizadas FIXAS
             const normalizedPos = CoordinateSystem.normalizePosition(centerX, centerY, previewDims.width, previewDims.height);
-            const normalizedSize = CoordinateSystem.normalizeSize(100, 100, previewDims.width, previewDims.height);
+            const normalizedSize = {
+                width: 0.15,  // 15% fixo
+                height: 0.15  // 15% fixo
+            };
             
             circle.dataset.normalizedLeft = normalizedPos.x;
             circle.dataset.normalizedTop = normalizedPos.y;
@@ -4699,26 +4820,29 @@
 
         // Fun��o para adicionar ret�ngulo ao canvas
         function addRectangle() {
-            console.log('?? Adicionando ret�ngulo ao canvas...');
+            console.log('🟦 Adicionando retângulo ao canvas...');
             
             const canvas = document.getElementById('canvas');
             if (!canvas) {
-                console.error('? Canvas n�o encontrado');
-                showNotification('Erro: Canvas n�o encontrado', 'error');
+                console.error('❌ Canvas não encontrado');
+                showNotification('Erro: Canvas não encontrado', 'error');
                 return;
             }
             
-            // Texto padrão para o retângulo
-            const rectangleText = '';
+            // TAMANHO PROPORCIONAL: 25% largura x 15% altura (baseado no menor lado)
+            const previewDims = CoordinateSystem.getPreviewDimensions();
+            const minDimension = Math.min(previewDims.width, previewDims.height);
+            const rectWidth = Math.max(Math.round(minDimension * 0.25), 80);
+            const rectHeight = Math.max(Math.round(minDimension * 0.15), 60);
             
-            // Criar elemento div para o ret�ngulo
+            // Criar elemento div para o retângulo
             const rectangle = document.createElement('div');
             rectangle.className = 'draggable-element';
             rectangle.id = 'rectangle-' + Date.now();
             rectangle.style.cssText = `
                 position: absolute;
-                width: 150px;
-                height: 100px;
+                width: ${rectWidth}px;
+                height: ${rectHeight}px;
                 background-color: ${selectedShapeColor};
                 border-radius: 8px;
                 cursor: move;
@@ -4732,19 +4856,19 @@
                 text-align: center;
             `;
             
-            console.log('✅ Retângulo criado com z-index inicial:', rectangle.style.zIndex);
-            
-            // Posicionar no centro do canvas usando coordenadas normalizadas
-            const previewDims = CoordinateSystem.getPreviewDimensions();
-            const centerX = previewDims.width / 2 - 75; // 75px = metade da largura do ret�ngulo
-            const centerY = previewDims.height / 2 - 50; // 50px = metade da altura do ret�ngulo
+            // Posicionar no centro do canvas
+            const centerX = previewDims.width / 2 - rectWidth / 2;
+            const centerY = previewDims.height / 2 - rectHeight / 2;
             
             rectangle.style.left = centerX + 'px';
             rectangle.style.top = centerY + 'px';
             
-            // Armazenar coordenadas normalizadas
+            // Armazenar coordenadas normalizadas FIXAS
             const normalizedPos = CoordinateSystem.normalizePosition(centerX, centerY, previewDims.width, previewDims.height);
-            const normalizedSize = CoordinateSystem.normalizeSize(150, 100, previewDims.width, previewDims.height);
+            const normalizedSize = {
+                width: 0.25,  // 25% fixo
+                height: 0.15  // 15% fixo
+            };
             
             rectangle.dataset.normalizedLeft = normalizedPos.x;
             rectangle.dataset.normalizedTop = normalizedPos.y;
@@ -4767,14 +4891,20 @@
 
         // Fun��o para adicionar linha ao canvas
         function addLine() {
-            console.log('?? Adicionando linha ao canvas...');
+            console.log('➖ Adicionando linha ao canvas...');
             
             const canvas = document.getElementById('canvas');
             if (!canvas) {
-                console.error('? Canvas n�o encontrado');
-                showNotification('Erro: Canvas n�o encontrado', 'error');
+                console.error('❌ Canvas não encontrado');
+                showNotification('Erro: Canvas não encontrado', 'error');
                 return;
             }
+            
+            // TAMANHO PROPORCIONAL: 30% largura x altura fixa 3px
+            const previewDims = CoordinateSystem.getPreviewDimensions();
+            const minDimension = Math.min(previewDims.width, previewDims.height);
+            const lineWidth = Math.max(Math.round(minDimension * 0.30), 100);
+            const lineHeight = 3;
             
             // Criar elemento div para a linha
             const line = document.createElement('div');
@@ -4782,8 +4912,8 @@
             line.id = 'line-' + Date.now();
             line.style.cssText = `
                 position: absolute;
-                width: 200px;
-                height: 2px;
+                width: ${lineWidth}px;
+                height: ${lineHeight}px;
                 background-color: ${selectedShapeColor};
                 cursor: move;
                 border-radius: 1px;
@@ -4792,19 +4922,19 @@
                 opacity: 1;
             `;
             
-            console.log('?? Linha criada com z-index inicial:', line.style.zIndex);
-            
-            // Posicionar no centro do canvas usando coordenadas normalizadas
-            const previewDims = CoordinateSystem.getPreviewDimensions();
-            const centerX = previewDims.width / 2 - 100; // 100px = metade da largura da linha
-            const centerY = previewDims.height / 2 - 1; // 1px = metade da altura da linha
+            // Posicionar no centro do canvas
+            const centerX = previewDims.width / 2 - lineWidth / 2;
+            const centerY = previewDims.height / 2 - lineHeight / 2;
             
             line.style.left = centerX + 'px';
             line.style.top = centerY + 'px';
             
-            // Armazenar coordenadas normalizadas
+            // Armazenar coordenadas normalizadas FIXAS
             const normalizedPos = CoordinateSystem.normalizePosition(centerX, centerY, previewDims.width, previewDims.height);
-            const normalizedSize = CoordinateSystem.normalizeSize(200, 2, previewDims.width, previewDims.height);
+            const normalizedSize = {
+                width: 0.30,  // 30% fixo
+                height: 0.005 // altura pequena fixa
+            };
             
             line.dataset.normalizedLeft = normalizedPos.x;
             line.dataset.normalizedTop = normalizedPos.y;
@@ -5843,28 +5973,66 @@
             // Video functionality moved to /create-video page
         });
 
-        // Fun��o para renderizar canvas final com dimens�es reais do template
+        // Função para renderizar SLIDESHOW como múltiplas imagens
+        async function renderSlideshowCanvases(titleParam = null, contentParam = null) {
+            const slideshowImages = customizationSettings.slideshow?.images || [];
+            if (slideshowImages.length !== 4) {
+                console.error('❌ Slideshow precisa de 4 imagens!');
+                return [];
+            }
+            
+            const canvases = [];
+            
+            // Renderizar cada imagem do slideshow separadamente
+            for (let i = 0; i < 4; i++) {
+                // Temporariamente usar apenas esta imagem
+                const originalImages = customizationSettings.slideshow.images;
+                customizationSettings.slideshow.images = [slideshowImages[i]];
+                
+                // Renderizar canvas com esta imagem
+                const canvasDataURL = await renderFinalCanvas(titleParam, contentParam);
+                canvases.push(canvasDataURL);
+                
+                // Restaurar array original
+                customizationSettings.slideshow.images = originalImages;
+            }
+            
+            return canvases;
+        }
+        
+        // Função para renderizar canvas final com dimensões reais do template
         function renderFinalCanvas(titleParam = null, contentParam = null) {
-            return new Promise((resolve) => {
+            return new Promise(async (resolve) => {
+                console.log('🎬 ========== RENDER FINAL CANVAS ==========');
+                console.log('🎬 currentTemplate.name:', currentTemplate?.name);
+                console.log('🎬 currentTemplate.id:', currentTemplate?.id);
+                
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 
-                // CORRE��O CR�TICA: Usar dimens�es originais do template atual
-                const originalDims = CoordinateSystem.getOriginalDimensions();
-                
-                // VERIFICA��O CR�TICA: Garantir que temos um template v�lido
+                // Verificar se temos um template válido
                 if (!currentTemplate || !currentTemplate.metadata) {
-                    console.error('❌❌❌ ERRO CR�TICO: Template atual n�o est� definido!');
-                    console.error('❌ currentTemplate:', currentTemplate);
-                    console.error('❌ RETORNANDO CANVAS VAZIO - ESTE É O PROBLEMA!');
+                    console.error('❌ ERRO: Template atual não está definido!');
                     resolve(canvas.toDataURL('image/png'));
                     return;
                 }
                 
+                // Usar dimensões originais do template atual
+                const originalDims = CoordinateSystem.getOriginalDimensions();
+                
                 canvas.width = originalDims.width;
                 canvas.height = originalDims.height;
                 
-                console.log('?? CORRE��O CR�TICA - Canvas final:', {
+                console.log('🎯 CANVAS CRIADO:', {
+                    template: currentTemplate.name,
+                    id: currentTemplate.id,
+                    canvasWidth: canvas.width,
+                    canvasHeight: canvas.height,
+                    ratio: (canvas.width / canvas.height).toFixed(4),
+                    expected: `${originalDims.width}×${originalDims.height}`
+                });
+                
+                console.log('🖼️🖼️🖼️ CORREÇÃO CRÍTICA - Canvas final:', {
                     template: currentTemplate.name,
                     templateId: currentTemplate.id,
                     canvasWidth: canvas.width,
@@ -5872,6 +6040,8 @@
                     expectedDimensions: `${originalDims.width}x${originalDims.height}`,
                     aspectRatio: (originalDims.width / originalDims.height).toFixed(2)
                 });
+                console.log('🖼️ Template metadata:', currentTemplate.metadata);
+                console.log('🖼️ Original dimensions obtidas:', originalDims);
                 
                 // Renderizar background (gradiente ou cor sólida)
                 const backgroundClass = customizationSettings.background || 'bg-white';
@@ -5943,6 +6113,13 @@
                 }
                 
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
+                console.log('🎨 fillRect aplicado:', {
+                    x: 0,
+                    y: 0,
+                    width: canvas.width,
+                    height: canvas.height,
+                    fillStyle: ctx.fillStyle
+                });
                 
                 const previewCanvas = document.getElementById('canvas');
                 if (!previewCanvas) {
@@ -5958,6 +6135,7 @@
                 
                 // Verificar se há slideshow ou imagem de fundo
                 let backgroundImageURL = null;
+                let slideshowImages = null;
                 console.log('🔍 Verificando slideshow:', {
                     hasSlideshow: !!customizationSettings.slideshow,
                     enabled: customizationSettings.slideshow?.enabled,
@@ -5965,8 +6143,9 @@
                 });
                 
                 if (customizationSettings.slideshow && customizationSettings.slideshow.enabled && customizationSettings.slideshow.images && customizationSettings.slideshow.images.length > 0) {
-                    backgroundImageURL = customizationSettings.slideshow.images[0];
-                    console.log('🎬🎬🎬 SLIDESHOW DETECTADO! Usando primeira imagem:', backgroundImageURL.substring(0, 100));
+                    slideshowImages = customizationSettings.slideshow.images;
+                    backgroundImageURL = slideshowImages[0]; // Primeira imagem do slideshow
+                    console.log('🎬 SLIDESHOW:', slideshowImages.length, 'imagens | Usando imagem:', backgroundImageURL ? backgroundImageURL.substring(0, 50) + '...' : 'null');
                 } else if (previewCanvas.style.backgroundImage && previewCanvas.style.backgroundImage !== 'none') {
                     const match = previewCanvas.style.backgroundImage.match(/url\(["']?([^"']*)["']?\)/);
                     if (match && match[1]) {
@@ -5977,10 +6156,14 @@
                     console.log('ℹ️ Nenhuma imagem de fundo ou slideshow detectado');
                 }
                 
+                // Verificar se há slideshow ativo
+                const hasSlideshow = customizationSettings.slideshow && customizationSettings.slideshow.enabled;
+                
                 // Função para renderizar resto (formas + texto)
-                function renderRestOfCanvas() {
+                async function renderRestOfCanvas() {
                     const elements = previewCanvas.querySelectorAll('.draggable-element');
                     console.log('?? Elementos encontrados:', elements.length);
+                    console.log('🎬 Slideshow ativo?', hasSlideshow);
                 
                 // CORREÇÃO CRÍTICA: Renderizar TODAS as formas ANTES do texto
                 // O texto sempre será renderizado por último para garantir que apareça por cima
@@ -6024,7 +6207,10 @@
                 
                 // PASSO 1: Renderizar formas que devem ficar ATRÁS DO TEXTO
                 console.log('📊 Renderizando formas ATRÁS do texto:', shapesBehindText.length);
-                shapesBehindText.forEach((shapeData, index) => {
+                
+                // CORREÇÃO: Usar for...of loop para suportar async/await (necessário para ícones SVG)
+                for (let index = 0; index < shapesBehindText.length; index++) {
+                    const shapeData = shapesBehindText[index];
                     const element = shapeData.element;
                     const normalizedLeft = parseFloat(element.dataset.normalizedLeft) || 0;
                     const normalizedTop = parseFloat(element.dataset.normalizedTop) || 0;
@@ -6034,11 +6220,24 @@
                     const finalPos = CoordinateSystem.denormalizePosition(
                         normalizedLeft, normalizedTop, canvas.width, canvas.height
                     );
-                    const finalSize = CoordinateSystem.denormalizeSize(
+                    let finalSize = CoordinateSystem.denormalizeSize(
                         normalizedWidth, normalizedHeight, canvas.width, canvas.height
                     );
                     
+                    // CORREÇÃO: Aplicar limites para ícones no salvamento
+                    if (element.id.startsWith('icon-')) {
+                        const minDimension = Math.min(canvas.width, canvas.height);
+                        const iconSize = Math.min(Math.max(Math.round(minDimension * 0.11), 60), 100);
+                        finalSize = { width: iconSize, height: iconSize };
+                    }
+                    
                     console.log(`🎨 [ATRÁS] Renderizando forma ${index + 1}/${shapesBehindText.length} (${element.id}) - z-index: ${shapeData.zIndex}`);
+                    
+                    // CORREÇÃO: Não renderizar formas/ícones decorativos quando há slideshow
+                    if (hasSlideshow && (element.id.startsWith('icon-') || element.id.startsWith('circle-') || element.id.startsWith('rectangle-') || element.id.startsWith('line-'))) {
+                        console.log('⏭️ Pulando elemento decorativo (slideshow ativo):', element.id);
+                        continue;
+                    }
                     
                     if (element.id.startsWith('circle-')) {
                         renderCircleOnCanvas(ctx, finalPos, finalSize, element);
@@ -6047,9 +6246,9 @@
                     } else if (element.id.startsWith('line-')) {
                         renderLineOnCanvas(ctx, finalPos, finalSize, element);
                     } else if (element.id.startsWith('icon-')) {
-                        renderIconOnCanvas(ctx, finalPos, finalSize, element);
+                        await renderIconOnCanvas(ctx, finalPos, finalSize, element);
                     }
-                });
+                }
                 
                 console.log('✅ Formas ATRÁS do texto renderizadas. Logo e texto serão renderizados agora...');
                 console.log('🔍 DEBUG: Ordem de renderização até agora:');
@@ -6152,22 +6351,78 @@
                         ctx.shadowOffsetX = 0;
                         ctx.shadowOffsetY = 0;
                         
+                        // Função auxiliar para quebrar texto em linhas
+                        const wrapText = (text, maxWidth, fontSize, isBold = false) => {
+                            const words = text.split(' ');
+                            const lines = [];
+                            let currentLine = '';
+                            
+                            ctx.font = `${isBold ? 'bold ' : ''}${fontSize}px Arial`;
+                            
+                            for (let i = 0; i < words.length; i++) {
+                                const testLine = currentLine + (currentLine ? ' ' : '') + words[i];
+                                const metrics = ctx.measureText(testLine);
+                                
+                                if (metrics.width > maxWidth && currentLine) {
+                                    lines.push(currentLine);
+                                    currentLine = words[i];
+                                } else {
+                                    currentLine = testLine;
+                                }
+                            }
+                            
+                            if (currentLine) {
+                                lines.push(currentLine);
+                            }
+                            
+                            return lines;
+                        };
+                        
+                        // Função auxiliar para ajustar tamanho da fonte
+                        const adjustFontSize = (text, baseFontSize, maxWidth, isBold = false) => {
+                            let fontSize = baseFontSize;
+                            ctx.font = `${isBold ? 'bold ' : ''}${fontSize}px Arial`;
+                            let metrics = ctx.measureText(text);
+                            
+                            // Reduzir fonte se texto for muito largo (mais de 80% da largura para margem maior)
+                            while (metrics.width > maxWidth && fontSize > 16) {
+                                fontSize -= 3; // Redução mais agressiva (era 2)
+                                ctx.font = `${isBold ? 'bold ' : ''}${fontSize}px Arial`;
+                                metrics = ctx.measureText(text);
+                            }
+                            
+                            console.log(`📏 Ajuste de fonte: Base=${baseFontSize}px → Final=${fontSize}px (Largura: ${Math.round(metrics.width)}/${Math.round(maxWidth)})`);
+                            return fontSize;
+                        };
+                        
                         // RENDERIZAR TÍTULO
                         if (title && title.trim()) {
-                            ctx.font = `bold ${Math.round(canvas.height * 0.08)}px Arial`;
+                            const baseTitleSize = Math.round(canvas.height * 0.06); // REDUZIDO de 0.08 para 0.06
+                            const maxWidth = canvas.width * 0.85; // 85% da largura do canvas
+                            const titleFontSize = adjustFontSize(title, baseTitleSize, maxWidth, true);
+                            const titleLines = wrapText(title, maxWidth, titleFontSize, true);
                             
-                            // Usar a cor selecionada pelo usuário
+                            ctx.font = `bold ${titleFontSize}px Arial`;
                             ctx.fillStyle = textColor || '#1f2937';
                             ctx.textAlign = 'center';
                             ctx.textBaseline = 'middle';
                             
-                            // Adicionar sombra para ainda mais contraste
+                            // Adicionar sombra para contraste
                             ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
                             ctx.shadowBlur = 8;
                             ctx.shadowOffsetX = 2;
                             ctx.shadowOffsetY = 2;
                             
-                            ctx.fillText(title, canvas.width / 2, titleY);
+                            // Calcular posição inicial considerando múltiplas linhas
+                            const lineHeight = titleFontSize * 1.2;
+                            const totalHeight = titleLines.length * lineHeight;
+                            let currentY = titleY - (totalHeight / 2) + (lineHeight / 2);
+                            
+                            // Renderizar cada linha
+                            titleLines.forEach((line, index) => {
+                                ctx.fillText(line, canvas.width / 2, currentY);
+                                currentY += lineHeight;
+                            });
                             
                             // Resetar sombra
                             ctx.shadowColor = 'transparent';
@@ -6175,25 +6430,37 @@
                             ctx.shadowOffsetX = 0;
                             ctx.shadowOffsetY = 0;
                             
-                            console.log('✅ TÍTULO RENDERIZADO:', title);
+                            console.log('✅ TÍTULO RENDERIZADO:', title, `(${titleLines.length} linhas, fontSize: ${titleFontSize})`);
                         }
                         
                         // RENDERIZAR CONTEÚDO
                         if (content && content.trim()) {
-                            ctx.font = `${Math.round(canvas.height * 0.04)}px Arial`;
+                            const baseContentSize = Math.round(canvas.height * 0.03); // REDUZIDO de 0.04 para 0.03
+                            const maxWidth = canvas.width * 0.85; // 85% da largura do canvas
+                            const contentFontSize = adjustFontSize(content, baseContentSize, maxWidth, false);
+                            const contentLines = wrapText(content, maxWidth, contentFontSize, false);
                             
-                            // Usar a cor selecionada pelo usuário
+                            ctx.font = `${contentFontSize}px Arial`;
                             ctx.fillStyle = textColor || '#1f2937';
                             ctx.textAlign = 'center';
                             ctx.textBaseline = 'middle';
                             
-                            // Adicionar sombra para ainda mais contraste
+                            // Adicionar sombra para contraste
                             ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
                             ctx.shadowBlur = 8;
                             ctx.shadowOffsetX = 2;
                             ctx.shadowOffsetY = 2;
                             
-                            ctx.fillText(content, canvas.width / 2, contentStartY);
+                            // Calcular posição inicial considerando múltiplas linhas
+                            const lineHeight = contentFontSize * 1.4;
+                            const totalHeight = contentLines.length * lineHeight;
+                            let currentY = contentStartY - (totalHeight / 2) + (lineHeight / 2);
+                            
+                            // Renderizar cada linha
+                            contentLines.forEach((line, index) => {
+                                ctx.fillText(line, canvas.width / 2, currentY);
+                                currentY += lineHeight;
+                            });
                             
                             // Resetar sombra
                             ctx.shadowColor = 'transparent';
@@ -6201,18 +6468,19 @@
                             ctx.shadowOffsetX = 0;
                             ctx.shadowOffsetY = 0;
                             
-                            console.log('✅ CONTEÚDO RENDERIZADO:', content);
+                            console.log('✅ CONTEÚDO RENDERIZADO:', content, `(${contentLines.length} linhas, fontSize: ${contentFontSize})`);
                         }
                         
                         console.log('✅ Texto renderizado COM SUCESSO como última camada!');
                         console.log('🔍 DEBUG - Informações do texto renderizado:');
                         console.log('  - Título renderizado:', title);
                         console.log('  - Conteúdo renderizado:', content);
-                        console.log('  - Posição do título (Y):', titleY);
-                        console.log('  - Posição do conteúdo (Y):', contentStartY);
+                        console.log('  - Posição inicial do título (Y):', titleY);
+                        console.log('  - Posição inicial do conteúdo (Y):', contentStartY);
                         console.log('  - Cor do texto:', textColor);
                         console.log('  - Canvas width:', canvas.width);
                         console.log('  - Canvas height:', canvas.height);
+                        console.log('  - Largura máxima do texto (85%):', Math.round(canvas.width * 0.85));
                         
                         console.log('🎨 RENDERIZAÇÃO COMPLETA!');
                         console.log('🔍 ORDEM FINAL:');
@@ -6239,12 +6507,8 @@
                     
                     console.log('📝 ========== FINALIZANDO renderização do texto ==========');
                     
-                    // CORREÇÃO CRÍTICA: Converter canvas IMEDIATAMENTE, sem setTimeout
-                    console.log('🖼️🖼️🖼️ Convertendo canvas para imagem APÓS desenhar tudo...');
-                    console.log('🖼️ Canvas dimensions antes de converter:', canvas.width, 'x', canvas.height);
+                    // Converter canvas para imagem
                     const finalImage = canvas.toDataURL('image/png');
-                    console.log('✅✅✅ Imagem FINAL gerada, tamanho:', finalImage.length, 'caracteres');
-                    console.log('🖼️ Primeiros 200 caracteres:', finalImage.substring(0, 200));
                     resolve(finalImage);
                 };
                 
@@ -6293,26 +6557,43 @@
                 
                 // CARREGAR IMAGEM DE FUNDO E DEPOIS RENDERIZAR RESTO
                 if (backgroundImageURL) {
-                    console.log('📷📷📷 Carregando imagem de fundo/slideshow...');
-                    console.log('📷 URL da imagem:', backgroundImageURL);
                     const bgImg = new Image();
                     bgImg.crossOrigin = 'anonymous';
-                    bgImg.onload = () => {
-                        console.log('✅ Imagem carregada! Dimensões:', bgImg.width, 'x', bgImg.height);
-                        console.log('✅ Canvas dimensões:', canvas.width, 'x', canvas.height);
-                        ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
-                        console.log('✅✅✅ Imagem desenhada no canvas! Agora renderizando formas e texto POR CIMA...');
-                        renderRestOfCanvas();
+                    bgImg.onload = async () => {
+                        // CORREÇÃO: Usar object-fit: cover (idêntico ao CSS)
+                        const imgRatio = bgImg.width / bgImg.height;
+                        const canvasRatio = canvas.width / canvas.height;
+                        
+                        let drawWidth, drawHeight, offsetX, offsetY;
+                        
+                        // LÓGICA IDÊNTICA AO CSS background-size: cover
+                        if (imgRatio > canvasRatio) {
+                            // Imagem mais LARGA que canvas → ajustar pela ALTURA
+                            drawHeight = canvas.height;
+                            drawWidth = drawHeight * imgRatio;
+                            offsetX = (canvas.width - drawWidth) / 2;
+                            offsetY = 0;
+                        } else {
+                            // Imagem mais ALTA que canvas → ajustar pela LARGURA  
+                            drawWidth = canvas.width;
+                            drawHeight = drawWidth / imgRatio;
+                            offsetX = 0;
+                            offsetY = (canvas.height - drawHeight) / 2;
+                        }
+                        
+                        // NÃO limpar canvas (preservar gradiente de fundo), apenas desenhar imagem por cima
+                        ctx.drawImage(bgImg, offsetX, offsetY, drawWidth, drawHeight);
+                        await renderRestOfCanvas();
                     };
-                    bgImg.onerror = (err) => {
+                    bgImg.onerror = async (err) => {
                         console.error('❌❌❌ Erro ao carregar imagem:', err);
                         console.error('❌ URL que falhou:', backgroundImageURL);
-                        renderRestOfCanvas(); // Continuar mesmo sem imagem
+                        await renderRestOfCanvas(); // Continuar mesmo sem imagem
                     };
                     bgImg.src = backgroundImageURL;
                 } else {
                     console.log('ℹ️ Sem imagem de fundo, renderizando direto...');
-                    renderRestOfCanvas();
+                    await renderRestOfCanvas();
                 }
             });
         }
@@ -6321,6 +6602,13 @@
         function renderCircleOnCanvas(ctx, pos, size, element) {
             // IMPORTANTE: Salvar estado do contexto antes de renderizar
             ctx.save();
+            
+            // CRÍTICO: Resetar propriedades do contexto para evitar contaminação
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
             
             const centerX = pos.x + size.width / 2;
             const centerY = pos.y + size.height / 2;
@@ -6338,16 +6626,24 @@
             ctx.beginPath();
             ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
             ctx.fill();
+            ctx.closePath();
             
             // IMPORTANTE: Restaurar estado do contexto
             ctx.restore();
             
-            console.log('🔵 Círculo renderizado:', { centerX, centerY, radius, backgroundColor });
+            console.log('🔵 Círculo renderizado:', { centerX, centerY, radius, backgroundColor, opacity: originalOpacity });
         }
         
         function renderRectangleOnCanvas(ctx, pos, size, element) {
             // IMPORTANTE: Salvar estado do contexto antes de renderizar
             ctx.save();
+            
+            // CRÍTICO: Resetar propriedades do contexto para evitar contaminação
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
             
             // Capturar cor de fundo com fallback
             const backgroundColor = element.style.backgroundColor || '#3b82f6';
@@ -6365,6 +6661,7 @@
                 ctx.beginPath();
                 ctx.roundRect(pos.x, pos.y, size.width, size.height, radius);
                 ctx.fill();
+                ctx.closePath();
             } else {
                 ctx.fillRect(pos.x, pos.y, size.width, size.height);
             }
@@ -6372,17 +6669,26 @@
             // IMPORTANTE: Restaurar estado do contexto
             ctx.restore();
             
-            console.log('🟦 Retângulo renderizado:', { pos, size, backgroundColor });
+            console.log('🟦 Retângulo renderizado:', { pos, size, backgroundColor, opacity: originalOpacity });
         }
         
         function renderLineOnCanvas(ctx, pos, size, element) {
             // IMPORTANTE: Salvar estado do contexto antes de renderizar
             ctx.save();
             
+            // CRÍTICO: Resetar propriedades do contexto para evitar contaminação
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+            
             // Capturar cor com fallback
             const strokeColor = element.style.backgroundColor || '#3b82f6';
             ctx.strokeStyle = strokeColor;
-            ctx.globalAlpha = parseFloat(element.style.opacity) || 1;
+            
+            const originalOpacity = parseFloat(element.style.opacity) || 1;
+            ctx.globalAlpha = originalOpacity;
             ctx.lineWidth = size.height;
             
             // Aplicar border-radius se existir (para linhas com bordas arredondadas)
@@ -6397,34 +6703,112 @@
             ctx.moveTo(pos.x, pos.y + size.height / 2);
             ctx.lineTo(pos.x + size.width, pos.y + size.height / 2);
             ctx.stroke();
+            ctx.closePath();
             
             // IMPORTANTE: Restaurar estado do contexto
             ctx.restore();
             
-            console.log('➖ Linha renderizada:', { pos, size, strokeColor });
+            console.log('➖ Linha renderizada:', { pos, size, strokeColor, opacity: originalOpacity });
         }
         
-        function renderIconOnCanvas(ctx, pos, size, element) {
+        async function renderIconOnCanvas(ctx, pos, size, element) {
             // IMPORTANTE: Salvar estado do contexto antes de renderizar
             ctx.save();
             
-            // Para �cones, vamos renderizar um c�rculo simples por enquanto
-            // Em uma implementa��o completa, voc� usaria uma biblioteca de �cones SVG
-            const centerX = pos.x + size.width / 2;
-            const centerY = pos.y + size.height / 2;
-            const radius = Math.min(size.width, size.height) / 2;
+            // CRÍTICO: Resetar propriedades do contexto para evitar contaminação
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
             
-            ctx.fillStyle = element.style.backgroundColor || '#3b82f6';
-            ctx.globalAlpha = parseFloat(element.style.opacity) || 1;
+            console.log('⭐ Renderizando ícone:', element.id, { pos, size });
             
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-            ctx.fill();
+            // CORREÇÃO: Garantir que ícone seja SEMPRE quadrado (usar menor lado)
+            const iconSize = Math.min(size.width, size.height);
+            const finalSize = {
+                width: iconSize,
+                height: iconSize
+            };
+            
+            // Centralizar se houver diferença entre width e height
+            const finalPos = {
+                x: pos.x + (size.width - iconSize) / 2,
+                y: pos.y + (size.height - iconSize) / 2
+            };
+            
+            console.log('🔧 Ajuste para ícone quadrado:', {
+                original: size,
+                final: finalSize,
+                posOriginal: pos,
+                posFinal: finalPos
+            });
+            
+            try {
+                // Buscar o elemento SVG dentro do ícone
+                const svgElement = element.querySelector('svg');
+                
+                if (svgElement) {
+                    // Criar uma imagem temporária do SVG
+                    const svgData = new XMLSerializer().serializeToString(svgElement);
+                    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+                    const url = URL.createObjectURL(svgBlob);
+                    
+                    // Criar imagem
+                    const img = new Image();
+                    img.src = url;
+                    
+                    // Aguardar carregamento
+                    await new Promise((resolve, reject) => {
+                        img.onload = resolve;
+                        img.onerror = reject;
+                    });
+                    
+                    // Aplicar opacidade
+                    ctx.globalAlpha = parseFloat(element.style.opacity) || 1;
+                    
+                    // Desenhar imagem do SVG no canvas (SEMPRE QUADRADO)
+                    ctx.drawImage(img, finalPos.x, finalPos.y, finalSize.width, finalSize.height);
+                    
+                    // Limpar URL temporária
+                    URL.revokeObjectURL(url);
+                    
+                    console.log('✅ Ícone SVG renderizado (quadrado):', finalSize);
+                } else {
+                    // Fallback: renderizar um círculo colorido
+                    console.warn('⚠️ SVG não encontrado, usando círculo de fallback');
+                    
+                    const centerX = finalPos.x + finalSize.width / 2;
+                    const centerY = finalPos.y + finalSize.height / 2;
+                    const radius = finalSize.width / 2;
+                    
+                    ctx.fillStyle = element.style.backgroundColor || '#3b82f6';
+                    ctx.globalAlpha = parseFloat(element.style.opacity) || 1;
+                    
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+                    ctx.fill();
+                    
+                    console.log('⭐ Ícone renderizado como círculo fallback:', { radius });
+                }
+            } catch (error) {
+                console.error('❌ Erro ao renderizar ícone:', error);
+                
+                // Fallback em caso de erro: renderizar círculo
+                const centerX = finalPos.x + finalSize.width / 2;
+                const centerY = finalPos.y + finalSize.height / 2;
+                const radius = finalSize.width / 2;
+                
+                ctx.fillStyle = '#3b82f6';
+                ctx.globalAlpha = parseFloat(element.style.opacity) || 1;
+                
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+                ctx.fill();
+            }
             
             // IMPORTANTE: Restaurar estado do contexto
             ctx.restore();
-            
-            console.log('⭐ Ícone renderizado:', { centerX, centerY, radius });
         }
 
         // Submit do formul�rio
@@ -6654,35 +7038,93 @@
                 return; // PARAR o salvamento
             }
             
-            // CORRE��O: Renderizar canvas final com formas geom�tricas
-            console.log('?? CORRE��O CR�TICA - Iniciando renderiza��o do canvas final...');
-            console.log('?? Template atual:', {
-                id: currentTemplate.id,
-                name: currentTemplate.name,
-                originalWidth: currentTemplate.metadata.originalWidth,
-                originalHeight: currentTemplate.metadata.originalHeight,
-                aspectRatio: currentTemplate.aspectRatio
+            // CORREÇÃO CRÍTICA: Atualizar dimensões do slideshow ANTES de salvar
+            if (customizationSettings.slideshow && customizationSettings.slideshow.enabled) {
+                const templateDims = CoordinateSystem.getOriginalDimensions();
+                customizationSettings.slideshow.templateDimensions = {
+                    width: templateDims.width,
+                    height: templateDims.height,
+                    templateName: currentTemplate?.name,
+                    templateId: currentTemplate?.id
+                };
+                console.log('🔄 FORÇANDO atualização das dimensões do slideshow antes de salvar:', {
+                    template: currentTemplate?.name,
+                    dimensions: `${templateDims.width}×${templateDims.height}`
+                });
+            }
+            
+            // CORREÇÃO: Renderizar canvas final com formas geométricas
+            console.log('🚨🚨🚨 INICIANDO SALVAMENTO 🚨🚨🚨');
+            console.log('🎯 TEMPLATE ATUAL NO MOMENTO DO SALVAMENTO:', {
+                id: currentTemplate?.id,
+                name: currentTemplate?.name,
+                originalWidth: currentTemplate?.metadata?.originalWidth,
+                originalHeight: currentTemplate?.metadata?.originalHeight,
+                aspectRatio: currentTemplate?.aspectRatio
             });
             
+            console.log('📐 customizationSettings.templateDimensions:', customizationSettings.templateDimensions);
+            
             try {
-                const finalCanvasDataURL = await renderFinalCanvas(titleForCanvas, contentForCanvas);
+                // VERIFICAR SE HÁ SLIDESHOW (original OU editado)
+                const hasSlideshow = customizationSettings.slideshow && 
+                                   customizationSettings.slideshow.enabled && 
+                                   ((customizationSettings.slideshow.images && customizationSettings.slideshow.images.length === 4) ||
+                                    (customizationSettings.slideshow.savedImages && customizationSettings.slideshow.savedImages.length === 4));
                 
-                // Converter base64 para Blob para enviar como arquivo
-                const byteString = atob(finalCanvasDataURL.split(',')[1]);
-                const mimeString = finalCanvasDataURL.split(',')[0].split(':')[1].split(';')[0];
-                const ab = new ArrayBuffer(byteString.length);
-                const ia = new Uint8Array(ab);
-                for (let i = 0; i < byteString.length; i++) {
-                    ia[i] = byteString.charCodeAt(i);
+                console.log('🔍 SLIDESHOW CHECK:', {
+                    hasSlideshow,
+                    enabled: customizationSettings.slideshow?.enabled,
+                    imagesCount: customizationSettings.slideshow?.images?.length,
+                    savedImagesCount: customizationSettings.slideshow?.savedImages?.length
+                });
+                
+                if (hasSlideshow) {
+                    // CORREÇÃO: Se estiver editando e não tiver imagens originais, carregar das savedImages
+                    if (!customizationSettings.slideshow.images || customizationSettings.slideshow.images.length === 0) {
+                        if (customizationSettings.slideshow.savedImages && customizationSettings.slideshow.savedImages.length === 4) {
+                            console.log('🔄 Editando: Carregando imagens das URLs salvas para re-renderizar...');
+                            customizationSettings.slideshow.images = customizationSettings.slideshow.savedImages;
+                        }
+                    }
+                    
+                    // Renderizar as 4 imagens do slideshow
+                    const slideshowCanvases = await renderSlideshowCanvases(titleForCanvas, contentForCanvas);
+                    
+                    // Converter cada canvas para Blob e adicionar ao FormData
+                    for (let i = 0; i < slideshowCanvases.length; i++) {
+                        const dataURL = slideshowCanvases[i];
+                        const byteString = atob(dataURL.split(',')[1]);
+                        const mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
+                        const ab = new ArrayBuffer(byteString.length);
+                        const ia = new Uint8Array(ab);
+                        for (let j = 0; j < byteString.length; j++) {
+                            ia[j] = byteString.charCodeAt(j);
+                        }
+                        const blob = new Blob([ab], { type: mimeString });
+                        formData.append(`slideshow_${i + 1}`, blob, `slideshow-${i + 1}.png`);
+                    }
+                } else {
+                    // Post normal (sem slideshow) - renderizar 1 imagem apenas
+                    const finalCanvasDataURL = await renderFinalCanvas(titleForCanvas, contentForCanvas);
+                    
+                    // Converter base64 para Blob para enviar como arquivo
+                    const byteString = atob(finalCanvasDataURL.split(',')[1]);
+                    const mimeString = finalCanvasDataURL.split(',')[0].split(':')[1].split(';')[0];
+                    const ab = new ArrayBuffer(byteString.length);
+                    const ia = new Uint8Array(ab);
+                    for (let i = 0; i < byteString.length; i++) {
+                        ia[i] = byteString.charCodeAt(i);
+                    }
+                    const blob = new Blob([ab], { type: mimeString });
+                    
+                    // Adicionar como arquivo ao FormData
+                    formData.append('finalCanvas', blob, 'final-canvas.png');
+                    
+                    console.log('✅✅✅ Canvas final renderizado com sucesso - dimensões corretas aplicadas');
+                    console.log('📤📤📤 ENVIANDO finalCanvas para servidor como Blob - Tamanho:', blob.size, 'bytes');
+                    console.log('📤 Tipo do blob:', blob.type);
                 }
-                const blob = new Blob([ab], { type: mimeString });
-                
-                // Adicionar como arquivo ao FormData
-                formData.append('finalCanvas', blob, 'final-canvas.png');
-                
-                console.log('✅✅✅ Canvas final renderizado com sucesso - dimensões corretas aplicadas');
-                console.log('📤📤📤 ENVIANDO finalCanvas para servidor como Blob - Tamanho:', blob.size, 'bytes');
-                console.log('📤 Tipo do blob:', blob.type);
             } catch (error) {
                 console.error('❌❌❌ Erro ao renderizar canvas final:', error);
             }
@@ -7058,12 +7500,24 @@
                 return;
             }
             
-            // Salvar no customizationSettings
+            // Salvar no customizationSettings com dimensões do template
+            const templateDims = CoordinateSystem.getOriginalDimensions();
             customizationSettings.slideshow = {
                 enabled: true,
                 images: slideshowImages,
-                interval: 4000 // 4 segundos
+                interval: 4000, // 4 segundos
+                templateDimensions: {
+                    width: templateDims.width,
+                    height: templateDims.height,
+                    templateName: currentTemplate?.name,
+                    templateId: currentTemplate?.id
+                }
             };
+            
+            console.log('📐 Slideshow salvo com dimensões do template:', {
+                template: currentTemplate?.name,
+                dimensions: `${templateDims.width}×${templateDims.height}`
+            });
             
             // Aplicar ao canvas de preview
             applySlideshowToCanvas();
