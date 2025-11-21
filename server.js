@@ -1972,8 +1972,7 @@ app.put('/api/posts/:id', upload.fields([
     { name: 'video', maxCount: 1 }, 
     { name: 'backgroundImage', maxCount: 1 }, 
     { name: 'narrationAudio', maxCount: 1 },
-    { name: 'finalCanvas', maxCount: 1 },  // Posts normais
-    // SLIDESHOW: aceitar 4 imagens separadas
+    { name: 'finalCanvas', maxCount: 1 },
     { name: 'slideshow_1', maxCount: 1 },
     { name: 'slideshow_2', maxCount: 1 },
     { name: 'slideshow_3', maxCount: 1 },
@@ -2435,6 +2434,29 @@ app.put('/api/posts/:id', upload.fields([
 
             console.log('🔍 Debug - Query SQL:', `UPDATE posts SET ${fields.join(', ')}, updated_at = NOW() WHERE user_id = ? AND id = ?`);
             console.log('🔍 Debug - Parâmetros:', params);
+            console.log('🔍 Debug - userId na sessão:', req.session.userId);
+            console.log('🔍 Debug - postId a atualizar:', postId);
+            
+            // Verificar se o post existe e qual o user_id dele
+            const [existingPost] = await pool.execute(
+                'SELECT id, user_id FROM posts WHERE id = ?',
+                [postId]
+            );
+            console.log('🔍 Debug - Post encontrado no banco:', existingPost);
+            
+            if (existingPost.length === 0) {
+                console.log('❌ POST NÃO EXISTE NO BANCO DE DADOS! ID:', postId);
+                return res.status(404).json({ message: 'Post não encontrado no banco de dados' });
+            }
+            
+            if (existingPost[0].user_id !== req.session.userId) {
+                console.log('❌ USER_ID NÃO CORRESPONDE!');
+                console.log('  - user_id do post:', existingPost[0].user_id);
+                console.log('  - user_id da sessão:', req.session.userId);
+                return res.status(403).json({ message: 'Você não tem permissão para editar este post' });
+            }
+            
+            console.log('✅ Post existe e pertence ao usuário. Prosseguindo com atualização...');
             
             const [result] = await pool.execute(
                 `UPDATE posts SET ${fields.join(', ')}, updated_at = NOW() WHERE user_id = ? AND id = ?`,
@@ -2452,11 +2474,24 @@ app.put('/api/posts/:id', upload.fields([
             }
         } catch (dbError) {
             console.log('🔄 Modo demo - Atualizando post');
+            console.log('🔍 Debug - Erro do banco:', dbError.message);
+            console.log('🔍 Debug - postId a atualizar:', postId);
+            console.log('🔍 Debug - userId:', req.session.userId);
+            console.log('🔍 Debug - global.demoPosts existe?', !!global.demoPosts);
+            console.log('🔍 Debug - global.demoPosts length:', global.demoPosts ? global.demoPosts.length : 0);
+            
             // Modo demo
             if (!global.demoPosts) global.demoPosts = [];
+            
+            console.log('🔍 Debug - Procurando post com id:', postId, 'e user_id:', req.session.userId);
+            console.log('🔍 Debug - Posts disponíveis:', global.demoPosts.map(p => ({ id: p.id, user_id: p.user_id })));
+            
             const idx = global.demoPosts.findIndex(p => String(p.id) === String(postId) && p.user_id === req.session.userId);
+            console.log('🔍 Debug - Índice encontrado:', idx);
+            
             if (idx !== -1) {
                 const current = global.demoPosts[idx];
+                console.log('✅ Post encontrado no modo demo:', current);
                 
                 // Processar customização corretamente
                 let finalCustomization = current.customization || '{}';
@@ -2484,14 +2519,32 @@ app.put('/api/posts/:id', upload.fields([
                     image_url: imageUrl !== undefined ? imageUrl : current.image_url,
                     updated_at: new Date().toISOString()
                 };
+                
+                console.log('💾 Salvando post atualizado no arquivo demo-posts.json...');
+                console.log('🔍 Post atualizado:', global.demoPosts[idx]);
+                console.log('🔍 Total de posts:', global.demoPosts.length);
+                
                 await fs.writeFile('demo-posts.json', JSON.stringify(global.demoPosts, null, 2));
                 updated = true;
-                console.log('✅ Post atualizado no modo demo');
+                console.log('✅ Post atualizado no modo demo e salvo no arquivo');
+            } else {
+                console.log('❌ Post não encontrado no modo demo!');
+                console.log('   - PostId procurado:', postId);
+                console.log('   - UserId:', req.session.userId);
+                console.log('   - Posts disponíveis:', global.demoPosts.map(p => `ID: ${p.id}, User: ${p.user_id}`));
             }
         }
 
         if (updated) {
-            return res.json({ message: 'Post atualizado com sucesso' });
+            // CORREÇÃO: Retornar dados do post atualizado, incluindo image_url
+            console.log('✅ Retornando resposta com image_url:', imageUrl);
+            return res.json({ 
+                message: 'Post atualizado com sucesso',
+                post: {
+                    id: postId,
+                    image_url: imageUrl !== undefined ? imageUrl : null
+                }
+            });
         } else {
             return res.status(404).json({ message: 'Post não encontrado' });
         }
@@ -2780,7 +2833,7 @@ async function startServer() {
         console.log('🔄 Carregando dados demo...');
         await loadDemoData();
     } else {
-        console.log('✅ Conectado ao banco MySQL');
+        console.log('✅ Conectado ao banco MySQL - USANDO BANCO REAL');
     }
     
     app.listen(PORT, () => {

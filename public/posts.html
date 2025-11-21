@@ -893,13 +893,31 @@
                         template: customStyle.slideshow?.templateDimensions?.templateName || 'N/A'
                     });
                     
-                    // CORREÇÃO: Para templates verticais (Story), limitar altura; para horizontais, limitar largura
+                    // CORREÇÃO: Usar altura fixa e calcular largura (igual às imagens estáticas)
                     const isVertical = aspectRatio < 1;
-                    const maxSize = isVertical ? 'max-height: 500px; width: auto;' : 'max-width: 500px;';
+                    const isVeryHorizontal = aspectRatio > 2.5; // Twitter (3:1)
+                    const isSquare = Math.abs(aspectRatio - 1) < 0.1; // Instagram (1:1)
+                    const isWide = aspectRatio >= 1.6 && aspectRatio <= 2.5; // Facebook, YouTube, Twitter
+                    
+                    let containerStyle;
+                    if (isVertical) {
+                        const width = Math.round(400 * aspectRatio);
+                        containerStyle = `height: 400px; width: ${width}px;`;
+                    } else if (isVeryHorizontal) {
+                        const width = Math.round(300 * aspectRatio);
+                        containerStyle = `height: 300px; width: ${width}px;`;
+                    } else if (isSquare) {
+                        containerStyle = `height: 400px; width: 400px;`;
+                    } else if (isWide) {
+                        const width = Math.round(300 * aspectRatio);
+                        containerStyle = `height: 300px; width: ${width}px;`;
+                    } else {
+                        containerStyle = `max-width: 500px; aspect-ratio: ${aspectRatio};`;
+                    }
                     
                     postCard.innerHTML = `
                         <div class="relative mb-6">
-                            <div id="${slideshowId}" class="rounded-xl overflow-hidden shadow-lg relative" style="${maxSize} aspect-ratio: ${aspectRatio}; margin: 0 auto;">
+                            <div id="${slideshowId}" class="rounded-xl overflow-hidden shadow-lg relative" style="${containerStyle} margin: 0 auto;">
                                 ${customStyle.slideshow.savedImages.map((img, idx) => `
                                     <img src="${img}" alt="${post.title} - ${idx + 1}" 
                                          class="slideshow-image" 
@@ -919,14 +937,26 @@
                     console.log('🖼️ Post', post.id, '- Dimensões:', {
                         original: `${originalWidth}×${originalHeight}`,
                         aspectRatio: aspectRatio.toFixed(4),
-                        image_url: post.image_url
+                        image_url: post.image_url,
+                        template: customStyle.templateDimensions
                     });
+                    
+                    // Log específico para Twitter Header e YouTube Thumbnail
+                    if (aspectRatio > 2 || (aspectRatio >= 1.6 && aspectRatio <= 2)) {
+                        console.log('🐦📺 TWITTER/YOUTUBE DETECTADO:', {
+                            id: post.id,
+                            aspectRatio: aspectRatio.toFixed(4),
+                            dimensions: `${originalWidth}×${originalHeight}`,
+                            image_url: post.image_url,
+                            exists: !!post.image_url
+                        });
+                    }
                     
                     // CORREÇÃO: Usar altura fixa e calcular largura para garantir proporções corretas
                     const isVertical = aspectRatio < 1;
-                    const isVeryHorizontal = aspectRatio > 2; // Twitter (3:1)
+                    const isVeryHorizontal = aspectRatio > 2.5; // Twitter (3:1)
                     const isSquare = Math.abs(aspectRatio - 1) < 0.1; // Instagram (1:1)
-                    const isWide = aspectRatio >= 1.8 && aspectRatio <= 2.0; // Facebook (1.91:1), YouTube (1.78:1)
+                    const isWide = aspectRatio >= 1.6 && aspectRatio <= 2.5; // Facebook (1.91:1), YouTube (1.78:1), Twitter (3:1)
                     
                     let containerStyle;
                     if (isVertical) {
@@ -934,16 +964,16 @@
                         const width = Math.round(400 * aspectRatio);
                         containerStyle = `height: 400px; width: ${width}px;`;
                     } else if (isVeryHorizontal) {
-                        // Twitter: altura fixa 200px
-                        const width = Math.round(200 * aspectRatio);
-                        containerStyle = `height: 200px; width: ${width}px;`;
+                        // Twitter: altura ainda maior para melhor visualização (400px)
+                        const width = Math.round(400 * aspectRatio);
+                        containerStyle = `height: 400px; width: ${width}px;`;
                     } else if (isSquare) {
-                        // Instagram: altura fixa 300px (quadrado)
-                        containerStyle = `height: 300px; width: 300px;`;
+                        // Instagram: altura fixa 400px (quadrado maior)
+                        containerStyle = `height: 400px; width: 400px;`;
                     } else if (isWide) {
-                        // Facebook/YouTube: altura fixa 250px
-                        const width = Math.round(250 * aspectRatio);
-                        containerStyle = `height: 250px; width: ${width}px;`;
+                        // Facebook/YouTube/Twitter: altura fixa 350px
+                        const width = Math.round(350 * aspectRatio);
+                        containerStyle = `height: 350px; width: ${width}px;`;
                     } else {
                         // Outros: max-width com aspect-ratio (fallback)
                         containerStyle = `max-width: 500px; aspect-ratio: ${aspectRatio};`;
@@ -958,28 +988,64 @@
                         containerStyle
                     });
                     
+                    // Verificar se a imagem existe
+                    if (!post.image_url) {
+                        console.error('❌ Post', post.id, '- image_url não encontrado!');
+                        console.log('🔍 Post completo:', post);
+                    } else {
+                        console.log('✅ Post', post.id, '- Renderizando imagem:', post.image_url);
+                    }
+                    
                     postCard.innerHTML = `
                         <div class="relative mb-6">
-                            <div class="rounded-xl overflow-hidden shadow-lg relative" style="${containerStyle} margin: 0 auto;">
-                                <img src="${post.image_url}" alt="${post.title}" style="width: 100%; height: 100%; object-fit: cover; object-position: center; display: block;">
+                            <div class="rounded-xl overflow-hidden shadow-lg relative" style="${containerStyle} margin: 0 auto; background: #1f2937;">
+                                ${post.image_url ? 
+                                    `<img src="${post.image_url}" 
+                                          alt="${post.title}" 
+                                          style="width: 100%; height: 100%; object-fit: cover; object-position: center; display: block;"
+                                          onload="console.log('✅ Imagem carregada:', '${post.image_url}')"
+                                          onerror="console.error('❌ Erro ao carregar imagem:', '${post.image_url}')">` 
+                                    : 
+                                    `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #374151; color: white;">
+                                        <p>❌ Imagem não encontrada</p>
+                                    </div>`
+                                }
                             </div>
                 `;
                 } else {
                     // RECRIAR POST (método antigo, para posts sem finalCanvas)
                     console.log('⚠️ Recriando post (sem finalCanvas)');
                     
-                    // CORREÇÃO: Usar aspect-ratio também para posts antigos
+                    // CORREÇÃO: Usar altura fixa e calcular largura (igual aos outros posts)
                     const originalWidth = customStyle.templateDimensions?.originalWidth || 1080;
                     const originalHeight = customStyle.templateDimensions?.originalHeight || 1080;
                     const aspectRatio = originalWidth / originalHeight;
                     const isVertical = aspectRatio < 1;
-                    const maxSize = isVertical ? 'max-height: 500px; width: auto;' : 'max-width: 500px;';
+                    const isVeryHorizontal = aspectRatio > 2.5;
+                    const isSquare = Math.abs(aspectRatio - 1) < 0.1;
+                    const isWide = aspectRatio >= 1.6 && aspectRatio <= 2.5;
+                    
+                    let maxSize;
+                    if (isVertical) {
+                        const width = Math.round(400 * aspectRatio);
+                        maxSize = `height: 400px; width: ${width}px;`;
+                    } else if (isVeryHorizontal) {
+                        const width = Math.round(300 * aspectRatio);
+                        maxSize = `height: 300px; width: ${width}px;`;
+                    } else if (isSquare) {
+                        maxSize = `height: 400px; width: 400px;`;
+                    } else if (isWide) {
+                        const width = Math.round(300 * aspectRatio);
+                        maxSize = `height: 300px; width: ${width}px;`;
+                    } else {
+                        maxSize = `max-width: 500px; aspect-ratio: ${aspectRatio};`;
+                    }
                     
                     postCard.innerHTML = `
                         <div class="relative">
                             <div>
                                 <!-- SOLUÇÃO FINAL - COM BACKGROUND -->
-                                <div class="mb-6 rounded-xl overflow-hidden shadow-lg ${customStyle.backgroundImage ? '' : (customStyle.background || 'bg-gradient-to-br from-blue-400 to-purple-500')}" style="${maxSize} aspect-ratio: ${aspectRatio}; margin: 0 auto; background-position: center; background-size: cover; background-repeat: no-repeat; ${customStyle.backgroundImage ? `background-image: url('${customStyle.backgroundImage}');` : ''} ${customStyle.imageFilter === 'grayscale' ? 'filter: grayscale(100%);' : customStyle.imageFilter === 'sepia' ? 'filter: sepia(80%);' : ''} display: flex; flex-direction: column; align-items: center; text-align: center; padding: 24px; ${customStyle.textPosition === 'top' ? 'justify-content: flex-start;' : customStyle.textPosition === 'bottom' ? 'justify-content: flex-end;' : 'justify-content: center;'} position: relative;">
+                                <div class="mb-6 rounded-xl overflow-hidden shadow-lg ${customStyle.backgroundImage ? '' : (customStyle.background || 'bg-gradient-to-br from-blue-400 to-purple-500')}" style="${maxSize} margin: 0 auto; background-position: center; background-size: cover; background-repeat: no-repeat; ${customStyle.backgroundImage ? `background-image: url('${customStyle.backgroundImage}');` : ''} ${customStyle.imageFilter === 'grayscale' ? 'filter: grayscale(100%);' : customStyle.imageFilter === 'sepia' ? 'filter: sepia(80%);' : ''} display: flex; flex-direction: column; align-items: center; text-align: center; padding: 24px; ${customStyle.textPosition === 'top' ? 'justify-content: flex-start;' : customStyle.textPosition === 'bottom' ? 'justify-content: flex-end;' : 'justify-content: center;'} position: relative;">
                                     <h3 class="text-2xl font-bold ${resolvedFontClass} mb-4" style="${resolvedFontStyle} color: ${customStyle.color} !important; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">${post.title}</h3>
                                     <p class="text-base leading-relaxed ${resolvedFontClass}" style="${resolvedFontStyle} color: ${customStyle.color} !important; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">${post.content.substring(0, 200)}${post.content.length > 200 ? '...' : ''}</p>
                                 

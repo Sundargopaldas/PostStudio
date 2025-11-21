@@ -1537,7 +1537,15 @@
             // Se vier em modo edi��o, preencher dados do post
             const urlParams = new URLSearchParams(window.location.search);
             const editId = urlParams.get('edit');
+            
+            // CORREÇÃO: Se NÃO está em modo edição, limpar sessionStorage ao carregar
+            if (!editId) {
+                sessionStorage.removeItem('editPostData');
+                console.log('🆕 Página carregada em MODO CRIAÇÃO - sessionStorage limpo');
+            }
+            
             if (editId) {
+                console.log('✏️ Página carregada em MODO EDIÇÃO - ID:', editId);
                 try {
                     const raw = sessionStorage.getItem('editPostData');
                     if (raw) {
@@ -1604,35 +1612,133 @@
                                 if (custom.font) { 
                                     selectedFont = custom.font; 
                                     customizationSettings.font = custom.font; 
-                                    console.log('?? Fonte carregada para edi��o:', custom.font);
+                                    console.log('✏️ Fonte carregada para edição:', custom.font);
+                                    
+                                    // CORREÇÃO: Aplicar fonte ao texto de preview
+                                    setTimeout(() => {
+                                        const previewTitle = document.getElementById('previewTitle');
+                                        const previewText = document.getElementById('previewText');
+                                        if (previewTitle) previewTitle.className = `text-4xl font-bold ${custom.font}`;
+                                        if (previewText) previewText.className = `text-xl ${custom.font} mt-4`;
+                                    }, 400);
                                 }
                                 if (custom.color) { 
                                     selectedColor = custom.color; 
                                     customizationSettings.color = custom.color; 
-                                    console.log('?? Cor carregada para edi��o:', custom.color);
+                                    console.log('🎨 Cor carregada para edição:', custom.color);
+                                    
+                                    // CORREÇÃO: Aplicar cor ao texto de preview
+                                    setTimeout(() => {
+                                        const previewTitle = document.getElementById('previewTitle');
+                                        const previewText = document.getElementById('previewText');
+                                        if (previewTitle) previewTitle.style.color = custom.color;
+                                        if (previewText) previewText.style.color = custom.color;
+                                    }, 450);
                                 }
                                 if (custom.background) { 
                                     selectedBackground = custom.background; 
                                     customizationSettings.background = custom.background; 
-                                    console.log('??? Background carregado para edi��o:', custom.background);
+                                    console.log('🎨 Background carregado para edição:', custom.background);
+                                    
+                                    // CORREÇÃO: Aplicar background ao canvas de preview
+                                    setTimeout(() => {
+                                        const canvas = document.getElementById('canvas');
+                                        if (canvas) {
+                                            console.log('✅ Aplicando background ao canvas:', custom.background);
+                                            // Aplicar classe de background preservando classes existentes
+                                            const existingClasses = canvas.className.split(' ').filter(cls => 
+                                                !cls.startsWith('bg-') && 
+                                                !cls.startsWith('gradient-') && 
+                                                cls !== 'rounded-xl' && 
+                                                cls !== 'overflow-hidden' && 
+                                                cls !== 'shadow-lg'
+                                            );
+                                            canvas.className = `rounded-xl overflow-hidden shadow-lg ${custom.background} ${existingClasses.join(' ')}`.trim();
+                                        }
+                                    }, 300);
                                 }
                                 if (custom.textEffect) { 
                                     selectedTextEffect = custom.textEffect; 
                                     customizationSettings.textEffect = custom.textEffect; 
-                                    console.log('? Efeito de texto carregado para edi��o:', custom.textEffect);
+                                    console.log('✨ Efeito de texto carregado para edição:', custom.textEffect);
+                                    
+                                    // CORREÇÃO: Aplicar efeito ao texto de preview
+                                    setTimeout(() => {
+                                        const previewTitle = document.getElementById('previewTitle');
+                                        const previewText = document.getElementById('previewText');
+                                        
+                                        if (previewTitle || previewText) {
+                                            // Remover efeitos anteriores
+                                            [previewTitle, previewText].forEach(el => {
+                                                if (el) {
+                                                    el.style.textShadow = '';
+                                                    el.style.webkitTextStroke = '';
+                                                    el.classList.remove('text-shadow-glow', 'text-shadow-outline');
+                                                }
+                                            });
+                                            
+                                            // Aplicar novo efeito
+                                            switch(custom.textEffect) {
+                                                case 'shadow':
+                                                    [previewTitle, previewText].forEach(el => {
+                                                        if (el) el.style.textShadow = '4px 4px 8px rgba(0,0,0,0.5)';
+                                                    });
+                                                    break;
+                                                case 'glow':
+                                                    [previewTitle, previewText].forEach(el => {
+                                                        if (el) el.style.textShadow = '0 0 20px currentColor, 0 0 40px currentColor';
+                                                    });
+                                                    break;
+                                                case 'outline':
+                                                    [previewTitle, previewText].forEach(el => {
+                                                        if (el) el.style.webkitTextStroke = '2px black';
+                                                    });
+                                                    break;
+                                            }
+                                            console.log('✅ Efeito de texto aplicado:', custom.textEffect);
+                                        }
+                                    }, 550);
                                 }
                                 if (custom.textPosition) { 
                                     selectedTextPosition = custom.textPosition; 
                                     customizationSettings.textPosition = custom.textPosition;
-                                    console.log('?? Posicionamento do texto carregado para edi��o:', custom.textPosition);
+                                    console.log('📍 Posicionamento do texto carregado para edição:', custom.textPosition);
+                                    
+                                    // CORREÇÃO: Aplicar posicionamento ao preview
+                                    setTimeout(() => {
+                                        const previewContent = document.getElementById('previewContent');
+                                        if (previewContent) {
+                                            let justifyContent = '';
+                                            switch(custom.textPosition) {
+                                                case 'top': justifyContent = 'flex-start'; break;
+                                                case 'center': justifyContent = 'center'; break;
+                                                case 'bottom': justifyContent = 'flex-end'; break;
+                                                default: justifyContent = 'center';
+                                            }
+                                            previewContent.style.justifyContent = justifyContent;
+                                            console.log('✅ Posicionamento aplicado:', custom.textPosition, '→', justifyContent);
+                                        }
+                                    }, 500);
                                 }
                                 if (custom.backgroundImage) { 
                                     selectedBackgroundImage = custom.backgroundImage; 
                                     customizationSettings.backgroundImage = custom.backgroundImage;
-                                    console.log('??? Imagem de fundo carregada para edi��o:', custom.backgroundImage);
+                                    console.log('🖼️ Imagem de fundo carregada para edição:', custom.backgroundImage);
                                     
-                                    // Armazenar a imagem de fundo atual para refer�ncia
+                                    // Armazenar a imagem de fundo atual para referência
                                     window.currentPostBackgroundImage = custom.backgroundImage;
+                                    
+                                    // CORREÇÃO: Aplicar imagem de fundo ao canvas de preview
+                                    setTimeout(() => {
+                                        const canvas = document.getElementById('canvas');
+                                        if (canvas) {
+                                            console.log('✅ Aplicando imagem de fundo ao canvas:', custom.backgroundImage);
+                                            canvas.style.backgroundImage = `url(${custom.backgroundImage})`;
+                                            canvas.style.backgroundSize = 'cover';
+                                            canvas.style.backgroundPosition = 'center';
+                                            canvas.style.backgroundRepeat = 'no-repeat';
+                                        }
+                                    }, 600);
                                 }
                                 
                                 // CORREÇÃO: Restaurar filtro de imagem quando editar
@@ -4169,10 +4275,19 @@
                 `;
                 
                 button.onclick = function() {
-                    console.log('?? Template selecionado:', template.name);
+                    console.log('🎯 Template selecionado:', template.name);
                     
                     // Atualizar template atual
                     currentTemplate = template;
+                    
+                    // CORREÇÃO CRÍTICA: Forçar atualização das dimensões do template
+                    console.log('📐 Dimensões do template antes da mudança:', customizationSettings.templateDimensions);
+                    console.log('📐 Novo template:', {
+                        name: template.name,
+                        id: template.id,
+                        originalWidth: template.metadata.originalWidth,
+                        originalHeight: template.metadata.originalHeight
+                    });
                     
                     // Ajustar preview para o template selecionado usando coordenadas normalizadas
                     const previewCanvas = document.getElementById('canvas');
@@ -4218,6 +4333,11 @@
                         
                         // SALVAR DIMENSÕES DO TEMPLATE para usar no salvamento
                         // CORREÇÃO: Usar previewWidth/previewHeight CALCULADOS, não os valores máximos
+                        // 🔥 CRÍTICO: MANTER configurações existentes, apenas atualizar dimensões
+                        const oldBackground = customizationSettings.background;
+                        const oldColor = customizationSettings.color;
+                        const oldFont = customizationSettings.font;
+                        
                         customizationSettings.templateDimensions = {
                             originalWidth: template.metadata.originalWidth,
                             originalHeight: template.metadata.originalHeight,
@@ -4226,7 +4346,40 @@
                             scale: Math.round(previewWidth) / template.metadata.originalWidth
                         };
                         
+                        // 🔥 RESTAURAR configurações que podem ter sido perdidas
+                        if (!customizationSettings.background && oldBackground) {
+                            customizationSettings.background = oldBackground;
+                            console.log('🔧 RESTAURADO background:', oldBackground);
+                        }
+                        if (!customizationSettings.color && oldColor) {
+                            customizationSettings.color = oldColor;
+                            console.log('🔧 RESTAURADO color:', oldColor);
+                        }
+                        if (!customizationSettings.font && oldFont) {
+                            customizationSettings.font = oldFont;
+                            console.log('🔧 RESTAURADO font:', oldFont);
+                        }
+                        
                         console.log('💾 templateDimensions SALVO:', customizationSettings.templateDimensions);
+                        console.log('📐 Dimensões do template após mudança:', customizationSettings.templateDimensions);
+                        
+                        // CORREÇÃO: Forçar verificação das dimensões
+                        console.log('🔍 Verificando consistência das dimensões:');
+                        console.log('  - currentTemplate.metadata:', currentTemplate.metadata);
+                        console.log('  - customizationSettings.templateDimensions:', customizationSettings.templateDimensions);
+                        console.log('  - Match:', 
+                            currentTemplate.metadata.originalWidth === customizationSettings.templateDimensions.originalWidth &&
+                            currentTemplate.metadata.originalHeight === customizationSettings.templateDimensions.originalHeight
+                        );
+                        
+                        // 🔥 VERIFICAÇÃO CRÍTICA: Background e outras configurações
+                        console.log('🎨🎨🎨 VERIFICAÇÃO CRÍTICA após mudança de template:');
+                        console.log('  - Background:', customizationSettings.background || '❌ INDEFINIDO!');
+                        console.log('  - Cor:', customizationSettings.color || '❌ INDEFINIDO!');
+                        console.log('  - Fonte:', customizationSettings.font || '❌ INDEFINIDO!');
+                        if (!customizationSettings.background) {
+                            console.error('❌❌❌ ERRO CRÍTICO: Background foi perdido na mudança de template!');
+                        }
                         
                         console.log('?? Preview do template ajustado:', {
                             template: { 
@@ -6020,16 +6173,64 @@
                 // Usar dimensões originais do template atual
                 const originalDims = CoordinateSystem.getOriginalDimensions();
                 
-                canvas.width = originalDims.width;
-                canvas.height = originalDims.height;
+                // CORREÇÃO CRÍTICA PARA TWITTER HEADER: Forçar dimensões fixas
+                let finalWidth, finalHeight;
+                
+                if (currentTemplate.id === 'twitter-header') {
+                    // Twitter Header: SEMPRE 1500x500 (dimensões fixas)
+                    finalWidth = 1500;
+                    finalHeight = 500;
+                    console.log('🐦 TWITTER HEADER: Forçando dimensões fixas:', finalWidth, 'x', finalHeight);
+                } else if (currentTemplate.id === 'youtube-thumbnail') {
+                    // YouTube Thumbnail: SEMPRE 1280x720 (dimensões fixas)
+                    finalWidth = 1280;
+                    finalHeight = 720;
+                    console.log('📺 YOUTUBE THUMBNAIL: Forçando dimensões fixas:', finalWidth, 'x', finalHeight);
+                } else {
+                    // Outros templates: usar dimensões originais arredondadas
+                    finalWidth = Math.round(originalDims.width);
+                    finalHeight = Math.round(originalDims.height);
+                }
+                
+                // Definir dimensões do canvas ANTES de qualquer renderização
+                canvas.width = finalWidth;
+                canvas.height = finalHeight;
+                
+                // CORREÇÃO: Garantir que o canvas não está sendo distorcido pelo CSS
+                canvas.style.width = finalWidth + 'px';
+                canvas.style.height = finalHeight + 'px';
+                
+                // Verificar se as dimensões foram aplicadas corretamente
+                if (canvas.width !== finalWidth || canvas.height !== finalHeight) {
+                    console.error('❌ ERRO: Dimensões do canvas não foram aplicadas corretamente!');
+                    console.error('❌ Esperado:', finalWidth, 'x', finalHeight);
+                    console.error('❌ Obtido:', canvas.width, 'x', canvas.height);
+                    // Forçar correção
+                    canvas.width = finalWidth;
+                    canvas.height = finalHeight;
+                }
+                
+                // CORREÇÃO: Verificar aspect ratio esperado vs obtido
+                const expectedAspectRatio = originalDims.width / originalDims.height;
+                const actualAspectRatio = canvas.width / canvas.height;
+                const aspectRatioDiff = Math.abs(expectedAspectRatio - actualAspectRatio);
+                
+                if (aspectRatioDiff > 0.01) {
+                    console.error('❌ ERRO: Aspect ratio incorreto!');
+                    console.error('❌ Esperado:', expectedAspectRatio.toFixed(4));
+                    console.error('❌ Obtido:', actualAspectRatio.toFixed(4));
+                    console.error('❌ Diferença:', aspectRatioDiff.toFixed(4));
+                }
                 
                 console.log('🎯 CANVAS CRIADO:', {
                     template: currentTemplate.name,
                     id: currentTemplate.id,
                     canvasWidth: canvas.width,
                     canvasHeight: canvas.height,
-                    ratio: (canvas.width / canvas.height).toFixed(4),
-                    expected: `${originalDims.width}×${originalDims.height}`
+                    ratio: actualAspectRatio.toFixed(4),
+                    expected: `${originalDims.width}×${originalDims.height}`,
+                    expectedRatio: expectedAspectRatio.toFixed(4),
+                    aspectRatioOk: aspectRatioDiff <= 0.01
                 });
                 
                 console.log('🖼️🖼️🖼️ CORREÇÃO CRÍTICA - Canvas final:', {
@@ -6397,8 +6598,14 @@
                         
                         // RENDERIZAR TÍTULO
                         if (title && title.trim()) {
-                            const baseTitleSize = Math.round(canvas.height * 0.06); // REDUZIDO de 0.08 para 0.06
+                            // CORREÇÃO: Para templates horizontais (Twitter, YouTube), usar tamanho maior
+                            const aspectRatio = canvas.width / canvas.height;
+                            const isHorizontal = aspectRatio > 1.5; // Twitter (3:1), YouTube (1.78:1)
+                            const baseTitleSize = isHorizontal 
+                                ? Math.round(canvas.height * 0.15) // 15% para horizontais (75px para 500px de altura)
+                                : Math.round(canvas.height * 0.06); // 6% para verticais
                             const maxWidth = canvas.width * 0.85; // 85% da largura do canvas
+                            console.log(`📝 Template ${isHorizontal ? 'HORIZONTAL' : 'VERTICAL'} - Base title size: ${baseTitleSize}px`);
                             const titleFontSize = adjustFontSize(title, baseTitleSize, maxWidth, true);
                             const titleLines = wrapText(title, maxWidth, titleFontSize, true);
                             
@@ -6435,8 +6642,14 @@
                         
                         // RENDERIZAR CONTEÚDO
                         if (content && content.trim()) {
-                            const baseContentSize = Math.round(canvas.height * 0.03); // REDUZIDO de 0.04 para 0.03
+                            // CORREÇÃO: Para templates horizontais, usar tamanho maior
+                            const aspectRatio = canvas.width / canvas.height;
+                            const isHorizontal = aspectRatio > 1.5;
+                            const baseContentSize = isHorizontal
+                                ? Math.round(canvas.height * 0.08) // 8% para horizontais (40px para 500px de altura)
+                                : Math.round(canvas.height * 0.03); // 3% para verticais
                             const maxWidth = canvas.width * 0.85; // 85% da largura do canvas
+                            console.log(`📝 Content size: ${baseContentSize}px (${isHorizontal ? 'HORIZONTAL' : 'VERTICAL'})`);
                             const contentFontSize = adjustFontSize(content, baseContentSize, maxWidth, false);
                             const contentLines = wrapText(content, maxWidth, contentFontSize, false);
                             
@@ -6499,16 +6712,37 @@
                         console.warn('⚠️ previewText?.textContent:', previewText?.textContent);
                     }
                     
+                    // ❌ REMOVIDO: Redefinir canvas.width/height APAGA TODO O DESENHO!
+                    // As dimensões JÁ foram definidas corretamente no início da função
+                    console.log('📸 Canvas PRONTO para converter (dimensões JÁ corretas):', canvas.width, 'x', canvas.height);
+                    
+                    const finalAspectRatio = canvas.width / canvas.height;
+                    const expectedFinalAspectRatio = finalWidth / finalHeight;
+                    
+                    if (Math.abs(finalAspectRatio - expectedFinalAspectRatio) > 0.01) {
+                        console.error('❌❌❌ ERRO CRÍTICO: Aspect ratio incorreto antes de converter!');
+                        console.error('❌ Esperado:', expectedFinalAspectRatio.toFixed(4));
+                        console.error('❌ Obtido:', finalAspectRatio.toFixed(4));
+                    }
+                    
                     console.log('✅ Canvas final renderizado com dimensões corretas:', {
                         width: canvas.width,
                         height: canvas.height,
-                        aspectRatio: (canvas.width / canvas.height).toFixed(2)
+                        aspectRatio: (canvas.width / canvas.height).toFixed(4),
+                        expectedAspectRatio: expectedFinalAspectRatio.toFixed(4),
+                        template: currentTemplate.name,
+                        dimensionsOk: canvas.width === finalWidth && canvas.height === finalHeight
                     });
                     
                     console.log('📝 ========== FINALIZANDO renderização do texto ==========');
                     
-                    // Converter canvas para imagem
-                    const finalImage = canvas.toDataURL('image/png');
+                    // Converter canvas para imagem com qualidade máxima
+                    const finalImage = canvas.toDataURL('image/png', 1.0);
+                    console.log('📸 Imagem convertida:', {
+                        dataURLLength: finalImage.length,
+                        dimensions: `${canvas.width}x${canvas.height}`,
+                        aspectRatio: (canvas.width / canvas.height).toFixed(4)
+                    });
                     resolve(finalImage);
                 };
                 
@@ -6849,9 +7083,23 @@
             const platforms = Array.from(document.querySelectorAll('input[name="platforms"]:checked')).map(cb => cb.value);
             
             const formData = new FormData();
+            console.log('📝 VERIFICANDO DADOS ANTES DE ENVIAR:');
+            console.log('  - Título:', title);
+            console.log('  - Conteúdo:', content);
+            console.log('  - Hashtags:', hashtags);
+            
+            if (!title || !content) {
+                console.error('❌ ERRO: Título ou conteúdo está vazio!');
+                alert('Por favor, preencha o título e o conteúdo antes de salvar.');
+                document.getElementById('loadingOverlay').classList.add('hidden');
+                return;
+            }
+            
             formData.append('title', title);
             formData.append('content', content);
             formData.append('hashtags', hashtags);
+            
+            console.log('✅ Dados adicionados ao FormData');
             formData.append('template', 'Custom');
             formData.append('platforms', JSON.stringify(platforms));
             // Debug: Verificar customiza��o antes de enviar
@@ -7055,6 +7303,15 @@
             
             // CORREÇÃO: Renderizar canvas final com formas geométricas
             console.log('🚨🚨🚨 INICIANDO SALVAMENTO 🚨🚨🚨');
+            
+            // CORREÇÃO CRÍTICA: Verificar se o template está definido antes de renderizar
+            if (!currentTemplate || !currentTemplate.metadata) {
+                console.error('❌❌❌ ERRO CRÍTICO: Template não está definido no momento do salvamento!');
+                alert('Erro: Template não está definido. Por favor, selecione um template antes de salvar.');
+                document.getElementById('loadingOverlay').classList.add('hidden');
+                return;
+            }
+            
             console.log('🎯 TEMPLATE ATUAL NO MOMENTO DO SALVAMENTO:', {
                 id: currentTemplate?.id,
                 name: currentTemplate?.name,
@@ -7064,6 +7321,20 @@
             });
             
             console.log('📐 customizationSettings.templateDimensions:', customizationSettings.templateDimensions);
+            
+            // CORREÇÃO CRÍTICA: SEMPRE atualizar templateDimensions antes de salvar
+            console.log('🔄 Forçando atualização de templateDimensions...');
+            customizationSettings.templateDimensions = {
+                originalWidth: currentTemplate.metadata.originalWidth,
+                originalHeight: currentTemplate.metadata.originalHeight,
+                previewWidth: Math.round(currentTemplate.metadata.previewMaxWidth),
+                previewHeight: Math.round(currentTemplate.metadata.previewMaxHeight),
+                scale: currentTemplate.metadata.previewMaxWidth / currentTemplate.metadata.originalWidth
+            };
+            console.log('✅ templateDimensions FORÇADO:', customizationSettings.templateDimensions);
+            
+            // CORREÇÃO: Salvar template no FormData para verificação
+            formData.append('template', currentTemplate.name || 'Custom');
             
             try {
                 // VERIFICAR SE HÁ SLIDESHOW (original OU editado)
@@ -7106,7 +7377,36 @@
                     }
                 } else {
                     // Post normal (sem slideshow) - renderizar 1 imagem apenas
+                    console.log('🎨 Iniciando renderização do canvas final...');
+                    console.log('🎨 Template atual antes de renderizar:', {
+                        id: currentTemplate?.id,
+                        name: currentTemplate?.name,
+                        originalWidth: currentTemplate?.metadata?.originalWidth,
+                        originalHeight: currentTemplate?.metadata?.originalHeight
+                    });
+                    console.log('🎨 customizationSettings.templateDimensions:', customizationSettings.templateDimensions);
+                    // 🔥 FALLBACK CRÍTICO: Garantir que background SEMPRE exista
+                    if (!customizationSettings.background) {
+                        console.error('❌ Background está INDEFINIDO! Usando gradient padrão...');
+                        customizationSettings.background = 'bg-gradient-to-br from-blue-400 to-purple-500';
+                    }
+                    if (!customizationSettings.color) {
+                        console.error('❌ Cor está INDEFINIDA! Usando cor padrão...');
+                        customizationSettings.color = '#1f2937';
+                    }
+                    
+                    console.log('🎨🎨🎨 PARÂMETROS SENDO ENVIADOS PARA renderFinalCanvas:');
+                    console.log('  - Título:', titleForCanvas);
+                    console.log('  - Conteúdo:', contentForCanvas);
+                    console.log('  - Background:', customizationSettings.background);
+                    console.log('  - Cor do texto:', customizationSettings.color);
+                    console.log('  - Template ID:', currentTemplate?.id);
+                    console.log('  - Dimensões canvas:', currentTemplate?.metadata?.originalWidth, 'x', currentTemplate?.metadata?.originalHeight);
+                    
                     const finalCanvasDataURL = await renderFinalCanvas(titleForCanvas, contentForCanvas);
+                    
+                    console.log('✅ Canvas renderizado, verificando dimensões...');
+                    console.log('✅ finalCanvasDataURL length:', finalCanvasDataURL.length);
                     
                     // Converter base64 para Blob para enviar como arquivo
                     const byteString = atob(finalCanvasDataURL.split(',')[1]);
@@ -7124,9 +7424,62 @@
                     console.log('✅✅✅ Canvas final renderizado com sucesso - dimensões corretas aplicadas');
                     console.log('📤📤📤 ENVIANDO finalCanvas para servidor como Blob - Tamanho:', blob.size, 'bytes');
                     console.log('📤 Tipo do blob:', blob.type);
+                    console.log('📤 Template usado:', currentTemplate?.name, '(ID:', currentTemplate?.id, ')');
+                    
+                    // CORREÇÃO: Obter dimensões do template atual em vez de usar variáveis não definidas
+                    const templateDims = CoordinateSystem.getOriginalDimensions();
+                    let expectedWidth = templateDims.width;
+                    let expectedHeight = templateDims.height;
+                    
+                    // Aplicar dimensões fixas para templates específicos
+                    if (currentTemplate?.id === 'twitter-header') {
+                        expectedWidth = 1500;
+                        expectedHeight = 500;
+                    } else if (currentTemplate?.id === 'youtube-thumbnail') {
+                        expectedWidth = 1280;
+                        expectedHeight = 720;
+                    }
+                    
+                    console.log('📤 Dimensões esperadas do canvas:', expectedWidth, 'x', expectedHeight);
+                    
+                    // CORREÇÃO: Verificar se o blob foi adicionado corretamente ao FormData
+                    if (formData.has('finalCanvas')) {
+                        console.log('✅ finalCanvas adicionado ao FormData com sucesso');
+                    } else {
+                        console.error('❌ ERRO: finalCanvas NÃO foi adicionado ao FormData!');
+                    }
                 }
             } catch (error) {
                 console.error('❌❌❌ Erro ao renderizar canvas final:', error);
+                console.error('❌ Stack trace:', error.stack);
+                console.error('❌ Template atual no momento do erro:', currentTemplate?.name);
+                console.error('❌ Template ID:', currentTemplate?.id);
+                
+                // CORREÇÃO: Tentar renderizar novamente com dimensões fixas se for Twitter Header ou YouTube
+                if (currentTemplate?.id === 'twitter-header' || currentTemplate?.id === 'youtube-thumbnail') {
+                    console.log('🔄 Tentando renderizar novamente com dimensões fixas...');
+                    try {
+                        const finalCanvasDataURL = await renderFinalCanvas(titleForCanvas, contentForCanvas);
+                        const byteString = atob(finalCanvasDataURL.split(',')[1]);
+                        const mimeString = finalCanvasDataURL.split(',')[0].split(':')[1].split(';')[0];
+                        const ab = new ArrayBuffer(byteString.length);
+                        const ia = new Uint8Array(ab);
+                        for (let i = 0; i < byteString.length; i++) {
+                            ia[i] = byteString.charCodeAt(i);
+                        }
+                        const blob = new Blob([ab], { type: mimeString });
+                        formData.append('finalCanvas', blob, 'final-canvas.png');
+                        console.log('✅ Canvas renderizado com sucesso na segunda tentativa');
+                    } catch (retryError) {
+                        console.error('❌❌❌ Erro também na segunda tentativa:', retryError);
+                        alert('Erro ao renderizar imagem. Verifique o console para mais detalhes.');
+                        throw retryError; // Re-lançar erro para parar o salvamento
+                    }
+                } else {
+                    // Para outros templates, apenas alertar mas não bloquear
+                    alert('Erro ao renderizar canvas. Verifique o console para mais detalhes.');
+                    throw error; // Re-lançar erro para parar o salvamento
+                }
             }
             
             // Adicionar logo ao customizationSettings
@@ -7237,17 +7590,27 @@
             document.getElementById('loadingOverlay').classList.remove('hidden');
             
             try {
-                // Detectar modo edi��o
+                // CORREÇÃO CRÍTICA: Detectar modo edição CORRETAMENTE
                 const urlParams = new URLSearchParams(window.location.search);
-                const editId = urlParams.get('edit');
+                let editId = urlParams.get('edit');
+                
+                // CORREÇÃO: Se NÃO há ?edit= na URL, LIMPAR sessionStorage
+                if (!editId) {
+                    sessionStorage.removeItem('editPostData');
+                    console.log('🆕 MODO CRIAÇÃO - sessionStorage limpo');
+                } else {
+                    console.log('✏️ MODO EDIÇÃO - editId da URL:', editId);
+                }
+                
                 const endpoint = editId ? `/api/posts/${encodeURIComponent(editId)}` : '/api/posts';
                 const method = editId ? 'PUT' : 'POST';
                 
+                console.log('📝 MODO DE SALVAMENTO:', editId ? 'EDIÇÃO' : 'CRIAÇÃO');
                 console.log('?? Enviando requisi��o:', { method, endpoint, editId });
                 console.log('?? Debug - URL atual:', window.location.href);
                 console.log('?? Debug - Par�metros da URL:', urlParams.toString());
                 console.log('?? Debug - EditId detectado:', editId);
-                console.log('?? Debug - Modo de edi��o:', editId ? 'SIM' : 'N�O');
+                console.log('?? Debug - Modo de edi��o:', editId ? '✅ SIM' : '❌ N�O');
                 
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 segundos

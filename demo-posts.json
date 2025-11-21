@@ -1,5 +1,47 @@
 [
   {
+    "id": 620,
+    "user_id": 1,
+    "title": "TESTE",
+    "content": "gui",
+    "hashtags": "",
+    "template": "twitter-header",
+    "platforms": "[]",
+    "image_url": "/uploads/finalCanvas-1763734398154-172407177.png",
+    "customization": "{\"font\":\"font-inter\",\"color\":\"#ef4444\",\"background\":\"bg-gray-900\",\"textEffect\":\"normal\",\"textPosition\":\"center\",\"templateDimensions\":{\"originalWidth\":1500,\"originalHeight\":500,\"previewWidth\":400,\"previewHeight\":133,\"scale\":0.26666666666666666}}",
+    "status": "draft",
+    "created_at": "2025-01-20T12:00:00.000Z",
+    "updated_at": "2025-01-20T12:30:00.000Z"
+  },
+  {
+    "id": 618,
+    "user_id": 1,
+    "title": "AGORA VAI",
+    "content": "vai",
+    "hashtags": "",
+    "template": "twitter-header",
+    "platforms": "[]",
+    "image_url": "/uploads/finalCanvas-1763732410374-426933034.png",
+    "customization": "{\"font\":\"font-inter\",\"color\":\"#1f2937\",\"background\":\"bg-gradient-to-br from-yellow-400 via-orange-500 to-red-500\",\"textEffect\":\"normal\",\"textPosition\":\"center\",\"imageFilter\":\"sepia\",\"templateDimensions\":{\"originalWidth\":1500,\"originalHeight\":500,\"previewWidth\":399,\"previewHeight\":133,\"scale\":0.266}}",
+    "status": "draft",
+    "created_at": "2025-01-20T10:00:00.000Z",
+    "updated_at": "2025-01-20T10:00:00.000Z"
+  },
+  {
+    "id": 619,
+    "user_id": 1,
+    "title": "teste",
+    "content": "testando",
+    "hashtags": "",
+    "template": "twitter-header",
+    "platforms": "[]",
+    "image_url": "/uploads/finalCanvas-1763732893154-820781687.png",
+    "customization": "{\"font\":\"font-inter\",\"color\":\"#ef4444\",\"background\":\"bg-gradient-to-br from-green-400 to-blue-500\",\"textEffect\":\"normal\",\"textPosition\":\"center\",\"templateDimensions\":{\"originalWidth\":1500,\"originalHeight\":500,\"previewWidth\":400,\"previewHeight\":133,\"scale\":0.26666666666666666}}",
+    "status": "draft",
+    "created_at": "2025-01-20T11:00:00.000Z",
+    "updated_at": "2025-01-20T11:00:00.000Z"
+  },
+  {
     "id": 1759627167188,
     "user_id": 1,
     "title": "VAMOS VOAR!!!!!!!",
