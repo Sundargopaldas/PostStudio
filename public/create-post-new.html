@@ -864,8 +864,8 @@
                                     <!-- Conteúdo textual sobreposto -->
                                     <div id="previewContent" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; z-index: 100; pointer-events: none;">
                                         <p id="previewPlaceholder" class="text-white/50 text-lg">Seu post aparecerá aqui</p>
-                                        <h3 id="previewTitle" class="text-2xl font-bold mb-4" style="display: none;">Seu Título Aqui</h3>
-                                        <p id="previewText" class="leading-relaxed" style="display: none;">Seu conteúdo aparecerá aqui com a fonte e estilo selecionados...</p>
+                                        <h3 id="previewTitle" class="text-2xl font-bold mb-4" style="display: none;"></h3>
+                                        <p id="previewText" class="leading-relaxed" style="display: none;"></p>
                                     </div>
                                 </div>
                             </div>
@@ -1544,33 +1544,51 @@
                 console.log('🆕 Página carregada em MODO CRIAÇÃO - sessionStorage limpo');
             }
             
+            // CORREÇÃO CRÍTICA: Função para limpar duplicatas de texto
             if (editId) {
                 console.log('✏️ Página carregada em MODO EDIÇÃO - ID:', editId);
+                
                 try {
                     const raw = sessionStorage.getItem('editPostData');
+                    console.log('📦 [EDIÇÃO] SessionStorage raw:', raw ? 'TEM DADOS' : '❌ VAZIO');
+                    
                     if (raw) {
                         const post = JSON.parse(raw);
+                        console.log('✅ [EDIÇÃO] Post carregado:', post);
+                        console.log('✅ [EDIÇÃO] Post.title:', post.title);
+                        console.log('✅ [EDIÇÃO] Post.customization:', post.customization);
                         // Preencher t�tulo e conte�do
                         const titleInput = document.getElementById('postTitle');
                         const contentInput = document.getElementById('postContent');
                         if (titleInput) titleInput.value = post.title || '';
                         if (contentInput) contentInput.value = post.content || '';
                         
-                        // Esconder placeholder e mostrar texto se houver conteúdo
+                        // Pegar elementos de texto (não criar novos)
                         const previewTitle = document.getElementById('previewTitle');
                         const previewText = document.getElementById('previewText');
                         const previewPlaceholder = document.getElementById('previewPlaceholder');
                         
+                        // Verificar se é slideshow ANTES de mostrar texto
+                        const hasCustomSlideshow = post.customization && 
+                                                   (typeof post.customization === 'string' ? 
+                                                    JSON.parse(post.customization).slideshow?.enabled : 
+                                                    post.customization.slideshow?.enabled);
+                        
                         if (post.title || post.content) {
-                            if (previewTitle && post.title) {
-                                previewTitle.textContent = post.title;
-                                previewTitle.style.display = 'block';
+                            if (!hasCustomSlideshow) {
+                                // Só mostrar texto se NÃO for slideshow
+                                if (previewTitle && post.title) {
+                                    previewTitle.textContent = post.title;
+                                    previewTitle.style.display = 'block';
+                                }
+                                if (previewText && post.content) {
+                                    previewText.textContent = post.content;
+                                    previewText.style.display = 'block';
+                                }
+                                if (previewPlaceholder) previewPlaceholder.style.display = 'none';
+                            } else {
+                                console.log('✅ [EDIÇÃO] Slideshow detectado - texto NÃO será mostrado');
                             }
-                            if (previewText && post.content) {
-                                previewText.textContent = post.content;
-                                previewText.style.display = 'block';
-                            }
-                            if (previewPlaceholder) previewPlaceholder.style.display = 'none';
                         }
                         
                         // Carregar imagem existente do post se houver
@@ -1606,7 +1624,9 @@
                                 try { custom = JSON.parse(custom); } catch (_) {}
                             }
                             if (custom && typeof custom === 'object') {
-                                console.log('?? Carregando customiza��es para edi��o:', custom);
+                                console.log('🎨 [EDIÇÃO] Carregando customizações para edição:', custom);
+                                console.log('🎬 [EDIÇÃO] Tem slideshow?', !!custom.slideshow);
+                                console.log('🎬 [EDIÇÃO] Slideshow enabled?', custom.slideshow?.enabled);
                                 
                                 // Aplicar customiza��es de texto e visual
                                 if (custom.font) { 
@@ -1818,37 +1838,94 @@
                                     }
                                 }
                                 
-                                // CORREÇÃO: Restaurar slideshow quando editar
-                                if (custom.slideshow && custom.slideshow.enabled && custom.slideshow.images) {
-                                    console.log('🎬 Restaurando slideshow:', custom.slideshow);
+                                // CORREÇÃO: Restaurar slideshow quando editar (usar savedImages se images não existir)
+                                if (custom.slideshow && custom.slideshow.enabled) {
+                                    console.log('🎬 [EDIÇÃO] Detectado slideshow:', custom.slideshow);
+                                    console.log('🎬 [EDIÇÃO] slideshow.images:', custom.slideshow.images);
+                                    console.log('🎬 [EDIÇÃO] slideshow.savedImages:', custom.slideshow.savedImages);
                                     
-                                    // Restaurar imagens do slideshow
-                                    slideshowImages = custom.slideshow.images;
-                                    customizationSettings.slideshow = {
-                                        enabled: true,
-                                        images: custom.slideshow.images,
-                                        interval: custom.slideshow.interval || 4000,
-                                        templateDimensions: custom.slideshow.templateDimensions || null
-                                    };
+                                    // CORREÇÃO: Usar savedImages (URLs) se images (base64) não existir
+                                    let imagesToUse = custom.slideshow.images;
+                                    if (!imagesToUse || imagesToUse.length === 0) {
+                                        if (custom.slideshow.savedImages && custom.slideshow.savedImages.length > 0) {
+                                            imagesToUse = custom.slideshow.savedImages;
+                                            console.log('✅ [EDIÇÃO] Usando savedImages (URLs):', imagesToUse.length, 'imagens');
+                                        }
+                                    } else {
+                                        console.log('✅ [EDIÇÃO] Usando images (base64):', imagesToUse.length, 'imagens');
+                                    }
+                                    
+                                    console.log('🎬 [EDIÇÃO] imagesToUse final:', imagesToUse);
+                                    
+                                    if (imagesToUse && imagesToUse.length > 0) {
+                                        // Restaurar imagens do slideshow
+                                        slideshowImages = imagesToUse;
+                                        customizationSettings.slideshow = {
+                                            enabled: true,
+                                            images: imagesToUse,
+                                            savedImages: custom.slideshow.savedImages || imagesToUse,
+                                            interval: custom.slideshow.interval || 4000,
+                                            templateDimensions: custom.slideshow.templateDimensions || null
+                                        };
                                     
                                     if (custom.slideshow.templateDimensions) {
                                         console.log('📐 Dimensões do template restauradas:', custom.slideshow.templateDimensions);
                                     }
                                     
-                                    // Atualizar preview do slideshow no modal
-                                    const slideshowPreviewSection = document.querySelector('.slideshow-preview');
-                                    if (slideshowPreviewSection) {
-                                        slideshowPreviewSection.style.display = 'block';
-                                        const activeImage = document.getElementById('slideshowActiveImage');
-                                        if (activeImage && slideshowImages.length > 0) {
-                                            activeImage.src = slideshowImages[0];
+                                        // Atualizar preview do slideshow no modal
+                                        const slideshowPreviewSection = document.querySelector('.slideshow-preview');
+                                        if (slideshowPreviewSection) {
+                                            slideshowPreviewSection.style.display = 'block';
+                                            const activeImage = document.getElementById('slideshowActiveImage');
+                                            if (activeImage && slideshowImages.length > 0) {
+                                                activeImage.src = slideshowImages[0];
+                                            }
                                         }
+                                        
+                                        // CORREÇÃO: Aplicar primeira imagem ao preview visual IMEDIATAMENTE
+                                        const canvas = document.getElementById('canvas');
+                                        console.log('🎬 [EDIÇÃO] Canvas encontrado?', !!canvas);
+                                        console.log('🎬 [EDIÇÃO] imagesToUse.length:', imagesToUse.length);
+                                        console.log('🎬 [EDIÇÃO] Primeira imagem:', imagesToUse[0]);
+                                        
+                                        if (canvas && imagesToUse.length > 0) {
+                                            canvas.style.backgroundImage = `url(${imagesToUse[0]})`;
+                                            canvas.style.backgroundSize = 'cover';
+                                            canvas.style.backgroundPosition = 'center';
+                                            canvas.style.backgroundRepeat = 'no-repeat';
+                                            console.log('✅ [EDIÇÃO] Primeira imagem do slideshow aplicada ao preview!');
+                                            console.log('✅ [EDIÇÃO] backgroundImage:', canvas.style.backgroundImage.substring(0, 100));
+                                        } else {
+                                            console.error('❌ [EDIÇÃO] Não foi possível aplicar imagem - Canvas:', !!canvas, 'Imagens:', imagesToUse.length);
+                                        }
+                                        
+                                        // 🎯 SOLUÇÃO: Esconder texto em slideshows (APENAS IMAGENS)
+                                        const previewTitle = document.getElementById('previewTitle');
+                                        const previewText = document.getElementById('previewText');
+                                        const previewPlaceholder = document.getElementById('previewPlaceholder');
+                                        
+                                        if (previewTitle) {
+                                            previewTitle.style.display = 'none';
+                                            console.log('✅ [SLIDESHOW] Texto do título ESCONDIDO');
+                                        }
+                                        if (previewText) {
+                                            previewText.style.display = 'none';
+                                            console.log('✅ [SLIDESHOW] Texto do conteúdo ESCONDIDO');
+                                        }
+                                        if (previewPlaceholder) {
+                                            previewPlaceholder.style.display = 'none';
+                                            console.log('✅ [SLIDESHOW] Placeholder ESCONDIDO');
+                                        }
+                                        
+                                        // Aplicar slideshow ao canvas principal
+                                        setTimeout(() => {
+                                            applySlideshowToCanvas();
+                                        }, 1000);
+                                        
+                                        console.log('✅ Slideshow restaurado com sucesso (MODO APENAS IMAGENS)');
+                                    } else {
+                                        console.warn('⚠️ Slideshow habilitado mas nenhuma imagem encontrada');
                                     }
-                                    
-                                    // Aplicar slideshow ao canvas principal
-                                    setTimeout(() => {
-                                        applySlideshowToCanvas();
-                                    }, 1000);
                                 }
                                 
                                 // Video functionality moved to /create-video page
@@ -1882,9 +1959,25 @@
                             customizationSettings: customizationSettings.textPosition,
                             previewContent: document.getElementById('previewContent')
                         });
+                    } else {
+                        console.error('❌ [EDIÇÃO] SessionStorage VAZIO! Post não foi carregado.');
+                        console.error('❌ [EDIÇÃO] Verifique se posts.html está salvando os dados corretamente.');
+                        
+                        // Tentar buscar da API como fallback
+                        console.log('🔄 [EDIÇÃO] Tentando buscar post da API...');
+                        fetch(`/api/posts/${editId}`)
+                            .then(res => res.json())
+                            .then(postData => {
+                                console.log('✅ [EDIÇÃO] Post carregado da API:', postData);
+                                sessionStorage.setItem('editPostData', JSON.stringify(postData));
+                                window.location.reload();
+                            })
+                            .catch(err => {
+                                console.error('❌ [EDIÇÃO] Erro ao buscar da API:', err);
+                            });
                     }
                 } catch (e) {
-                    console.warn('Falha ao recuperar dados de edi��o', e);
+                    console.error('❌ [EDIÇÃO] Erro ao carregar dados:', e);
                 }
             }
         });
@@ -2866,18 +2959,24 @@
 
         // Atualizar preview do post
         function updatePreview() {
-            console.log('?? Atualizando preview...');
-            console.log('?? Configura��es atuais:', customizationSettings);
+            console.log('🔄 Atualizando preview...');
             
             const previewTitle = document.getElementById('previewTitle');
             const previewText = document.getElementById('previewText');
             const previewContent = document.getElementById('previewContent');
             
-            console.log('?? Elementos encontrados:', {
-                previewTitle: !!previewTitle,
-                previewText: !!previewText,
-                previewContent: !!previewContent
-            });
+            if (!previewTitle || !previewText) {
+                console.error('❌ [UPDATE] Elementos não encontrados!');
+                return;
+            }
+            
+            // Se é slideshow, esconder texto
+            if (customizationSettings.slideshow && customizationSettings.slideshow.enabled) {
+                previewTitle.style.display = 'none';
+                previewText.style.display = 'none';
+                console.log('✅ [UPDATE] Slideshow ativo - texto escondido');
+                return; // Não precisa fazer mais nada
+            }
             
             // Aplicar fonte (aceita classe tailwind 'font-*' ou fam�lia direta)
             const isClass = typeof selectedFont === 'string' && selectedFont.startsWith('font-');
@@ -3033,23 +3132,36 @@
             const contentInput = document.getElementById('postContent');
             const previewPlaceholder = document.getElementById('previewPlaceholder');
             
+            // Atualizar conteúdo dos elementos (mas manter escondido se for slideshow)
             if (titleInput && titleInput.value) {
                 previewTitle.textContent = titleInput.value;
-                previewTitle.style.display = 'block';
+                // Não mostrar se for slideshow
                 if (previewPlaceholder) previewPlaceholder.style.display = 'none';
             } else {
-                previewTitle.style.display = 'none';
-                if (previewPlaceholder && !contentInput?.value) previewPlaceholder.style.display = 'block';
+                if (!customizationSettings.slideshow?.enabled) {
+                    previewTitle.style.display = 'none';
+                }
+                if (previewPlaceholder && !contentInput?.value && !customizationSettings.slideshow?.enabled) {
+                    previewPlaceholder.style.display = 'block';
+                }
             }
             
             if (contentInput && contentInput.value) {
                 previewText.textContent = contentInput.value;
-                previewText.style.display = 'block';
+                // Não mostrar se for slideshow
                 if (previewPlaceholder) previewPlaceholder.style.display = 'none';
             } else {
-                previewText.style.display = 'none';
-                if (previewPlaceholder && !titleInput?.value) previewPlaceholder.style.display = 'block';
+                if (!customizationSettings.slideshow?.enabled) {
+                    previewText.style.display = 'none';
+                }
+                if (previewPlaceholder && !titleInput?.value && !customizationSettings.slideshow?.enabled) {
+                    previewPlaceholder.style.display = 'block';
+                }
             }
+            
+            console.log('✅ [UPDATE] Texto atualizado - Slideshow:', customizationSettings.slideshow?.enabled);
+            
+            console.log('✅ updatePreview finalizado');
         }
 
         // Atualizar contador de caracteres
@@ -7073,10 +7185,15 @@
             console.log('Conteúdo:', content);
             console.log('Hashtags:', hashtags);
             
-            // Verificar se os campos estão vazios
-            if (!title || !content) {
+            // Verificar se os campos estão vazios (EXCETO para slideshows)
+            const isSlideshow = customizationSettings.slideshow && customizationSettings.slideshow.enabled;
+            if (!isSlideshow && (!title || !content)) {
                 alert('Por favor, preencha o título e o conteúdo no modal CONTEÚDO!');
                 return;
+            }
+            
+            if (isSlideshow) {
+                console.log('✅ [SLIDESHOW] Pulando validação de texto (slideshow não precisa texto)');
             }
             
             // Preparar dados com FormData para upload de imagem
@@ -7088,11 +7205,16 @@
             console.log('  - Conteúdo:', content);
             console.log('  - Hashtags:', hashtags);
             
-            if (!title || !content) {
+            // Verificar texto apenas se NÃO for slideshow (usando isSlideshow já declarado acima)
+            if (!isSlideshow && (!title || !content)) {
                 console.error('❌ ERRO: Título ou conteúdo está vazio!');
                 alert('Por favor, preencha o título e o conteúdo antes de salvar.');
                 document.getElementById('loadingOverlay').classList.add('hidden');
                 return;
+            }
+            
+            if (isSlideshow) {
+                console.log('✅ [SLIDESHOW] Texto não obrigatório');
             }
             
             formData.append('title', title);
@@ -7279,11 +7401,16 @@
                 }
             });
             
-            // ALERTA CRÍTICO: Verificar se título e conteúdo estão vazios
-            if (!titleForCanvas && !contentForCanvas) {
+            // ALERTA CRÍTICO: Verificar se título e conteúdo estão vazios (EXCETO slideshows)
+            const isSlideshowPost = customizationSettings.slideshow && customizationSettings.slideshow.enabled;
+            if (!isSlideshowPost && !titleForCanvas && !contentForCanvas) {
                 console.error('❌❌❌ ERRO CRÍTICO: Título e conteúdo estão VAZIOS em TODAS as fontes!');
                 alert('⚠️ ATENÇÃO: Preencha o Título e Conteúdo no modal CONTEÚDO antes de salvar!');
                 return; // PARAR o salvamento
+            }
+            
+            if (isSlideshowPost) {
+                console.log('✅ [SLIDESHOW] Salvamento permitido sem texto');
             }
             
             // CORREÇÃO CRÍTICA: Atualizar dimensões do slideshow ANTES de salvar
@@ -7683,8 +7810,8 @@
         let currentSlideIndex = 0;
         let isSlideshowPlaying = false;
         
-        // Abrir modal de slideshow
-        function openSlideshowModal() {
+        // Abrir modal de slideshow (escopo global para onclick)
+        window.openSlideshowModal = function() {
             document.getElementById('slideshowModal').style.display = 'flex';
             resetSlideshowData();
         }
@@ -7896,6 +8023,16 @@
             const canvas = document.getElementById('canvas');
             if (!canvas || !customizationSettings.slideshow) return;
             
+            // 🎯 SOLUÇÃO: Esconder texto em slideshows
+            const previewTitle = document.getElementById('previewTitle');
+            const previewText = document.getElementById('previewText');
+            const previewPlaceholder = document.getElementById('previewPlaceholder');
+            
+            if (previewTitle) previewTitle.style.display = 'none';
+            if (previewText) previewText.style.display = 'none';
+            if (previewPlaceholder) previewPlaceholder.style.display = 'none';
+            console.log('✅ [SLIDESHOW CANVAS] Texto ESCONDIDO - Modo apenas imagens');
+            
             let currentIndex = 0;
             
             // Função para atualizar fundo com fade
@@ -7980,6 +8117,17 @@
             const previewText = document.getElementById('previewText');
             const previewPlaceholder = document.getElementById('previewPlaceholder');
             
+            // Se for slideshow, NUNCA mostrar texto
+            const isSlideshow = customizationSettings.slideshow && customizationSettings.slideshow.enabled;
+            if (isSlideshow) {
+                if (previewTitle) previewTitle.style.display = 'none';
+                if (previewText) previewText.style.display = 'none';
+                if (previewPlaceholder) previewPlaceholder.style.display = 'none';
+                console.log('✅ [MODAL] Slideshow ativo - texto escondido');
+                return;
+            }
+            
+            // Só mostrar texto se NÃO for slideshow
             if (titleInput && previewTitle) {
                 if (titleInput.value) {
                     previewTitle.textContent = titleInput.value;
@@ -8040,12 +8188,17 @@
                 console.log('✅ Conteúdo preenchido:', modalContent.value);
             }
             
-            // 3. Verificar se tem título e conteúdo
-            if (!formTitle.value || !formContent.value) {
+            // 3. Verificar se tem título e conteúdo (EXCETO slideshows)
+            const hasSlideshow = customizationSettings.slideshow && customizationSettings.slideshow.enabled;
+            if (!hasSlideshow && (!formTitle.value || !formContent.value)) {
                 alert('⚠️ Por favor, preencha o Título e Conteúdo no modal CONTEÚDO antes de salvar!');
                 // Abrir o modal de conteúdo para o usuário preencher
                 openModal('conteudoModal');
                 return;
+            }
+            
+            if (hasSlideshow) {
+                console.log('✅ [SLIDESHOW] Validação de texto ignorada');
             }
             
             // 4. Submeter o formulário (isso vai chamar o event listener de submit que já existe)

@@ -1448,11 +1448,35 @@
                 return;
             }
             
-            // Salvar dados completos no sessionStorage para evitar URL longa
+            // Salvar dados no sessionStorage (sem imagens base64 pesadas)
             try {
-                sessionStorage.setItem('editPostData', JSON.stringify(post));
+                const lightPost = {...post};
+                
+                // Se tiver customization com slideshow, remover imagens base64
+                if (lightPost.customization) {
+                    let custom = lightPost.customization;
+                    if (typeof custom === 'string') {
+                        try {
+                            custom = JSON.parse(custom);
+                        } catch (_) {}
+                    }
+                    
+                    if (custom && custom.slideshow && custom.slideshow.images) {
+                        const lightCustom = {...custom};
+                        lightCustom.slideshow = {...lightCustom.slideshow};
+                        // Manter apenas savedImages (URLs), remover images (base64)
+                        delete lightCustom.slideshow.images;
+                        lightPost.customization = lightCustom;
+                        console.log('🗜️ Imagens base64 removidas do slideshow antes de salvar');
+                    }
+                }
+                
+                sessionStorage.setItem('editPostData', JSON.stringify(lightPost));
+                console.log('✅ Dados salvos no sessionStorage (sem base64)');
             } catch (e) {
-                console.warn('Falha ao salvar dados no sessionStorage', e);
+                console.error('❌ Erro ao salvar no sessionStorage:', e.message);
+                // Se falhar, usar fallback da API
+                console.log('🔄 Dados não salvos, a API será usada como fallback');
             }
             
             // Redirecionar para a página principal de criação/edição (NOVA)

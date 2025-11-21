@@ -43,6 +43,24 @@ const dbConfig = {
 // Criar pool de conexões
 const pool = mysql.createPool(dbConfig);
 
+// Testar conexão com o banco
+pool.getConnection((err, connection) => {
+    if (err) {
+        console.error('❌ ERRO DE CONEXÃO COM O BANCO:', err.code);
+        console.error('❌ Mensagem:', err.message);
+        console.error('❌ Configuração atual:', {
+            host: dbConfig.host,
+            user: dbConfig.user,
+            database: dbConfig.database,
+            password: '***'
+        });
+    } else {
+        console.log('✅ Conexão com MySQL bem-sucedida!');
+        console.log('✅ Banco de dados:', dbConfig.database);
+        connection.release();
+    }
+});
+
 // Configuração do multer para upload de arquivos
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -1463,13 +1481,20 @@ app.post('/api/posts/json', upload.single('image'), async (req, res) => {
             req.session.userEmail = 'admin@contentflow.ai';
         }
         
-        // Validar dados obrigatórios
-        if (!title || !content) {
+        // Validar dados obrigatórios (EXCETO para slideshows)
+        // customizationData já foi declarado acima na linha 1437
+        const isSlideshow = customizationData.slideshow && customizationData.slideshow.enabled;
+        
+        if (!isSlideshow && (!title || !content)) {
             console.log('❌ Validação falhou - Título:', title, 'Conteúdo:', content);
             return res.status(400).json({ message: 'Título e conteúdo são obrigatórios' });
         }
         
-        console.log('✅ Validação passou - Salvando no banco...');
+        if (isSlideshow) {
+            console.log('✅ Slideshow detectado - Validação de texto ignorada');
+        } else {
+            console.log('✅ Validação passou - Salvando no banco...');
+        }
         
         // Verificar se a conexão com o banco está funcionando
         if (!pool) {
@@ -1821,15 +1846,22 @@ app.post('/api/posts', upload.fields([
         
         console.log('✅ Usuário autenticado:', req.session.userId);
         
-        // Validar dados obrigatórios
-        if (!title || !content) {
+        // Validar dados obrigatórios (EXCETO para slideshows)
+        const customizationObj = req.body.customization ? JSON.parse(req.body.customization) : {};
+        const hasSlideshowEnabled = customizationObj.slideshow && customizationObj.slideshow.enabled;
+        
+        if (!hasSlideshowEnabled && (!title || !content)) {
             console.log('❌ Validação falhou - Título:', title, 'Conteúdo:', content);
             console.log('❌ Título vazio?', !title);
             console.log('❌ Conteúdo vazio?', !content);
             return res.status(400).json({ message: 'Título e conteúdo são obrigatórios' });
         }
         
-        console.log('✅ Validação passou - Título e conteúdo presentes');
+        if (hasSlideshowEnabled) {
+            console.log('✅ Slideshow ativo - Texto não obrigatório');
+        } else {
+            console.log('✅ Validação passou - Título e conteúdo presentes');
+        }
         
         let postId = null;
         let postCreated = false;
@@ -2018,8 +2050,16 @@ app.put('/api/posts/:id', upload.fields([
             }
         }
 
-        if (!title || !content) {
+        // Validar título e conteúdo apenas se NÃO for slideshow
+        const customData = customization ? JSON.parse(customization) : {};
+        const isSlideshowActive = customData.slideshow && customData.slideshow.enabled;
+        
+        if (!isSlideshowActive && (!title || !content)) {
             return res.status(400).json({ message: 'Título e conteúdo são obrigatórios' });
+        }
+        
+        if (isSlideshowActive) {
+            console.log('✅ [UPDATE] Slideshow ativo - Texto não obrigatório');
         }
 
         // NOVO: Processar finalCanvas OU slideshow (imagens renderizadas como ARQUIVOS) na EDIÇÃO
@@ -2613,6 +2653,50 @@ app.get('/api/posts', async (req, res) => {
         res.json(posts);
     } catch (error) {
         console.error('Erro ao buscar posts:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
+
+// Rota para buscar UM post específico por ID (APENAS BANCO)
+app.get('/api/posts/:id', async (req, res) => {
+    try {
+        const postId = req.params.id;
+        console.log('🔍 GET /api/posts/:id chamada - ID:', postId);
+        
+        // Verificar se o usuário está logado
+        if (!req.session.userId) {
+            console.log('❌ Usuário não autenticado');
+            return res.status(401).json({ message: 'Usuário não autenticado' });
+        }
+        
+        // Buscar no banco de dados
+        const [rows] = await pool.execute(
+            'SELECT * FROM posts WHERE id = ? AND user_id = ?',
+            [postId, req.session.userId]
+        );
+        
+        if (rows.length === 0) {
+            console.log(`❌ Post ${postId} não encontrado`);
+            return res.status(404).json({ message: 'Post não encontrado' });
+        }
+        
+        const post = rows[0];
+        
+        // Parsear customization de STRING para OBJETO
+        if (post.customization && typeof post.customization === 'string') {
+            try {
+                post.customization = JSON.parse(post.customization);
+            } catch (e) {
+                console.error(`❌ Erro ao parsear customização do post ${post.id}:`, e);
+                post.customization = {};
+            }
+        }
+        
+        console.log(`✅ Post ${postId} encontrado no banco de dados`);
+        res.json(post);
+        
+    } catch (error) {
+        console.error('❌ Erro ao buscar post:', error);
         res.status(500).json({ message: 'Erro interno do servidor' });
     }
 });
