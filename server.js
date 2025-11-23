@@ -2486,7 +2486,18 @@ app.put('/api/posts/:id', upload.fields([
             
             if (existingPost.length === 0) {
                 console.log('❌ POST NÃO EXISTE NO BANCO DE DADOS! ID:', postId);
-                return res.status(404).json({ message: 'Post não encontrado no banco de dados' });
+                
+                // Buscar posts disponíveis para este usuário
+                const [availablePosts] = await pool.execute(
+                    'SELECT id, title FROM posts WHERE user_id = ? ORDER BY id DESC LIMIT 10',
+                    [req.session.userId]
+                );
+                console.log('📋 Posts disponíveis para este usuário:', availablePosts.map(p => `ID: ${p.id} - ${p.title || '(sem título)'}`).join(', '));
+                
+                return res.status(404).json({ 
+                    message: 'Post não encontrado no banco de dados',
+                    availablePosts: availablePosts.map(p => ({ id: p.id, title: p.title }))
+                });
             }
             
             if (existingPost[0].user_id !== req.session.userId) {
