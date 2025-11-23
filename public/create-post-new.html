@@ -21,6 +21,7 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
         
+        
         /* Fontes personalizadas expandidas */
         .font-inter { font-family: 'Inter', sans-serif; }
         .font-poppins { font-family: 'Poppins', sans-serif; }
@@ -803,12 +804,6 @@
                         <i class="fas fa-arrow-right arrow"></i>
                     </button>
 
-                    <!-- Botão Slide de Imagens -->
-                    <button onclick="openSlideshowModal()" class="control-btn" style="background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);">
-                        <span><i class="fas fa-images"></i> SLIDE DE IMAGENS</span>
-                        <i class="fas fa-arrow-right arrow"></i>
-                    </button>
-
                     <!-- Botão Text Color -->
                     <button onclick="openModal('textColorModal')" class="control-btn">
                         <span><i class="fas fa-paint-brush"></i> TEXT COLOR</span>
@@ -842,7 +837,7 @@
                     <!-- Botão Salvar (destaque) -->
                     <div class="pt-4">
                         <button onclick="savePostDirectly()" class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-4 rounded-lg font-bold text-lg hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-105 shadow-lg">
-                            <i class="fas fa-save mr-2"></i>SALVAR
+                            <i class="fas fa-save mr-2"></i>DOWNLOAD
                         </button>
                     </div>
                 </div>
@@ -861,8 +856,8 @@
                         <div id="postPreview" class="custom-post-preview">
                             <div id="canvasBox" class="relative mx-auto" style="width: 100%; max-width: 640px;">
                                 <div id="canvas" class="rounded-xl shadow-lg" style="position: relative; width: 100%; height: 400px; background-position: center; background-size: cover; background-repeat: no-repeat; overflow: visible;">
-                                    <!-- Conteúdo textual sobreposto -->
-                                    <div id="previewContent" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; z-index: 100; pointer-events: none;">
+                                        <!-- Conteúdo textual sobreposto -->
+                                        <div id="previewContent" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 65px; z-index: 100; pointer-events: none;">
                                         <p id="previewPlaceholder" class="text-white/50 text-lg">Seu post aparecerá aqui</p>
                                         <h3 id="previewTitle" class="text-2xl font-bold mb-4" style="display: none;"></h3>
                                         <p id="previewText" class="leading-relaxed" style="display: none;"></p>
@@ -1392,92 +1387,6 @@
         </div>
     </div>
 
-    <!-- Modal Slideshow -->
-    <div id="slideshowModal" class="modal">
-        <div class="modal-content" style="max-width: 900px;">
-            <span class="close-modal" onclick="closeSlideshowModal()">&times;</span>
-            <h3 class="text-2xl font-bold text-white mb-6">
-                <i class="fas fa-images mr-2"></i>Slide de Imagens
-            </h3>
-            <p class="text-white/80 mb-6">Faça upload de exatamente 4 imagens para criar um slideshow</p>
-            
-            <!-- Upload de 4 imagens -->
-            <div class="grid grid-cols-2 gap-4 mb-6">
-                <div class="slideshow-upload-box" id="slideUploadBox1" onclick="document.getElementById('slideImg1').click()">
-                    <input type="file" id="slideImg1" accept="image/*" style="display: none;" onchange="handleSlideImageUpload(1, this)">
-                    <i class="fas fa-cloud-upload-alt text-4xl text-white/40 mb-2"></i>
-                    <p class="text-white/60 text-sm">Imagem 1</p>
-                    <img id="slidePreview1" class="slideshow-preview" style="display: none;">
-                </div>
-                <div class="slideshow-upload-box" id="slideUploadBox2" onclick="document.getElementById('slideImg2').click()">
-                    <input type="file" id="slideImg2" accept="image/*" style="display: none;" onchange="handleSlideImageUpload(2, this)">
-                    <i class="fas fa-cloud-upload-alt text-4xl text-white/40 mb-2"></i>
-                    <p class="text-white/60 text-sm">Imagem 2</p>
-                    <img id="slidePreview2" class="slideshow-preview" style="display: none;">
-                </div>
-                <div class="slideshow-upload-box" id="slideUploadBox3" onclick="document.getElementById('slideImg3').click()">
-                    <input type="file" id="slideImg3" accept="image/*" style="display: none;" onchange="handleSlideImageUpload(3, this)">
-                    <i class="fas fa-cloud-upload-alt text-4xl text-white/40 mb-2"></i>
-                    <p class="text-white/60 text-sm">Imagem 3</p>
-                    <img id="slidePreview3" class="slideshow-preview" style="display: none;">
-                </div>
-                <div class="slideshow-upload-box" id="slideUploadBox4" onclick="document.getElementById('slideImg4').click()">
-                    <input type="file" id="slideImg4" accept="image/*" style="display: none;" onchange="handleSlideImageUpload(4, this)">
-                    <i class="fas fa-cloud-upload-alt text-4xl text-white/40 mb-2"></i>
-                    <p class="text-white/60 text-sm">Imagem 4</p>
-                    <img id="slidePreview4" class="slideshow-preview" style="display: none;">
-                </div>
-            </div>
-            
-            <!-- Preview do Slideshow -->
-            <div class="bg-black/50 rounded-xl p-6 mb-6" id="slideshowPreviewContainer" style="display: none;">
-                <div class="flex items-center justify-between mb-4">
-                    <h4 class="text-white font-bold">
-                        <i class="fas fa-play-circle mr-2"></i>Preview do Slideshow
-                    </h4>
-                    <div class="flex gap-2">
-                        <button onclick="toggleSlideshowPreview()" id="slideshowPlayPauseBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
-                            <i class="fas fa-play mr-1"></i> Play
-                        </button>
-                        <button onclick="resetSlideshowPreview()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors">
-                            <i class="fas fa-redo mr-1"></i> Reiniciar
-                        </button>
-                    </div>
-                </div>
-                <div class="relative aspect-video bg-gray-900 rounded-lg overflow-hidden">
-                    <img id="slideshowActiveImage" class="w-full h-full object-cover" style="opacity: 0; transition: opacity 0.5s ease-in-out;">
-                    <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
-                        <span class="slideshow-dot active" data-index="0"></span>
-                        <span class="slideshow-dot" data-index="1"></span>
-                        <span class="slideshow-dot" data-index="2"></span>
-                        <span class="slideshow-dot" data-index="3"></span>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Informações -->
-            <div class="bg-blue-500/10 border border-blue-400/30 rounded-lg p-4 mb-6">
-                <div class="flex items-start space-x-2">
-                    <i class="fas fa-info-circle text-blue-300 mt-1"></i>
-                    <div class="text-xs text-white/80">
-                        <p class="font-bold mb-1">Como funciona:</p>
-                        <ul class="list-disc list-inside space-y-1">
-                            <li>Cada imagem aparecerá por 4 segundos</li>
-                            <li>Transição suave com fade-in/fade-out</li>
-                            <li>O slideshow reinicia automaticamente</li>
-                            <li>Formatos aceitos: JPG, PNG (máx. 5MB cada)</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Botão Aplicar -->
-            <button onclick="applySlideshowToPost()" id="applySlideshowBtn" class="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold py-3 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                <i class="fas fa-check mr-2"></i>Aplicar Slideshow ao Post
-            </button>
-        </div>
-    </div>
-
     <!-- Loading Overlay -->
     <div id="loadingOverlay" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden" style="z-index: 2000;">
         <div class="glass-effect rounded-2xl p-8 text-center">
@@ -1627,6 +1536,8 @@
                                 console.log('🎨 [EDIÇÃO] Carregando customizações para edição:', custom);
                                 console.log('🎬 [EDIÇÃO] Tem slideshow?', !!custom.slideshow);
                                 console.log('🎬 [EDIÇÃO] Slideshow enabled?', custom.slideshow?.enabled);
+                                
+                                // 🎯 SIMPLES: Carrossel usa o template salvo normalmente
                                 
                                 // Aplicar customiza��es de texto e visual
                                 if (custom.font) { 
@@ -1819,26 +1730,56 @@
                                     }, 900);
                                 }
                                 
-                                // CORREÇÃO CRÍTICA: Restaurar TEMPLATE primeiro (antes do slideshow)
-                                if (custom.templateDimensions) {
-                                    const savedTemplate = templates.find(t => 
-                                        t.metadata.originalWidth === custom.templateDimensions.originalWidth &&
-                                        t.metadata.originalHeight === custom.templateDimensions.originalHeight
-                                    );
-                                    
+                                // CORREÇÃO CRÍTICA: Restaurar TEMPLATE usando ID primeiro, depois dimensões
+                                let savedTemplate = null;
+                                
+                                // PRIORIDADE 1: Tentar restaurar pelo currentTemplate.id
+                                if (custom.currentTemplate && custom.currentTemplate.id) {
+                                    savedTemplate = templates.find(t => t.id === custom.currentTemplate.id);
                                     if (savedTemplate) {
-                                        currentTemplate = savedTemplate;
-                                        console.log('✅ Template restaurado:', savedTemplate.name);
-                                        
-                                        // Clicar no botão do template para aplicar
-                                        const templateBtn = document.getElementById(`template-${savedTemplate.id}`);
-                                        if (templateBtn) {
-                                            setTimeout(() => templateBtn.click(), 100);
-                                        }
+                                        console.log('✅ Template restaurado pelo ID:', savedTemplate.name, '(ID:', savedTemplate.id, ')');
                                     }
                                 }
                                 
+                                // PRIORIDADE 2: Fallback - restaurar pelas dimensões
+                                if (!savedTemplate && custom.templateDimensions) {
+                                    savedTemplate = templates.find(t => 
+                                        t.metadata.originalWidth === custom.templateDimensions.originalWidth &&
+                                        t.metadata.originalHeight === custom.templateDimensions.originalHeight
+                                    );
+                                    if (savedTemplate) {
+                                        console.log('⚠️ Template restaurado pelas dimensões:', savedTemplate.name);
+                                    }
+                                }
+                                
+                                // Aplicar template encontrado
+                                if (savedTemplate) {
+                                    currentTemplate = savedTemplate;
+                                    console.log('✅ Template restaurado:', savedTemplate.name);
+                                    
+                                    // 🚨 ATUALIZAR templateDimensions IMEDIATAMENTE com as dimensões corretas
+                                    customizationSettings.templateDimensions = {
+                                        originalWidth: savedTemplate.metadata.originalWidth,
+                                        originalHeight: savedTemplate.metadata.originalHeight,
+                                        previewWidth: savedTemplate.metadata.previewMaxWidth,
+                                        previewHeight: savedTemplate.metadata.previewMaxHeight,
+                                        scale: savedTemplate.metadata.previewMaxWidth / savedTemplate.metadata.originalWidth
+                                    };
+                                    console.log('✅ templateDimensions atualizado na edição:', customizationSettings.templateDimensions);
+                                    
+                                    // 🚨 ATUALIZAR customizationSettings.currentTemplate IMEDIATAMENTE
+                                    customizationSettings.currentTemplate = {
+                                        id: savedTemplate.id,
+                                        name: savedTemplate.name,
+                                        originalWidth: savedTemplate.metadata.originalWidth,
+                                        originalHeight: savedTemplate.metadata.originalHeight,
+                                        aspectRatio: savedTemplate.aspectRatio
+                                    };
+                                    console.log('✅ customizationSettings.currentTemplate atualizado na edição:', customizationSettings.currentTemplate);
+                                }
+                                
                                 // CORREÇÃO: Restaurar slideshow quando editar (usar savedImages se images não existir)
+                                // 🚨 IMPORTANTE: Fazer isso ANTES de clicar no botão do template
                                 if (custom.slideshow && custom.slideshow.enabled) {
                                     console.log('🎬 [EDIÇÃO] Detectado slideshow:', custom.slideshow);
                                     console.log('🎬 [EDIÇÃO] slideshow.images:', custom.slideshow.images);
@@ -1860,17 +1801,16 @@
                                     if (imagesToUse && imagesToUse.length > 0) {
                                         // Restaurar imagens do slideshow
                                         slideshowImages = imagesToUse;
+                                        // 🎯 CARROSSEL SIMPLES: Apenas restaurar imagens
                                         customizationSettings.slideshow = {
                                             enabled: true,
                                             images: imagesToUse,
                                             savedImages: custom.slideshow.savedImages || imagesToUse,
                                             interval: custom.slideshow.interval || 4000,
-                                            templateDimensions: custom.slideshow.templateDimensions || null
+                                            imageFit: custom.slideshow.imageFit || 'cover'
                                         };
                                     
-                                    if (custom.slideshow.templateDimensions) {
-                                        console.log('📐 Dimensões do template restauradas:', custom.slideshow.templateDimensions);
-                                    }
+                                    console.log('🎠 Carrossel restaurado:', imagesToUse.length, 'imagens');
                                     
                                         // Atualizar preview do slideshow no modal
                                         const slideshowPreviewSection = document.querySelector('.slideshow-preview');
@@ -1889,12 +1829,21 @@
                                         console.log('🎬 [EDIÇÃO] Primeira imagem:', imagesToUse[0]);
                                         
                                         if (canvas && imagesToUse.length > 0) {
+                                            // Aplicar ajuste de imagem salvo
+                                            const imageFit = custom.slideshow.imageFit || 'cover';
                                             canvas.style.backgroundImage = `url(${imagesToUse[0]})`;
-                                            canvas.style.backgroundSize = 'cover';
+                                            canvas.style.backgroundSize = imageFit;
                                             canvas.style.backgroundPosition = 'center';
                                             canvas.style.backgroundRepeat = 'no-repeat';
                                             console.log('✅ [EDIÇÃO] Primeira imagem do slideshow aplicada ao preview!');
+                                            console.log('✅ [EDIÇÃO] imageFit:', imageFit);
                                             console.log('✅ [EDIÇÃO] backgroundImage:', canvas.style.backgroundImage.substring(0, 100));
+                                            
+                                            // Restaurar seleção no dropdown
+                                            const imageFitSelect = document.getElementById('slideshowImageFit');
+                                            if (imageFitSelect) {
+                                                imageFitSelect.value = imageFit;
+                                            }
                                         } else {
                                             console.error('❌ [EDIÇÃO] Não foi possível aplicar imagem - Canvas:', !!canvas, 'Imagens:', imagesToUse.length);
                                         }
@@ -1920,11 +1869,32 @@
                                         // Aplicar slideshow ao canvas principal
                                         setTimeout(() => {
                                             applySlideshowToCanvas();
+                                            
+                                            // Mostrar controle de ajuste de imagem
+                                            const fitControl = document.getElementById('slideshowImageFitControl');
+                                            const fitSelect = document.getElementById('slideshowImageFitEdit');
+                                            if (fitControl && fitSelect) {
+                                                fitControl.style.display = 'block';
+                                                fitSelect.value = custom.slideshow.imageFit || 'cover';
+                                                console.log('✅ [EDIT] Controle de ajuste de imagem exibido');
+                                            }
                                         }, 1000);
                                         
                                         console.log('✅ Slideshow restaurado com sucesso (MODO APENAS IMAGENS)');
                                     } else {
                                         console.warn('⚠️ Slideshow habilitado mas nenhuma imagem encontrada');
+                                    }
+                                }
+                                
+                                // 🚨 CRÍTICO: Clicar no botão do template SOMENTE DEPOIS de restaurar TUDO
+                                if (savedTemplate) {
+                                    const templateBtn = document.getElementById(`template-${savedTemplate.id}`);
+                                    if (templateBtn) {
+                                        console.log('🔄 Clicando no botão do template após restaurar tudo:', savedTemplate.name);
+                                        setTimeout(() => {
+                                            templateBtn.click();
+                                            console.log('✅ Template aplicado ao preview:', savedTemplate.name);
+                                        }, 200);
                                     }
                                 }
                                 
@@ -2535,22 +2505,24 @@
                 
                 const deltaX = e.clientX - startX;
                 const deltaY = e.clientY - startY;
-                
-                // Calcular novo tamanho
-                let newWidth = startWidth + deltaX;
-                let newHeight = startHeight + deltaY;
-                
-                // Limites mínimos
+                const threshold = 3;
+                if (Math.abs(deltaX) < threshold && Math.abs(deltaY) < threshold) return;
+                const step = 3;
+                let newWidth = startWidth + Math.round(deltaX / step);
+                let newHeight = startHeight + Math.round(deltaY / step);
                 const minSize = 20;
-                newWidth = Math.max(minSize, newWidth);
-                newHeight = Math.max(minSize, newHeight);
-                
-                // Aplicar novo tamanho
+                const previewDims = CoordinateSystem.getPreviewDimensions();
+                const maxW = previewDims.width - 4;
+                const maxH = previewDims.height - 4;
+                newWidth = Math.min(maxW, Math.max(minSize, newWidth));
+                newHeight = Math.min(maxH, Math.max(minSize, newHeight));
+                if (shapeElement.id.startsWith('circle-')) {
+                    newHeight = newWidth;
+                } else if (shapeElement.id.startsWith('line-')) {
+                    newHeight = startHeight;
+                }
                 shapeElement.style.width = newWidth + 'px';
                 shapeElement.style.height = newHeight + 'px';
-                
-                // Atualizar coordenadas normalizadas
-                const previewDims = CoordinateSystem.getPreviewDimensions();
                 const normalizedSize = CoordinateSystem.normalizeSize(newWidth, newHeight, previewDims.width, previewDims.height);
                 shapeElement.dataset.normalizedWidth = normalizedSize.width;
                 shapeElement.dataset.normalizedHeight = normalizedSize.height;
@@ -2650,6 +2622,8 @@
                             left: ${absolutePos.x}px;
                             top: ${absolutePos.y}px;
                         `;
+                        if (elementData.style.transform) newElement.style.transform = elementData.style.transform;
+                        if (elementData.style.rotation) newElement.dataset.rotation = elementData.style.rotation;
                         
                         // Armazenar coordenadas normalizadas
                         newElement.dataset.normalizedLeft = elementData.normalizedPosition.left;
@@ -2682,6 +2656,8 @@
                             left: ${absolutePos.x}px;
                             top: ${absolutePos.y}px;
                         `;
+                        if (elementData.style.transform) newElement.style.transform = elementData.style.transform;
+                        if (elementData.style.rotation) newElement.dataset.rotation = elementData.style.rotation;
                         
                         // Armazenar coordenadas normalizadas
                         newElement.dataset.normalizedLeft = elementData.normalizedPosition.left;
@@ -2709,6 +2685,8 @@
                             left: ${absolutePos.x}px;
                             top: ${absolutePos.y}px;
                         `;
+                        if (elementData.style.transform) newElement.style.transform = elementData.style.transform;
+                        if (elementData.style.rotation) newElement.dataset.rotation = elementData.style.rotation;
                         
                         // Armazenar coordenadas normalizadas
                         newElement.dataset.normalizedLeft = elementData.normalizedPosition.left;
@@ -2740,6 +2718,8 @@
                             left: ${absolutePos.x}px;
                             top: ${absolutePos.y}px;
                         `;
+                        if (elementData.style.transform) newElement.style.transform = elementData.style.transform;
+                        if (elementData.style.rotation) newElement.dataset.rotation = elementData.style.rotation;
                         
                         // Adicionar ícone
                         if (elementData.iconName) {
@@ -4309,7 +4289,7 @@
         function initializeDefaultTemplate() {
             console.log('?? Inicializando template padr�o:', currentTemplate.name);
             
-            // Aplicar dimens�es do template padr�o ao preview
+            // Aplicar dimensões do template padrão ao preview
             const previewCanvas = document.getElementById('canvas');
             if (previewCanvas) {
                 const maxPreviewWidth = currentTemplate.metadata.previewMaxWidth;
@@ -4320,7 +4300,7 @@
                 let previewWidth = maxPreviewWidth;
                 let previewHeight = maxPreviewHeight;
                 
-                // Ajustar para manter propor��o
+                // Ajustar para manter proporção
                 if (previewWidth / previewHeight > aspectRatio) {
                     previewWidth = previewHeight * aspectRatio;
                 } else {
@@ -4330,25 +4310,6 @@
                 previewCanvas.style.width = Math.round(previewWidth) + 'px';
                 previewCanvas.style.height = Math.round(previewHeight) + 'px';
                 
-                // CORRE��O: Aplicar aspect-ratio din�mico ao container do preview
-                const canvasBox = document.getElementById('canvasBox');
-                if (canvasBox) {
-                    // Calcular aspect-ratio do template padr�o
-                    const aspectRatio = currentTemplate.metadata.originalWidth / currentTemplate.metadata.originalHeight;
-                    
-                    // Aplicar aspect-ratio din�mico ao container
-                    canvasBox.style.aspectRatio = `${currentTemplate.metadata.originalWidth} / ${currentTemplate.metadata.originalHeight}`;
-                    canvasBox.style.maxWidth = '640px';
-                    canvasBox.style.width = '100%';
-                    
-                    console.log('?? Aspect-ratio padr�o aplicado:', {
-                        template: currentTemplate.name,
-                        aspectRatio: aspectRatio,
-                        dimensions: `${currentTemplate.metadata.originalWidth} / ${currentTemplate.metadata.originalHeight}`
-                    });
-                }
-                
-                // Configurar dimens�es do template nas configura��es
                 customizationSettings.templateDimensions = {
                     originalWidth: currentTemplate.metadata.originalWidth,
                     originalHeight: currentTemplate.metadata.originalHeight,
@@ -4357,9 +4318,9 @@
                     scale: previewWidth / currentTemplate.metadata.originalWidth
                 };
                 
-                console.log('? Template padr�o inicializado:', {
+                console.log('✅ Template padrão inicializado:', {
                     template: currentTemplate.name,
-                    preview: { width: Math.round(previewWidth), height: Math.round(previewHeight) },
+                    preview: { width: previewWidth, height: previewHeight },
                     original: { width: currentTemplate.metadata.originalWidth, height: currentTemplate.metadata.originalHeight }
                 });
             }
@@ -4388,6 +4349,8 @@
                 
                 button.onclick = function() {
                     console.log('🎯 Template selecionado:', template.name);
+                    console.log('🔍 templateDimensions ANTES do clique:', customizationSettings.templateDimensions);
+                    console.log('🔍 currentTemplate ANTES do clique:', customizationSettings.currentTemplate);
                     
                     // Atualizar template atual
                     currentTemplate = template;
@@ -4401,50 +4364,31 @@
                         originalHeight: template.metadata.originalHeight
                     });
                     
-                    // Ajustar preview para o template selecionado usando coordenadas normalizadas
+                    // Ajustar preview para o template selecionado
                     const previewCanvas = document.getElementById('canvas');
                     if (previewCanvas) {
-                        // Usar dimens�es m�ximas do preview do template
+                        // Normalizar elementos usando as dimensões ATUAIS antes de mudar o preview
+                        const oldPreviewDims = CoordinateSystem.getPreviewDimensions();
+                        normalizeElementsWithDimensions(oldPreviewDims);
+                        
                         const maxPreviewWidth = template.metadata.previewMaxWidth;
                         const maxPreviewHeight = template.metadata.previewMaxHeight;
                         
-                        // Calcular propor��o mantendo aspect ratio
                         const aspectRatio = template.metadata.originalWidth / template.metadata.originalHeight;
                         
                         let previewWidth = maxPreviewWidth;
                         let previewHeight = maxPreviewHeight;
                         
-                        // Ajustar para manter propor��o
+                        // Ajustar para manter proporção
                         if (previewWidth / previewHeight > aspectRatio) {
                             previewWidth = previewHeight * aspectRatio;
                         } else {
                             previewHeight = previewWidth / aspectRatio;
                         }
                         
-                        // Aplicar dimens�es ao preview
                         previewCanvas.style.width = Math.round(previewWidth) + 'px';
                         previewCanvas.style.height = Math.round(previewHeight) + 'px';
                         
-                        // CORRE��O: Aplicar aspect-ratio din�mico ao container do preview
-                        const canvasBox = document.getElementById('canvasBox');
-                        if (canvasBox) {
-                            // Calcular aspect-ratio do template
-                            const aspectRatio = template.metadata.originalWidth / template.metadata.originalHeight;
-                            
-                            // Aplicar aspect-ratio din�mico ao container
-                            canvasBox.style.aspectRatio = `${template.metadata.originalWidth} / ${template.metadata.originalHeight}`;
-                            canvasBox.style.maxWidth = '640px';
-                            canvasBox.style.width = '100%';
-                            
-                            console.log('?? Aspect-ratio aplicado:', {
-                                template: template.name,
-                                aspectRatio: aspectRatio,
-                                dimensions: `${template.metadata.originalWidth} / ${template.metadata.originalHeight}`
-                            });
-                        }
-                        
-                        // SALVAR DIMENSÕES DO TEMPLATE para usar no salvamento
-                        // CORREÇÃO: Usar previewWidth/previewHeight CALCULADOS, não os valores máximos
                         // 🔥 CRÍTICO: MANTER configurações existentes, apenas atualizar dimensões
                         const oldBackground = customizationSettings.background;
                         const oldColor = customizationSettings.color;
@@ -4457,6 +4401,16 @@
                             previewHeight: Math.round(previewHeight),
                             scale: Math.round(previewWidth) / template.metadata.originalWidth
                         };
+                        
+                        // 🔥 CRÍTICO: Atualizar currentTemplate para salvar o template correto
+                        customizationSettings.currentTemplate = {
+                            id: template.id,
+                            name: template.name,
+                            originalWidth: template.metadata.originalWidth,
+                            originalHeight: template.metadata.originalHeight,
+                            aspectRatio: template.aspectRatio
+                        };
+                        console.log('✅ currentTemplate atualizado:', customizationSettings.currentTemplate);
                         
                         // 🔥 RESTAURAR configurações que podem ter sido perdidas
                         if (!customizationSettings.background && oldBackground) {
@@ -4474,6 +4428,8 @@
                         
                         console.log('💾 templateDimensions SALVO:', customizationSettings.templateDimensions);
                         console.log('📐 Dimensões do template após mudança:', customizationSettings.templateDimensions);
+                        console.log('🔍 templateDimensions DEPOIS do clique:', customizationSettings.templateDimensions);
+                        console.log('🔍 currentTemplate DEPOIS do clique:', customizationSettings.currentTemplate);
                         
                         // CORREÇÃO: Forçar verificação das dimensões
                         console.log('🔍 Verificando consistência das dimensões:');
@@ -4506,26 +4462,32 @@
                             scale: Math.round(previewWidth) / template.metadata.originalWidth
                         });
                         
-                        // CORREÇÃO CRÍTICA: Atualizar dimensões do slideshow se existir
+                        // 🎯 CARROSSEL: Não precisa atualizar nada especial ao trocar template
                         if (customizationSettings.slideshow && customizationSettings.slideshow.enabled) {
-                            customizationSettings.slideshow.templateDimensions = {
-                                width: template.metadata.originalWidth,
-                                height: template.metadata.originalHeight,
-                                templateName: template.name,
-                                templateId: template.id
-                            };
-                            console.log('🎬 Slideshow atualizado para novo template:', template.name);
+                            console.log('🎠 Carrossel ativo - novo template:', template.name);
+                            
+                            // Reaplicar imageFit ao trocar template
+                            const imageFit = customizationSettings.slideshow.imageFit || 'cover';
+                            if (previewCanvas) {
+                                previewCanvas.style.backgroundSize = imageFit;
+                                console.log('✅ [TEMPLATE CHANGE] imageFit reaplicado:', imageFit);
+                            }
                         }
                         
-                        // CORREÇÃO CRÍTICA: Normalizar E DEPOIS reposicionar elementos
-                        normalizeAllElements();
-                        
-                        // Aguardar um momento para o DOM atualizar as dimensões
+                        // Aguardar um momento para o DOM atualizar as dimensões e aplicar coordenadas normalizadas
                         setTimeout(() => {
                             applyNormalizedCoordinates();
                             console.log('✅ Elementos reposicionados para o novo template');
                         }, 50);
                     }
+                    
+                    // 🚨 LOG FINAL após processar tudo
+                    console.log('═══════════════════════════════════════════════════════════');
+                    console.log('✅ TEMPLATE APLICADO - ESTADO FINAL:');
+                    console.log('  - Template:', template.name);
+                    console.log('  - currentTemplate:', customizationSettings.currentTemplate);
+                    console.log('  - templateDimensions:', customizationSettings.templateDimensions);
+                    console.log('═══════════════════════════════════════════════════════════');
                     
                     showNotification(`${template.name} selecionado`, 'success');
                 };
@@ -4540,40 +4502,27 @@
         function normalizeExistingElements() {
             const canvas = document.getElementById('canvas');
             if (!canvas) return;
-            
             const previewDims = CoordinateSystem.getPreviewDimensions();
             const elements = canvas.querySelectorAll('.draggable-element');
-            
             console.log('?? Verificando elementos existentes:', elements.length);
-            
             elements.forEach(element => {
-                // Verificar se j� tem coordenadas normalizadas
                 if (!element.dataset.normalizedLeft || !element.dataset.normalizedTop) {
-                    console.log('?? Normalizando elemento existente:', element.id);
-                    
-                    const currentLeft = parseInt(element.style.left) || 0;
-                    const currentTop = parseInt(element.style.top) || 0;
-                    const currentWidth = parseInt(element.style.width) || 0;
-                    const currentHeight = parseInt(element.style.height) || 0;
-                    
-                    // Normalizar posi��es e tamanhos
+                    const rect = element.getBoundingClientRect();
+                    const canvasRect = canvas.getBoundingClientRect();
+                    const currentLeft = rect.left - canvasRect.left;
+                    const currentTop = rect.top - canvasRect.top;
+                    const currentWidth = rect.width;
+                    const currentHeight = rect.height;
                     const normalizedPos = CoordinateSystem.normalizePosition(
                         currentLeft, currentTop, previewDims.width, previewDims.height
                     );
                     const normalizedSize = CoordinateSystem.normalizeSize(
                         currentWidth, currentHeight, previewDims.width, previewDims.height
                     );
-                    
-                    // Armazenar coordenadas normalizadas
                     element.dataset.normalizedLeft = normalizedPos.x;
                     element.dataset.normalizedTop = normalizedPos.y;
                     element.dataset.normalizedWidth = normalizedSize.width;
                     element.dataset.normalizedHeight = normalizedSize.height;
-                    
-                    console.log('? Elemento normalizado:', {
-                        id: element.id,
-                        normalized: { left: normalizedPos.x, top: normalizedPos.y, width: normalizedSize.width, height: normalizedSize.height }
-                    });
                 }
             });
         }
@@ -4582,51 +4531,52 @@
         function normalizeAllElements() {
             const canvas = document.getElementById('canvas');
             if (!canvas) return;
-            
             const previewDims = CoordinateSystem.getPreviewDimensions();
             const elements = canvas.querySelectorAll('.draggable-element');
-            
             console.log('?? Normalizando elementos existentes:', elements.length);
-            
             elements.forEach(element => {
-                const currentLeft = parseFloat(element.style.left) || 0;
-                const currentTop = parseFloat(element.style.top) || 0;
-                const currentWidth = parseFloat(element.style.width) || 0;
-                const currentHeight = parseFloat(element.style.height) || 0;
-                
-                // Normalizar posições
+                const rect = element.getBoundingClientRect();
+                const canvasRect = canvas.getBoundingClientRect();
+                const currentLeft = rect.left - canvasRect.left;
+                const currentTop = rect.top - canvasRect.top;
+                const currentWidth = rect.width;
+                const currentHeight = rect.height;
                 const normalizedPos = CoordinateSystem.normalizePosition(
                     currentLeft, currentTop, previewDims.width, previewDims.height
                 );
-                
-                // CORREÇÃO: Para elementos proporcionais, usar valores FIXOS
-                let normalizedSize;
-                if (element.id.startsWith('icon-')) {
-                    normalizedSize = { width: 0.11, height: 0.11 }; // Ícone sempre 11%
-                } else if (element.id.startsWith('circle-')) {
-                    normalizedSize = { width: 0.15, height: 0.15 }; // Círculo sempre 15%
-                } else if (element.id.startsWith('rectangle-')) {
-                    normalizedSize = { width: 0.25, height: 0.15 }; // Retângulo sempre 25% x 15%
-                } else if (element.id.startsWith('line-')) {
-                    normalizedSize = { width: 0.30, height: 0.005 }; // Linha sempre 30% x fixo
-                } else {
-                    // Outros elementos: normalizar tamanho atual
-                    normalizedSize = CoordinateSystem.normalizeSize(
-                        currentWidth, currentHeight, previewDims.width, previewDims.height
-                    );
-                }
-                
-                // Armazenar coordenadas normalizadas no elemento
+                const normalizedSize = CoordinateSystem.normalizeSize(
+                    currentWidth, currentHeight, previewDims.width, previewDims.height
+                );
                 element.dataset.normalizedLeft = normalizedPos.x;
                 element.dataset.normalizedTop = normalizedPos.y;
                 element.dataset.normalizedWidth = normalizedSize.width;
                 element.dataset.normalizedHeight = normalizedSize.height;
-                
-                console.log('🔄 Elemento normalizado:', {
-                    id: element.id,
-                    original: { left: currentLeft, top: currentTop, width: currentWidth, height: currentHeight },
-                    normalized: { left: normalizedPos.x, top: normalizedPos.y, width: normalizedSize.width, height: normalizedSize.height }
-                });
+            });
+        }
+
+        // NOVO: Normalizar elementos usando dimensões fornecidas (pré-troca de template)
+        function normalizeElementsWithDimensions(baseDims) {
+            const canvas = document.getElementById('canvas');
+            if (!canvas) return;
+            const elements = canvas.querySelectorAll('.draggable-element');
+            console.log('🧮 Normalizando com dimensões base (pré-troca):', baseDims);
+            elements.forEach(element => {
+                const rect = element.getBoundingClientRect();
+                const canvasRect = canvas.getBoundingClientRect();
+                const currentLeft = rect.left - canvasRect.left;
+                const currentTop = rect.top - canvasRect.top;
+                const currentWidth = rect.width;
+                const currentHeight = rect.height;
+                const normalizedPos = CoordinateSystem.normalizePosition(
+                    currentLeft, currentTop, baseDims.width, baseDims.height
+                );
+                const normalizedSize = CoordinateSystem.normalizeSize(
+                    currentWidth, currentHeight, baseDims.width, baseDims.height
+                );
+                element.dataset.normalizedLeft = normalizedPos.x;
+                element.dataset.normalizedTop = normalizedPos.y;
+                element.dataset.normalizedWidth = normalizedSize.width;
+                element.dataset.normalizedHeight = normalizedSize.height;
             });
         }
         
@@ -4654,40 +4604,19 @@
                     normalizedLeft, normalizedTop, previewDims.width, previewDims.height
                 );
                 
-                let absoluteSize;
+                // Denormalizar usando os tamanhos relativos salvos
+                let absoluteSize = CoordinateSystem.denormalizeSize(
+                    normalizedWidth, normalizedHeight, previewDims.width, previewDims.height
+                );
                 
-                // TRATAMENTO ESPECIAL PARA ELEMENTOS PROPORCIONAIS
-                const minDimension = Math.min(previewDims.width, previewDims.height);
-                
+                // Ajuste adicional para ícones: sincronizar SVG interno
                 if (element.id.startsWith('icon-')) {
-                    // Ícone: 11% do menor lado (MIN 60px, MAX 100px)
-                    const iconSize = Math.min(Math.max(Math.round(minDimension * 0.11), 60), 100);
-                    absoluteSize = { width: iconSize, height: iconSize };
-                    
-                    const svgSize = Math.round(iconSize * 0.6);
                     const iconSvg = element.querySelector('[data-lucide]');
                     if (iconSvg) {
+                        const svgSize = Math.round(Math.min(absoluteSize.width, absoluteSize.height) * 0.6);
                         iconSvg.style.width = svgSize + 'px';
                         iconSvg.style.height = svgSize + 'px';
                     }
-                } else if (element.id.startsWith('circle-')) {
-                    // Círculo: 15% do menor lado (quadrado)
-                    const circleSize = Math.max(Math.round(minDimension * 0.15), 60);
-                    absoluteSize = { width: circleSize, height: circleSize };
-                } else if (element.id.startsWith('rectangle-')) {
-                    // Retângulo: 25% x 15% do menor lado
-                    const rectWidth = Math.max(Math.round(minDimension * 0.25), 80);
-                    const rectHeight = Math.max(Math.round(minDimension * 0.15), 60);
-                    absoluteSize = { width: rectWidth, height: rectHeight };
-                } else if (element.id.startsWith('line-')) {
-                    // Linha: 30% largura x altura pequena
-                    const lineWidth = Math.max(Math.round(minDimension * 0.30), 100);
-                    absoluteSize = { width: lineWidth, height: 3 };
-                } else {
-                    // Outros elementos: usar desnormalização normal
-                    absoluteSize = CoordinateSystem.denormalizeSize(
-                        normalizedWidth, normalizedHeight, previewDims.width, previewDims.height
-                    );
                 }
                 
                 // GARANTIR que elementos não saiam do canvas (ajustar APENAS se necessário)
@@ -4706,11 +4635,21 @@
                     finalY = Math.max(0, previewDims.height - finalHeight);
                 }
                 
-                // Aplicar posições e tamanhos
                 element.style.left = finalX + 'px';
                 element.style.top = finalY + 'px';
-                element.style.width = finalWidth + 'px';
-                element.style.height = finalHeight + 'px';
+                if (element.id.startsWith('circle-') || element.id.startsWith('rectangle-')) {
+                    let bw = 2;
+                    const border = element.style.border || '';
+                    const m = border.match(/(\d+)px/);
+                    if (m) bw = parseInt(m[1], 10);
+                    const adjW = Math.max(1, finalWidth - bw * 2);
+                    const adjH = Math.max(1, finalHeight - bw * 2);
+                    element.style.width = adjW + 'px';
+                    element.style.height = adjH + 'px';
+                } else {
+                    element.style.width = finalWidth + 'px';
+                    element.style.height = finalHeight + 'px';
+                }
                 element.style.display = 'flex';
                 element.style.opacity = element.style.opacity || '1';
                 
@@ -5056,25 +4995,23 @@
             
             circle.style.left = centerX + 'px';
             circle.style.top = centerY + 'px';
+            circle.dataset.rotation = '0';
+            circle.style.transformOrigin = '50% 50%';
             
-            // Armazenar coordenadas normalizadas FIXAS
-            const normalizedPos = CoordinateSystem.normalizePosition(centerX, centerY, previewDims.width, previewDims.height);
-            const normalizedSize = {
-                width: 0.15,  // 15% fixo
-                height: 0.15  // 15% fixo
-            };
-            
-            circle.dataset.normalizedLeft = normalizedPos.x;
-            circle.dataset.normalizedTop = normalizedPos.y;
-            circle.dataset.normalizedWidth = normalizedSize.width;
-            circle.dataset.normalizedHeight = normalizedSize.height;
-            circle.dataset.zIndex = '50'; // Z-index padrão: na frente do texto (0 = atrás do texto)
+            circle.dataset.zIndex = '50';
             
             // Adicionar handle de redimensionamento
             addResizeHandle(circle);
             
-            // Adicionar ao canvas
             canvas.appendChild(circle);
+            const rectC = circle.getBoundingClientRect();
+            const canvasRectC = canvas.getBoundingClientRect();
+            const normPosC = CoordinateSystem.normalizePosition(rectC.left - canvasRectC.left, rectC.top - canvasRectC.top, previewDims.width, previewDims.height);
+            const normSizeC = CoordinateSystem.normalizeSize(rectC.width, rectC.height, previewDims.width, previewDims.height);
+            circle.dataset.normalizedLeft = normPosC.x;
+            circle.dataset.normalizedTop = normPosC.y;
+            circle.dataset.normalizedWidth = normSizeC.width;
+            circle.dataset.normalizedHeight = normSizeC.height;
             
             // Tornar draggable
             makeDraggable(circle);
@@ -5127,25 +5064,23 @@
             
             rectangle.style.left = centerX + 'px';
             rectangle.style.top = centerY + 'px';
+            rectangle.dataset.rotation = '0';
+            rectangle.style.transformOrigin = '50% 50%';
             
-            // Armazenar coordenadas normalizadas FIXAS
-            const normalizedPos = CoordinateSystem.normalizePosition(centerX, centerY, previewDims.width, previewDims.height);
-            const normalizedSize = {
-                width: 0.25,  // 25% fixo
-                height: 0.15  // 15% fixo
-            };
-            
-            rectangle.dataset.normalizedLeft = normalizedPos.x;
-            rectangle.dataset.normalizedTop = normalizedPos.y;
-            rectangle.dataset.normalizedWidth = normalizedSize.width;
-            rectangle.dataset.normalizedHeight = normalizedSize.height;
-            rectangle.dataset.zIndex = '50'; // Z-index padrão: na frente do texto (0 = atrás do texto)
+            rectangle.dataset.zIndex = '50';
             
             // Adicionar handle de redimensionamento
             addResizeHandle(rectangle);
             
-            // Adicionar ao canvas
             canvas.appendChild(rectangle);
+            const rectR = rectangle.getBoundingClientRect();
+            const canvasRectR = canvas.getBoundingClientRect();
+            const normPosR = CoordinateSystem.normalizePosition(rectR.left - canvasRectR.left, rectR.top - canvasRectR.top, previewDims.width, previewDims.height);
+            const normSizeR = CoordinateSystem.normalizeSize(rectR.width, rectR.height, previewDims.width, previewDims.height);
+            rectangle.dataset.normalizedLeft = normPosR.x;
+            rectangle.dataset.normalizedTop = normPosR.y;
+            rectangle.dataset.normalizedWidth = normSizeR.width;
+            rectangle.dataset.normalizedHeight = normSizeR.height;
             
             // Tornar draggable
             makeDraggable(rectangle);
@@ -5193,18 +5128,17 @@
             
             line.style.left = centerX + 'px';
             line.style.top = centerY + 'px';
+            line.dataset.rotation = '0';
+            line.style.transformOrigin = '50% 50%';
             
-            // Armazenar coordenadas normalizadas FIXAS
-            const normalizedPos = CoordinateSystem.normalizePosition(centerX, centerY, previewDims.width, previewDims.height);
-            const normalizedSize = {
-                width: 0.30,  // 30% fixo
-                height: 0.005 // altura pequena fixa
-            };
-            
-            line.dataset.normalizedLeft = normalizedPos.x;
-            line.dataset.normalizedTop = normalizedPos.y;
-            line.dataset.normalizedWidth = normalizedSize.width;
-            line.dataset.normalizedHeight = normalizedSize.height;
+            const rectL = line.getBoundingClientRect();
+            const canvasRectL = canvas.getBoundingClientRect();
+            const normPosL = CoordinateSystem.normalizePosition(rectL.left - canvasRectL.left, rectL.top - canvasRectL.top, previewDims.width, previewDims.height);
+            const normSizeL = CoordinateSystem.normalizeSize(rectL.width, rectL.height, previewDims.width, previewDims.height);
+            line.dataset.normalizedLeft = normPosL.x;
+            line.dataset.normalizedTop = normPosL.y;
+            line.dataset.normalizedWidth = normSizeL.width;
+            line.dataset.normalizedHeight = normSizeL.height;
             
             // Adicionar handle de redimensionamento
             addResizeHandle(line);
@@ -5328,6 +5262,27 @@
             toolbar.appendChild(bringForwardBtn);
             toolbar.appendChild(sendBackwardBtn);
             toolbar.appendChild(opacitySlider);
+
+            const rotationContainer = document.createElement('input');
+            rotationContainer.type = 'range';
+            rotationContainer.min = '0';
+            rotationContainer.max = '360';
+            rotationContainer.step = '1';
+            rotationContainer.className = 'opacity-slider';
+            const extractDeg = (t) => {
+                const m = (t || '').match(/rotate\(([-\d.]+)deg\)/);
+                return m ? parseFloat(m[1]) : (parseFloat(element.dataset.rotation || '0') || 0);
+            };
+            const initialDeg = extractDeg(element.style.transform);
+            rotationContainer.value = String(Math.round(initialDeg));
+            rotationContainer.title = 'Rotação';
+            rotationContainer.oninput = function() {
+                const deg = parseFloat(this.value) || 0;
+                element.dataset.rotation = String(deg);
+                element.style.transformOrigin = '50% 50%';
+                element.style.transform = `rotate(${deg}deg)`;
+            };
+            toolbar.appendChild(rotationContainer);
             
             // CORREÇÃO: Adicionar seletor de cor apenas para formas geométricas (não ícones)
             const isShape = element.id.startsWith('circle-') || element.id.startsWith('rectangle-') || element.id.startsWith('line-');
@@ -5513,6 +5468,37 @@
             };
             opacityContainer.appendChild(opacitySlider);
             contextMenu.appendChild(opacityContainer);
+
+            // Rotação (para formas e ícones)
+            const rotationContainer = document.createElement('div');
+            rotationContainer.className = 'context-menu-opacity';
+            const rotationLabel = document.createElement('div');
+            rotationLabel.className = 'context-menu-opacity-label';
+            const extractDeg = (t, fallback) => {
+                const m = (t || '').match(/rotate\(([-\d.]+)deg\)/);
+                if (m) return Math.round(parseFloat(m[1]));
+                if (fallback) return Math.round(parseFloat(fallback));
+                return 0;
+            };
+            const initialDeg = extractDeg(element.style.transform, element.dataset.rotation || '0');
+            rotationLabel.innerHTML = `<span>Rotação</span><span>${initialDeg}°</span>`;
+            rotationContainer.appendChild(rotationLabel);
+            const rotationSlider = document.createElement('input');
+            rotationSlider.type = 'range';
+            rotationSlider.min = '0';
+            rotationSlider.max = '360';
+            rotationSlider.step = '1';
+            rotationSlider.value = String(initialDeg);
+            rotationSlider.className = 'context-menu-opacity-slider';
+            rotationSlider.oninput = function() {
+                const deg = parseFloat(this.value) || 0;
+                element.dataset.rotation = String(deg);
+                element.style.transformOrigin = '50% 50%';
+                element.style.transform = `rotate(${deg}deg)`;
+                rotationLabel.innerHTML = `<span>Rotação</span><span>${Math.round(deg)}°</span>`;
+            };
+            rotationContainer.appendChild(rotationSlider);
+            contextMenu.appendChild(rotationContainer);
             
             // Cor (apenas para formas geométricas)
             if (isShape) {
@@ -5695,6 +5681,9 @@
             newElement.style.alignItems = 'center';
             newElement.style.justifyContent = 'center';
             newElement.style.textAlign = 'center';
+            if (originalElement.dataset.rotation) newElement.dataset.rotation = originalElement.dataset.rotation;
+            if (originalElement.style.transform) newElement.style.transform = originalElement.style.transform;
+            newElement.style.transformOrigin = '50% 50%';
             
             // Copiar propriedades específicas do tipo
             if (originalElement.id.startsWith('circle-')) {
@@ -5897,16 +5886,17 @@
                     
                     // Atualizar coordenadas normalizadas ap�s o movimento
                     const previewDims = CoordinateSystem.getPreviewDimensions();
-                    const currentLeft = parseInt(element.style.left) || 0;
-                    const currentTop = parseInt(element.style.top) || 0;
-                    const currentWidth = parseInt(element.style.width) || 0;
-                    const currentHeight = parseInt(element.style.height) || 0;
-                    
+                    const canvasRect = document.getElementById('canvas').getBoundingClientRect();
+                    const rect = element.getBoundingClientRect();
+                    const leftPx = rect.left - canvasRect.left;
+                    const topPx = rect.top - canvasRect.top;
+                    const widthPx = rect.width;
+                    const heightPx = rect.height;
                     const normalizedPos = CoordinateSystem.normalizePosition(
-                        currentLeft, currentTop, previewDims.width, previewDims.height
+                        leftPx, topPx, previewDims.width, previewDims.height
                     );
                     const normalizedSize = CoordinateSystem.normalizeSize(
-                        currentWidth, currentHeight, previewDims.width, previewDims.height
+                        widthPx, heightPx, previewDims.width, previewDims.height
                     );
                     
                     element.dataset.normalizedLeft = normalizedPos.x;
@@ -6238,23 +6228,28 @@
             // Video functionality moved to /create-video page
         });
 
-        // Função para renderizar SLIDESHOW como múltiplas imagens
+        // 🎯 CARROSSEL SIMPLES: Renderizar 4 imagens com o template atual
         async function renderSlideshowCanvases(titleParam = null, contentParam = null) {
             const slideshowImages = customizationSettings.slideshow?.images || [];
             if (slideshowImages.length !== 4) {
-                console.error('❌ Slideshow precisa de 4 imagens!');
+                console.error('❌ Carrossel precisa de 4 imagens!');
                 return [];
             }
             
+            console.log('🎠 RENDERIZANDO CARROSSEL:');
+            console.log('  - Template:', currentTemplate.name);
+            console.log('  - Dimensões:', currentTemplate.metadata.originalWidth, 'x', currentTemplate.metadata.originalHeight);
+            
             const canvases = [];
             
-            // Renderizar cada imagem do slideshow separadamente
+            // Renderizar cada imagem do carrossel separadamente
             for (let i = 0; i < 4; i++) {
+                console.log(`  - Renderizando imagem ${i + 1}/4...`);
                 // Temporariamente usar apenas esta imagem
                 const originalImages = customizationSettings.slideshow.images;
                 customizationSettings.slideshow.images = [slideshowImages[i]];
                 
-                // Renderizar canvas com esta imagem
+                // Renderizar canvas com esta imagem (usa currentTemplate automaticamente)
                 const canvasDataURL = await renderFinalCanvas(titleParam, contentParam);
                 canvases.push(canvasDataURL);
                 
@@ -6262,6 +6257,7 @@
                 customizationSettings.slideshow.images = originalImages;
             }
             
+            console.log('✅ Carrossel renderizado:', canvases.length, 'imagens');
             return canvases;
         }
         
@@ -6282,35 +6278,15 @@
                     return;
                 }
                 
-                // Usar dimensões originais do template atual
-                const originalDims = CoordinateSystem.getOriginalDimensions();
+                // 🎯 Obter dimensões do template (TAMANHO FINAL, não preview!)
+                const finalWidth = currentTemplate.metadata.originalWidth;
+                const finalHeight = currentTemplate.metadata.originalHeight;
                 
-                // CORREÇÃO CRÍTICA PARA TWITTER HEADER: Forçar dimensões fixas
-                let finalWidth, finalHeight;
+                console.log('✅ Renderizando (TAMANHO ORIGINAL):', currentTemplate.name, '-', finalWidth, 'x', finalHeight);
                 
-                if (currentTemplate.id === 'twitter-header') {
-                    // Twitter Header: SEMPRE 1500x500 (dimensões fixas)
-                    finalWidth = 1500;
-                    finalHeight = 500;
-                    console.log('🐦 TWITTER HEADER: Forçando dimensões fixas:', finalWidth, 'x', finalHeight);
-                } else if (currentTemplate.id === 'youtube-thumbnail') {
-                    // YouTube Thumbnail: SEMPRE 1280x720 (dimensões fixas)
-                    finalWidth = 1280;
-                    finalHeight = 720;
-                    console.log('📺 YOUTUBE THUMBNAIL: Forçando dimensões fixas:', finalWidth, 'x', finalHeight);
-                } else {
-                    // Outros templates: usar dimensões originais arredondadas
-                    finalWidth = Math.round(originalDims.width);
-                    finalHeight = Math.round(originalDims.height);
-                }
-                
-                // Definir dimensões do canvas ANTES de qualquer renderização
+                // Canvas no tamanho original do template
                 canvas.width = finalWidth;
                 canvas.height = finalHeight;
-                
-                // CORREÇÃO: Garantir que o canvas não está sendo distorcido pelo CSS
-                canvas.style.width = finalWidth + 'px';
-                canvas.style.height = finalHeight + 'px';
                 
                 // Verificar se as dimensões foram aplicadas corretamente
                 if (canvas.width !== finalWidth || canvas.height !== finalHeight) {
@@ -6323,7 +6299,7 @@
                 }
                 
                 // CORREÇÃO: Verificar aspect ratio esperado vs obtido
-                const expectedAspectRatio = originalDims.width / originalDims.height;
+                const expectedAspectRatio = finalWidth / finalHeight;
                 const actualAspectRatio = canvas.width / canvas.height;
                 const aspectRatioDiff = Math.abs(expectedAspectRatio - actualAspectRatio);
                 
@@ -6340,7 +6316,7 @@
                     canvasWidth: canvas.width,
                     canvasHeight: canvas.height,
                     ratio: actualAspectRatio.toFixed(4),
-                    expected: `${originalDims.width}×${originalDims.height}`,
+                    expected: `${finalWidth}×${finalHeight}`,
                     expectedRatio: expectedAspectRatio.toFixed(4),
                     aspectRatioOk: aspectRatioDiff <= 0.01
                 });
@@ -6350,11 +6326,11 @@
                     templateId: currentTemplate.id,
                     canvasWidth: canvas.width,
                     canvasHeight: canvas.height,
-                    expectedDimensions: `${originalDims.width}x${originalDims.height}`,
-                    aspectRatio: (originalDims.width / originalDims.height).toFixed(2)
+                    expectedDimensions: `${finalWidth}x${finalHeight}`,
+                    aspectRatio: (finalWidth / finalHeight).toFixed(2)
                 });
                 console.log('🖼️ Template metadata:', currentTemplate.metadata);
-                console.log('🖼️ Original dimensions obtidas:', originalDims);
+                console.log('🖼️ Final dimensions:', { width: finalWidth, height: finalHeight });
                 
                 // Renderizar background (gradiente ou cor sólida)
                 const backgroundClass = customizationSettings.background || 'bg-white';
@@ -6434,6 +6410,7 @@
                     fillStyle: ctx.fillStyle
                 });
                 
+                // Obter referência ao canvas de preview para copiar elementos
                 const previewCanvas = document.getElementById('canvas');
                 if (!previewCanvas) {
                     console.error('❌ Canvas de preview não encontrado');
@@ -6446,37 +6423,23 @@
                 const content = contentParam || document.getElementById('postContent')?.value || '';
                 console.log('📝 TEXTO CAPTURADO:', title, content);
                 
-                // Verificar se há slideshow ou imagem de fundo
+                // Verificar se há imagem de fundo
                 let backgroundImageURL = null;
-                let slideshowImages = null;
-                console.log('🔍 Verificando slideshow:', {
-                    hasSlideshow: !!customizationSettings.slideshow,
-                    enabled: customizationSettings.slideshow?.enabled,
-                    imagesCount: customizationSettings.slideshow?.images?.length || 0
-                });
                 
-                if (customizationSettings.slideshow && customizationSettings.slideshow.enabled && customizationSettings.slideshow.images && customizationSettings.slideshow.images.length > 0) {
-                    slideshowImages = customizationSettings.slideshow.images;
-                    backgroundImageURL = slideshowImages[0]; // Primeira imagem do slideshow
-                    console.log('🎬 SLIDESHOW:', slideshowImages.length, 'imagens | Usando imagem:', backgroundImageURL ? backgroundImageURL.substring(0, 50) + '...' : 'null');
-                } else if (previewCanvas.style.backgroundImage && previewCanvas.style.backgroundImage !== 'none') {
+                if (previewCanvas.style.backgroundImage && previewCanvas.style.backgroundImage !== 'none') {
                     const match = previewCanvas.style.backgroundImage.match(/url\(["']?([^"']*)["']?\)/);
                     if (match && match[1]) {
                         backgroundImageURL = match[1];
                         console.log('🖼️ IMAGEM DE FUNDO DETECTADA:', backgroundImageURL.substring(0, 100));
                     }
                 } else {
-                    console.log('ℹ️ Nenhuma imagem de fundo ou slideshow detectado');
+                    console.log('ℹ️ Nenhuma imagem de fundo detectada');
                 }
-                
-                // Verificar se há slideshow ativo
-                const hasSlideshow = customizationSettings.slideshow && customizationSettings.slideshow.enabled;
                 
                 // Função para renderizar resto (formas + texto)
                 async function renderRestOfCanvas() {
                     const elements = previewCanvas.querySelectorAll('.draggable-element');
-                    console.log('?? Elementos encontrados:', elements.length);
-                    console.log('🎬 Slideshow ativo?', hasSlideshow);
+                    console.log('📦 Elementos encontrados:', elements.length);
                 
                 // CORREÇÃO CRÍTICA: Renderizar TODAS as formas ANTES do texto
                 // O texto sempre será renderizado por último para garantir que apareça por cima
@@ -6508,11 +6471,9 @@
                 // Ordenar todas as formas por z-index (menor primeiro)
                 allShapes.sort((a, b) => a.zIndex - b.zIndex);
                 
-                // SOLUÇÃO DEFINITIVA: TODAS as formas são renderizadas ANTES do texto
-                // O texto SEMPRE fica por cima de tudo no salvamento
-                // No preview, o z-index CSS funciona normalmente
-                const shapesBehindText = allShapes; // Todas as formas ficam atrás
-                const shapesInFrontOfText = []; // Nenhuma forma na frente
+                // Texto SEMPRE por cima: todas as formas ficam atrás
+                const shapesBehindText = allShapes;
+                const shapesInFrontOfText = [];
                 
                 console.log('📊 SEPARAÇÃO DE CAMADAS (Texto sempre por cima):');
                 console.log(`  - Formas ATRÁS do texto: ${shapesBehindText.length}`);
@@ -6522,35 +6483,21 @@
                 console.log('📊 Renderizando formas ATRÁS do texto:', shapesBehindText.length);
                 
                 // CORREÇÃO: Usar for...of loop para suportar async/await (necessário para ícones SVG)
+                const previewRect = previewCanvas.getBoundingClientRect();
+                const scaleX = canvas.width / previewRect.width;
+                const scaleY = canvas.height / previewRect.height;
                 for (let index = 0; index < shapesBehindText.length; index++) {
                     const shapeData = shapesBehindText[index];
                     const element = shapeData.element;
-                    const normalizedLeft = parseFloat(element.dataset.normalizedLeft) || 0;
-                    const normalizedTop = parseFloat(element.dataset.normalizedTop) || 0;
-                    const normalizedWidth = parseFloat(element.dataset.normalizedWidth) || 0;
-                    const normalizedHeight = parseFloat(element.dataset.normalizedHeight) || 0;
-                    
-                    const finalPos = CoordinateSystem.denormalizePosition(
-                        normalizedLeft, normalizedTop, canvas.width, canvas.height
-                    );
-                    let finalSize = CoordinateSystem.denormalizeSize(
-                        normalizedWidth, normalizedHeight, canvas.width, canvas.height
-                    );
-                    
-                    // CORREÇÃO: Aplicar limites para ícones no salvamento
-                    if (element.id.startsWith('icon-')) {
-                        const minDimension = Math.min(canvas.width, canvas.height);
-                        const iconSize = Math.min(Math.max(Math.round(minDimension * 0.11), 60), 100);
-                        finalSize = { width: iconSize, height: iconSize };
-                    }
+                    const elemRect = element.getBoundingClientRect();
+                    const leftPx = elemRect.left - previewRect.left;
+                    const topPx = elemRect.top - previewRect.top;
+                    const widthPx = elemRect.width;
+                    const heightPx = elemRect.height;
+                    const finalPos = { x: leftPx * scaleX, y: topPx * scaleY };
+                    let finalSize = { width: widthPx * scaleX, height: heightPx * scaleY };
                     
                     console.log(`🎨 [ATRÁS] Renderizando forma ${index + 1}/${shapesBehindText.length} (${element.id}) - z-index: ${shapeData.zIndex}`);
-                    
-                    // CORREÇÃO: Não renderizar formas/ícones decorativos quando há slideshow
-                    if (hasSlideshow && (element.id.startsWith('icon-') || element.id.startsWith('circle-') || element.id.startsWith('rectangle-') || element.id.startsWith('line-'))) {
-                        console.log('⏭️ Pulando elemento decorativo (slideshow ativo):', element.id);
-                        continue;
-                    }
                     
                     if (element.id.startsWith('circle-')) {
                         renderCircleOnCanvas(ctx, finalPos, finalSize, element);
@@ -6619,194 +6566,98 @@
                         const textPosition = selectedTextPosition || customizationSettings.textPosition || 'center';
                         const fontFamily = selectedFont || customizationSettings.font || 'Arial';
                         
-                        console.log('📝 Configurações de texto:', { textColor, textPosition, fontFamily });
-                        
-                        // Determinar fonte para canvas (canvas não suporta Google Fonts diretamente, usar Arial como fallback)
-                        let canvasFontFamily = 'Arial';
-                        if (fontFamily && !fontFamily.startsWith('font-')) {
-                            // Se for fonte do Google, usar Arial (canvas não carrega Google Fonts diretamente)
-                            canvasFontFamily = 'Arial';
-                        }
-                        
-                        // Calcular posição do texto baseado no textPosition
-                        let titleY = canvas.height / 2;
-                        let contentStartY = canvas.height / 2;
-                        const padding = canvas.height * 0.06;
-                        
-                        if (textPosition === 'top') {
-                            titleY = padding + canvas.height * 0.08;
-                            contentStartY = titleY + canvas.height * 0.08;
-                        } else if (textPosition === 'bottom') {
-                            contentStartY = canvas.height - padding - canvas.height * 0.15;
-                            titleY = contentStartY - canvas.height * 0.08;
-                        } else {
-                            // Center
-                            if (title && content) {
-                                titleY = canvas.height / 2 - canvas.height * 0.06;
-                                contentStartY = canvas.height / 2 + canvas.height * 0.04;
-                            } else if (title) {
-                                titleY = canvas.height / 2;
-                            } else {
-                                contentStartY = canvas.height / 2;
-                            }
-                        }
-                        
-                        // SOLUÇÃO DEFINITIVA: Renderizar texto SEM save/restore
-                        // Resetar TODAS as propriedades do contexto antes de renderizar o texto
-                        
-                        console.log('📝 RENDERIZANDO TEXTO COM FORÇA (depois de todas as formas e logo)...');
-                        
-                        // RESETAR CONTEXTO COMPLETAMENTE
+                    console.log('📝 Configurações de texto:', { textColor, textPosition, fontFamily });
+                        const previewCanvasEl = document.getElementById('canvas');
+                        const previewRect = previewCanvasEl ? previewCanvasEl.getBoundingClientRect() : { left: 0, top: 0, width: canvas.width, height: canvas.height };
+                        const sX = canvas.width / (previewRect.width || canvas.width);
+                        const sY = canvas.height / (previewRect.height || canvas.height);
+
                         ctx.globalAlpha = 1.0;
                         ctx.globalCompositeOperation = 'source-over';
                         ctx.shadowColor = 'transparent';
                         ctx.shadowBlur = 0;
                         ctx.shadowOffsetX = 0;
                         ctx.shadowOffsetY = 0;
-                        
-                        // Função auxiliar para quebrar texto em linhas
-                        const wrapText = (text, maxWidth, fontSize, isBold = false) => {
+
+                        const applyTextShadow = (shadowStr) => {
+                            ctx.shadowColor = 'transparent';
+                            ctx.shadowBlur = 0;
+                            ctx.shadowOffsetX = 0;
+                            ctx.shadowOffsetY = 0;
+                            if (!shadowStr) return;
+                            const first = shadowStr.split(',')[0].trim();
+                            const m = first.match(/(-?\d+)px\s+(-?\d+)px\s+(\d+)px\s+(rgba?\([^\)]+\)|#[0-9a-fA-F]{3,8})/);
+                            if (m) {
+                                ctx.shadowOffsetX = parseInt(m[1], 10);
+                                ctx.shadowOffsetY = parseInt(m[2], 10);
+                                ctx.shadowBlur = parseInt(m[3], 10);
+                                ctx.shadowColor = m[4];
+                            }
+                        };
+
+                        const wrapText = (text, maxWidth) => {
                             const words = text.split(' ');
                             const lines = [];
-                            let currentLine = '';
-                            
-                            ctx.font = `${isBold ? 'bold ' : ''}${fontSize}px Arial`;
-                            
+                            let current = '';
                             for (let i = 0; i < words.length; i++) {
-                                const testLine = currentLine + (currentLine ? ' ' : '') + words[i];
-                                const metrics = ctx.measureText(testLine);
-                                
-                                if (metrics.width > maxWidth && currentLine) {
-                                    lines.push(currentLine);
-                                    currentLine = words[i];
+                                const test = current ? current + ' ' + words[i] : words[i];
+                                const metrics = ctx.measureText(test);
+                                if (metrics.width > maxWidth && current) {
+                                    lines.push(current);
+                                    current = words[i];
                                 } else {
-                                    currentLine = testLine;
+                                    current = test;
                                 }
                             }
-                            
-                            if (currentLine) {
-                                lines.push(currentLine);
-                            }
-                            
+                            if (current) lines.push(current);
                             return lines;
                         };
-                        
-                        // Função auxiliar para ajustar tamanho da fonte
-                        const adjustFontSize = (text, baseFontSize, maxWidth, isBold = false) => {
-                            let fontSize = baseFontSize;
-                            ctx.font = `${isBold ? 'bold ' : ''}${fontSize}px Arial`;
-                            let metrics = ctx.measureText(text);
-                            
-                            // Reduzir fonte se texto for muito largo (mais de 80% da largura para margem maior)
-                            while (metrics.width > maxWidth && fontSize > 16) {
-                                fontSize -= 3; // Redução mais agressiva (era 2)
-                                ctx.font = `${isBold ? 'bold ' : ''}${fontSize}px Arial`;
-                                metrics = ctx.measureText(text);
-                            }
-                            
-                            console.log(`📏 Ajuste de fonte: Base=${baseFontSize}px → Final=${fontSize}px (Largura: ${Math.round(metrics.width)}/${Math.round(maxWidth)})`);
-                            return fontSize;
+
+                        const renderTextNode = (el, text, isBold) => {
+                            if (!el || !text || !text.trim()) return;
+                            const cs = window.getComputedStyle(el);
+                            const fontSizePx = parseFloat(cs.fontSize) || 24;
+                            const color = cs.color || (selectedColor || customizationSettings.color || '#ffffff');
+                            const fw = cs.fontWeight;
+                            const weight = (isBold || (fw === 'bold' || parseInt(fw, 10) >= 600)) ? 'bold ' : '';
+                            const fontFamilyCanvas = 'Arial';
+                            const lineHeightPx = cs.lineHeight === 'normal' ? fontSizePx * 1.2 : (parseFloat(cs.lineHeight) || fontSizePx * 1.2);
+                            const rect = el.getBoundingClientRect();
+                            const maxWidth = rect.width * sX * 0.98;
+
+                            ctx.font = `${weight}${Math.round(fontSizePx * sY)}px ${fontFamilyCanvas}`;
+                            ctx.fillStyle = color;
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'top';
+                            applyTextShadow(cs.textShadow);
+
+                            const lines = wrapText(text, maxWidth);
+                            const lineHeight = lineHeightPx * sY;
+                            const centerX = (rect.left - previewRect.left + rect.width / 2) * sX;
+                            let y = (rect.top - previewRect.top) * sY;
+                            lines.forEach(line => {
+                                ctx.fillText(line, centerX, y);
+                                y += lineHeight;
+                            });
+
+                            ctx.shadowColor = 'transparent';
+                            ctx.shadowBlur = 0;
+                            ctx.shadowOffsetX = 0;
+                            ctx.shadowOffsetY = 0;
                         };
-                        
-                        // RENDERIZAR TÍTULO
-                        if (title && title.trim()) {
-                            // CORREÇÃO: Para templates horizontais (Twitter, YouTube), usar tamanho maior
-                            const aspectRatio = canvas.width / canvas.height;
-                            const isHorizontal = aspectRatio > 1.5; // Twitter (3:1), YouTube (1.78:1)
-                            const baseTitleSize = isHorizontal 
-                                ? Math.round(canvas.height * 0.15) // 15% para horizontais (75px para 500px de altura)
-                                : Math.round(canvas.height * 0.06); // 6% para verticais
-                            const maxWidth = canvas.width * 0.85; // 85% da largura do canvas
-                            console.log(`📝 Template ${isHorizontal ? 'HORIZONTAL' : 'VERTICAL'} - Base title size: ${baseTitleSize}px`);
-                            const titleFontSize = adjustFontSize(title, baseTitleSize, maxWidth, true);
-                            const titleLines = wrapText(title, maxWidth, titleFontSize, true);
-                            
-                            ctx.font = `bold ${titleFontSize}px Arial`;
-                            ctx.fillStyle = textColor || '#1f2937';
-                            ctx.textAlign = 'center';
-                            ctx.textBaseline = 'middle';
-                            
-                            // Adicionar sombra para contraste
-                            ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
-                            ctx.shadowBlur = 8;
-                            ctx.shadowOffsetX = 2;
-                            ctx.shadowOffsetY = 2;
-                            
-                            // Calcular posição inicial considerando múltiplas linhas
-                            const lineHeight = titleFontSize * 1.2;
-                            const totalHeight = titleLines.length * lineHeight;
-                            let currentY = titleY - (totalHeight / 2) + (lineHeight / 2);
-                            
-                            // Renderizar cada linha
-                            titleLines.forEach((line, index) => {
-                                ctx.fillText(line, canvas.width / 2, currentY);
-                                currentY += lineHeight;
-                            });
-                            
-                            // Resetar sombra
-                            ctx.shadowColor = 'transparent';
-                            ctx.shadowBlur = 0;
-                            ctx.shadowOffsetX = 0;
-                            ctx.shadowOffsetY = 0;
-                            
-                            console.log('✅ TÍTULO RENDERIZADO:', title, `(${titleLines.length} linhas, fontSize: ${titleFontSize})`);
-                        }
-                        
-                        // RENDERIZAR CONTEÚDO
-                        if (content && content.trim()) {
-                            // CORREÇÃO: Para templates horizontais, usar tamanho maior
-                            const aspectRatio = canvas.width / canvas.height;
-                            const isHorizontal = aspectRatio > 1.5;
-                            const baseContentSize = isHorizontal
-                                ? Math.round(canvas.height * 0.08) // 8% para horizontais (40px para 500px de altura)
-                                : Math.round(canvas.height * 0.03); // 3% para verticais
-                            const maxWidth = canvas.width * 0.85; // 85% da largura do canvas
-                            console.log(`📝 Content size: ${baseContentSize}px (${isHorizontal ? 'HORIZONTAL' : 'VERTICAL'})`);
-                            const contentFontSize = adjustFontSize(content, baseContentSize, maxWidth, false);
-                            const contentLines = wrapText(content, maxWidth, contentFontSize, false);
-                            
-                            ctx.font = `${contentFontSize}px Arial`;
-                            ctx.fillStyle = textColor || '#1f2937';
-                            ctx.textAlign = 'center';
-                            ctx.textBaseline = 'middle';
-                            
-                            // Adicionar sombra para contraste
-                            ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
-                            ctx.shadowBlur = 8;
-                            ctx.shadowOffsetX = 2;
-                            ctx.shadowOffsetY = 2;
-                            
-                            // Calcular posição inicial considerando múltiplas linhas
-                            const lineHeight = contentFontSize * 1.4;
-                            const totalHeight = contentLines.length * lineHeight;
-                            let currentY = contentStartY - (totalHeight / 2) + (lineHeight / 2);
-                            
-                            // Renderizar cada linha
-                            contentLines.forEach((line, index) => {
-                                ctx.fillText(line, canvas.width / 2, currentY);
-                                currentY += lineHeight;
-                            });
-                            
-                            // Resetar sombra
-                            ctx.shadowColor = 'transparent';
-                            ctx.shadowBlur = 0;
-                            ctx.shadowOffsetX = 0;
-                            ctx.shadowOffsetY = 0;
-                            
-                            console.log('✅ CONTEÚDO RENDERIZADO:', content, `(${contentLines.length} linhas, fontSize: ${contentFontSize})`);
-                        }
-                        
+
+                        renderTextNode(previewTitle, title, true);
+                        renderTextNode(previewText, content, false);
+
                         console.log('✅ Texto renderizado COM SUCESSO como última camada!');
                         console.log('🔍 DEBUG - Informações do texto renderizado:');
                         console.log('  - Título renderizado:', title);
                         console.log('  - Conteúdo renderizado:', content);
-                        console.log('  - Posição inicial do título (Y):', titleY);
-                        console.log('  - Posição inicial do conteúdo (Y):', contentStartY);
-                        console.log('  - Cor do texto:', textColor);
                         console.log('  - Canvas width:', canvas.width);
                         console.log('  - Canvas height:', canvas.height);
-                        console.log('  - Largura máxima do texto (85%):', Math.round(canvas.width * 0.85));
+                        console.log('  - PreviewRect:', previewRect);
                         
+                        // Nenhuma forma após o texto
                         console.log('🎨 RENDERIZAÇÃO COMPLETA!');
                         console.log('🔍 ORDEM FINAL:');
                         console.log('  1. ✅ Fundo branco');
@@ -6945,89 +6796,183 @@
         }
         
         // Fun��es auxiliares para renderizar elementos no canvas
-        function renderCircleOnCanvas(ctx, pos, size, element) {
-            // IMPORTANTE: Salvar estado do contexto antes de renderizar
-            ctx.save();
+function renderCircleOnCanvas(ctx, pos, size, element) {
+    ctx.save();
+    
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+    const centerX = pos.x + size.width / 2;
+    const centerY = pos.y + size.height / 2;
+    const deg = parseFloat(element.dataset.rotation || '0') || 0;
+    const rad = deg * Math.PI / 180;
+    ctx.translate(centerX, centerY);
+    if (deg !== 0) ctx.rotate(rad);
             
-            // CRÍTICO: Resetar propriedades do contexto para evitar contaminação
-            ctx.globalCompositeOperation = 'source-over';
-            ctx.shadowColor = 'transparent';
-            ctx.shadowBlur = 0;
-            ctx.shadowOffsetX = 0;
-            ctx.shadowOffsetY = 0;
-            
-            const centerX = pos.x + size.width / 2;
-            const centerY = pos.y + size.height / 2;
-            const radius = size.width / 2;
-            
-            // Capturar cor de fundo com fallback
             const backgroundColor = element.style.backgroundColor || '#3b82f6';
             ctx.fillStyle = backgroundColor;
-            
-            // Usar opacidade original do elemento (texto tem fundo próprio agora)
             const originalOpacity = parseFloat(element.style.opacity) || 1;
             ctx.globalAlpha = originalOpacity;
             
-            // Desenhar círculo
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-            ctx.fill();
-            ctx.closePath();
-            
-            // IMPORTANTE: Restaurar estado do contexto
-            ctx.restore();
-            
-            console.log('🔵 Círculo renderizado:', { centerX, centerY, radius, backgroundColor, opacity: originalOpacity });
-        }
-        
-        function renderRectangleOnCanvas(ctx, pos, size, element) {
-            // IMPORTANTE: Salvar estado do contexto antes de renderizar
-            ctx.save();
-            
-            // CRÍTICO: Resetar propriedades do contexto para evitar contaminação
-            ctx.globalCompositeOperation = 'source-over';
-            ctx.shadowColor = 'transparent';
-            ctx.shadowBlur = 0;
-            ctx.shadowOffsetX = 0;
-            ctx.shadowOffsetY = 0;
-            
-            // Capturar cor de fundo com fallback
-            const backgroundColor = element.style.backgroundColor || '#3b82f6';
-            ctx.fillStyle = backgroundColor;
-            
-            // Usar opacidade original do elemento (texto tem fundo próprio agora)
-            const originalOpacity = parseFloat(element.style.opacity) || 1;
-            ctx.globalAlpha = originalOpacity;
-            
-            // Aplicar border-radius se existir
-            const borderRadius = element.style.borderRadius;
-            if (borderRadius && borderRadius !== '0px') {
-                const radius = parseInt(borderRadius) || 8;
-                // Desenhar ret�ngulo com bordas arredondadas
-                ctx.beginPath();
-                ctx.roundRect(pos.x, pos.y, size.width, size.height, radius);
-                ctx.fill();
-                ctx.closePath();
-            } else {
-                ctx.fillRect(pos.x, pos.y, size.width, size.height);
+            const boxShadow = element.style.boxShadow || '0 4px 8px rgba(0, 0, 0, 0.2)';
+            try {
+                const match = boxShadow.match(/(-?\d+)px\s+(-?\d+)px\s+(\d+)px\s+rgba\((\d+),\s*(\d+),\s*(\d+),\s*([0-9.]+)\)/);
+                if (match) {
+                    ctx.shadowOffsetX = parseInt(match[1], 10);
+                    ctx.shadowOffsetY = parseInt(match[2], 10);
+                    ctx.shadowBlur = parseInt(match[3], 10);
+                    const r = match[4], g = match[5], b = match[6], a = match[7];
+                    ctx.shadowColor = `rgba(${r}, ${g}, ${b}, ${a})`;
+                } else {
+                    ctx.shadowOffsetX = 0;
+                    ctx.shadowOffsetY = 4;
+                    ctx.shadowBlur = 8;
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
+                }
+            } catch (_) {
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 4;
+                ctx.shadowBlur = 8;
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
             }
             
-            // IMPORTANTE: Restaurar estado do contexto
+            const border = element.style.border || '2px solid rgba(255, 255, 255, 0.3)';
+            let borderWidth = 2;
+            let borderColor = 'rgba(255, 255, 255, 0.3)';
+            try {
+                const bwMatch = border.match(/(\d+)px/);
+                if (bwMatch) borderWidth = parseInt(bwMatch[1], 10);
+                const colorMatch = border.match(/rgba\([^\)]+\)|#[0-9a-fA-F]{3,8}/);
+                if (colorMatch) borderColor = colorMatch[0];
+            } catch (_) {}
+            const drawW = Math.max(1, size.width - borderWidth);
+            const drawH = Math.max(1, size.height - borderWidth);
+            const radiusX = drawW / 2;
+            const radiusY = drawH / 2;
+            ctx.beginPath();
+            if (typeof ctx.ellipse === 'function') {
+                ctx.ellipse(0, 0, radiusX, radiusY, 0, 0, 2 * Math.PI);
+            } else {
+                ctx.save();
+                ctx.scale(radiusX / Math.max(radiusX, radiusY), radiusY / Math.max(radiusX, radiusY));
+                ctx.arc(0, 0, Math.max(radiusX, radiusY), 0, 2 * Math.PI);
+                ctx.restore();
+            }
+            ctx.fill();
+            ctx.lineWidth = borderWidth;
+            ctx.strokeStyle = borderColor;
+            if (typeof ctx.ellipse === 'function') {
+                ctx.beginPath();
+                ctx.ellipse(0, 0, radiusX, radiusY, 0, 0, 2 * Math.PI);
+                ctx.stroke();
+            } else {
+                ctx.beginPath();
+                ctx.arc(0, 0, Math.max(radiusX, radiusY), 0, 2 * Math.PI);
+                ctx.stroke();
+            }
+            
             ctx.restore();
             
-            console.log('🟦 Retângulo renderizado:', { pos, size, backgroundColor, opacity: originalOpacity });
-        }
+    console.log('🔵 Elipse renderizada:', { centerX, centerY, radiusX, radiusY, backgroundColor, opacity: originalOpacity, rotation: deg });
+}
         
-        function renderLineOnCanvas(ctx, pos, size, element) {
-            // IMPORTANTE: Salvar estado do contexto antes de renderizar
-            ctx.save();
+function renderRectangleOnCanvas(ctx, pos, size, element) {
+    ctx.save();
+    
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+    const deg = parseFloat(element.dataset.rotation || '0') || 0;
+    const rad = deg * Math.PI / 180;
+    const cx = pos.x + size.width / 2;
+    const cy = pos.y + size.height / 2;
+    ctx.translate(cx, cy);
+    if (deg !== 0) ctx.rotate(rad);
             
-            // CRÍTICO: Resetar propriedades do contexto para evitar contaminação
-            ctx.globalCompositeOperation = 'source-over';
-            ctx.shadowColor = 'transparent';
-            ctx.shadowBlur = 0;
-            ctx.shadowOffsetX = 0;
-            ctx.shadowOffsetY = 0;
+            const backgroundColor = element.style.backgroundColor || '#3b82f6';
+            ctx.fillStyle = backgroundColor;
+            const originalOpacity = parseFloat(element.style.opacity) || 1;
+            ctx.globalAlpha = originalOpacity;
+            
+            const boxShadow = element.style.boxShadow || '0 4px 8px rgba(0, 0, 0, 0.2)';
+            try {
+                const match = boxShadow.match(/(-?\d+)px\s+(-?\d+)px\s+(\d+)px\s+rgba\((\d+),\s*(\d+),\s*(\d+),\s*([0-9.]+)\)/);
+                if (match) {
+                    ctx.shadowOffsetX = parseInt(match[1], 10);
+                    ctx.shadowOffsetY = parseInt(match[2], 10);
+                    ctx.shadowBlur = parseInt(match[3], 10);
+                    const r = match[4], g = match[5], b = match[6], a = match[7];
+                    ctx.shadowColor = `rgba(${r}, ${g}, ${b}, ${a})`;
+                } else {
+                    ctx.shadowOffsetX = 0;
+                    ctx.shadowOffsetY = 4;
+                    ctx.shadowBlur = 8;
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
+                }
+            } catch (_) {
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 4;
+                ctx.shadowBlur = 8;
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
+            }
+            
+            const borderRadius = element.style.borderRadius;
+            const border = element.style.border || '2px solid rgba(255, 255, 255, 0.3)';
+            let borderWidth = 2;
+            try {
+                const bwMatch = border.match(/(\d+)px/);
+                if (bwMatch) borderWidth = parseInt(bwMatch[1], 10);
+            } catch (_) {}
+            const drawW = Math.max(1, size.width - borderWidth);
+            const drawH = Math.max(1, size.height - borderWidth);
+    if (borderRadius && borderRadius !== '0px') {
+        const radius = parseInt(borderRadius) || 8;
+        ctx.beginPath();
+        ctx.roundRect(-drawW/2, -drawH/2, drawW, drawH, radius);
+        ctx.fill();
+    } else {
+        ctx.fillRect(-drawW/2, -drawH/2, drawW, drawH);
+    }
+            
+            let borderColor = 'rgba(255, 255, 255, 0.3)';
+            try {
+                const colorMatch = border.match(/rgba\([^\)]+\)|#[0-9a-fA-F]{3,8}/);
+                if (colorMatch) borderColor = colorMatch[0];
+            } catch (_) {}
+            ctx.lineWidth = borderWidth;
+            ctx.strokeStyle = borderColor;
+    if (borderRadius && borderRadius !== '0px') {
+        const radius = parseInt(borderRadius) || 8;
+        ctx.beginPath();
+        ctx.roundRect(-drawW/2, -drawH/2, drawW, drawH, radius);
+        ctx.stroke();
+    } else {
+        ctx.strokeRect(-drawW/2, -drawH/2, drawW, drawH);
+    }
+            
+            ctx.restore();
+            
+    console.log('🟦 Retângulo/rounded renderizado com sombra e borda:', { pos, size, backgroundColor, opacity: originalOpacity, rotation: deg });
+}
+        
+function renderLineOnCanvas(ctx, pos, size, element) {
+    ctx.save();
+    
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+    const deg = parseFloat(element.dataset.rotation || '0') || 0;
+    const rad = deg * Math.PI / 180;
+    const cx = pos.x + size.width / 2;
+    const cy = pos.y + size.height / 2;
+    ctx.translate(cx, cy);
+    if (deg !== 0) ctx.rotate(rad);
             
             // Capturar cor com fallback
             const strokeColor = element.style.backgroundColor || '#3b82f6';
@@ -7037,36 +6982,37 @@
             ctx.globalAlpha = originalOpacity;
             ctx.lineWidth = size.height;
             
-            // Aplicar border-radius se existir (para linhas com bordas arredondadas)
-            const borderRadius = element.style.borderRadius;
-            if (borderRadius && borderRadius !== '0px') {
-                ctx.lineCap = 'round';
-            } else {
-                ctx.lineCap = 'square';
-            }
-            
-            ctx.beginPath();
-            ctx.moveTo(pos.x, pos.y + size.height / 2);
-            ctx.lineTo(pos.x + size.width, pos.y + size.height / 2);
-            ctx.stroke();
-            ctx.closePath();
-            
-            // IMPORTANTE: Restaurar estado do contexto
-            ctx.restore();
-            
-            console.log('➖ Linha renderizada:', { pos, size, strokeColor, opacity: originalOpacity });
-        }
+    const borderRadius = element.style.borderRadius;
+    if (borderRadius && borderRadius !== '0px') {
+        ctx.lineCap = 'round';
+    } else {
+        ctx.lineCap = 'square';
+    }
+    ctx.beginPath();
+    ctx.moveTo(-size.width/2, 0);
+    ctx.lineTo(size.width/2, 0);
+    ctx.stroke();
+    ctx.closePath();
+    
+    ctx.restore();
+    
+    console.log('➖ Linha renderizada:', { pos, size, strokeColor, opacity: originalOpacity, rotation: deg });
+}
         
-        async function renderIconOnCanvas(ctx, pos, size, element) {
-            // IMPORTANTE: Salvar estado do contexto antes de renderizar
-            ctx.save();
-            
-            // CRÍTICO: Resetar propriedades do contexto para evitar contaminação
-            ctx.globalCompositeOperation = 'source-over';
-            ctx.shadowColor = 'transparent';
-            ctx.shadowBlur = 0;
-            ctx.shadowOffsetX = 0;
-            ctx.shadowOffsetY = 0;
+async function renderIconOnCanvas(ctx, pos, size, element) {
+    ctx.save();
+    
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+    const deg = parseFloat(element.dataset.rotation || '0') || 0;
+    const rad = deg * Math.PI / 180;
+    const cx = pos.x + size.width / 2;
+    const cy = pos.y + size.height / 2;
+    ctx.translate(cx, cy);
+    if (deg !== 0) ctx.rotate(rad);
             
             console.log('⭐ Renderizando ícone:', element.id, { pos, size });
             
@@ -7078,10 +7024,10 @@
             };
             
             // Centralizar se houver diferença entre width e height
-            const finalPos = {
-                x: pos.x + (size.width - iconSize) / 2,
-                y: pos.y + (size.height - iconSize) / 2
-            };
+    const finalPos = {
+        x: -iconSize / 2,
+        y: -iconSize / 2
+    };
             
             console.log('🔧 Ajuste para ícone quadrado:', {
                 original: size,
@@ -7113,7 +7059,6 @@
                     // Aplicar opacidade
                     ctx.globalAlpha = parseFloat(element.style.opacity) || 1;
                     
-                    // Desenhar imagem do SVG no canvas (SEMPRE QUADRADO)
                     ctx.drawImage(img, finalPos.x, finalPos.y, finalSize.width, finalSize.height);
                     
                     // Limpar URL temporária
@@ -7124,8 +7069,8 @@
                     // Fallback: renderizar um círculo colorido
                     console.warn('⚠️ SVG não encontrado, usando círculo de fallback');
                     
-                    const centerX = finalPos.x + finalSize.width / 2;
-                    const centerY = finalPos.y + finalSize.height / 2;
+                    const centerX = 0;
+                    const centerY = 0;
                     const radius = finalSize.width / 2;
                     
                     ctx.fillStyle = element.style.backgroundColor || '#3b82f6';
@@ -7141,8 +7086,8 @@
                 console.error('❌ Erro ao renderizar ícone:', error);
                 
                 // Fallback em caso de erro: renderizar círculo
-                const centerX = finalPos.x + finalSize.width / 2;
-                const centerY = finalPos.y + finalSize.height / 2;
+                const centerX = 0;
+                const centerY = 0;
                 const radius = finalSize.width / 2;
                 
                 ctx.fillStyle = '#3b82f6';
@@ -7153,9 +7098,8 @@
                 ctx.fill();
             }
             
-            // IMPORTANTE: Restaurar estado do contexto
-            ctx.restore();
-        }
+    ctx.restore();
+}
 
         // Submit do formul�rio
         document.getElementById('createPostForm').addEventListener('submit', async function(e) {
@@ -7179,47 +7123,36 @@
                     document.getElementById('postContent').value = content; // Sincronizar
                 }
             }
+            // Refrescar preview com os valores finais capturados
+            const pvTitleEl = document.getElementById('previewTitle');
+            const pvTextEl = document.getElementById('previewText');
+            if (pvTitleEl) {
+                pvTitleEl.textContent = title;
+                pvTitleEl.style.display = title ? 'block' : 'none';
+            }
+            if (pvTextEl) {
+                pvTextEl.textContent = content;
+                pvTextEl.style.display = content ? 'block' : 'none';
+            }
             
             console.log('?? Debug - Valores capturados:');
             console.log('Título:', title);
             console.log('Conteúdo:', content);
             console.log('Hashtags:', hashtags);
             
-            // Verificar se os campos estão vazios (EXCETO para slideshows)
-            const isSlideshow = customizationSettings.slideshow && customizationSettings.slideshow.enabled;
-            if (!isSlideshow && (!title || !content)) {
-                alert('Por favor, preencha o título e o conteúdo no modal CONTEÚDO!');
-                return;
-            }
-            
-            if (isSlideshow) {
-                console.log('✅ [SLIDESHOW] Pulando validação de texto (slideshow não precisa texto)');
-            }
-            
             // Preparar dados com FormData para upload de imagem
             const platforms = Array.from(document.querySelectorAll('input[name="platforms"]:checked')).map(cb => cb.value);
             
             const formData = new FormData();
             console.log('📝 VERIFICANDO DADOS ANTES DE ENVIAR:');
-            console.log('  - Título:', title);
-            console.log('  - Conteúdo:', content);
-            console.log('  - Hashtags:', hashtags);
+            console.log('  - Título:', title || '(vazio)');
+            console.log('  - Conteúdo:', content || '(vazio)');
+            console.log('  - Hashtags:', hashtags || '(vazio)');
             
-            // Verificar texto apenas se NÃO for slideshow (usando isSlideshow já declarado acima)
-            if (!isSlideshow && (!title || !content)) {
-                console.error('❌ ERRO: Título ou conteúdo está vazio!');
-                alert('Por favor, preencha o título e o conteúdo antes de salvar.');
-                document.getElementById('loadingOverlay').classList.add('hidden');
-                return;
-            }
-            
-            if (isSlideshow) {
-                console.log('✅ [SLIDESHOW] Texto não obrigatório');
-            }
-            
-            formData.append('title', title);
-            formData.append('content', content);
-            formData.append('hashtags', hashtags);
+            // Garantir que title, content e hashtags sejam strings (nunca undefined)
+            formData.append('title', title || '');
+            formData.append('content', content || '');
+            formData.append('hashtags', hashtags || '');
             
             console.log('✅ Dados adicionados ao FormData');
             formData.append('template', 'Custom');
@@ -7323,7 +7256,9 @@
                             width: element.style.width,
                             height: element.style.height,
                             backgroundColor: element.style.backgroundColor,
-                            opacity: element.style.opacity || '1'
+                            opacity: element.style.opacity || '1',
+                            transform: element.style.transform || '',
+                            rotation: element.dataset.rotation || ''
                         },
                         content: elementContent
                     };
@@ -7388,6 +7323,10 @@
             if (!contentForCanvas) {
                 contentForCanvas = document.getElementById('previewText')?.textContent || '';
             }
+
+            // Garantir que customizationSettings retenha o texto (fallback no servidor/cliente)
+            customizationSettings.title = titleForCanvas || '';
+            customizationSettings.content = contentForCanvas || '';
             
             console.log('📝📝📝 CORREÇÃO CRÍTICA - Texto capturado para renderização:', {
                 title: titleForCanvas,
@@ -7413,19 +7352,9 @@
                 console.log('✅ [SLIDESHOW] Salvamento permitido sem texto');
             }
             
-            // CORREÇÃO CRÍTICA: Atualizar dimensões do slideshow ANTES de salvar
+            // 🎯 CARROSSEL: Não precisa de templateDimensions complexas
             if (customizationSettings.slideshow && customizationSettings.slideshow.enabled) {
-                const templateDims = CoordinateSystem.getOriginalDimensions();
-                customizationSettings.slideshow.templateDimensions = {
-                    width: templateDims.width,
-                    height: templateDims.height,
-                    templateName: currentTemplate?.name,
-                    templateId: currentTemplate?.id
-                };
-                console.log('🔄 FORÇANDO atualização das dimensões do slideshow antes de salvar:', {
-                    template: currentTemplate?.name,
-                    dimensions: `${templateDims.width}×${templateDims.height}`
-                });
+                console.log('🎠 Carrossel ativo - Template:', currentTemplate.name);
             }
             
             // CORREÇÃO: Renderizar canvas final com formas geométricas
@@ -7439,15 +7368,44 @@
                 return;
             }
             
-            console.log('🎯 TEMPLATE ATUAL NO MOMENTO DO SALVAMENTO:', {
+            console.log('');
+            console.log('═══════════════════════════════════════════════════════════');
+            console.log('🚨🚨🚨 SALVAMENTO - TEMPLATE ATUAL:');
+            console.log('═══════════════════════════════════════════════════════════');
+            console.log('🔍 currentTemplate:', {
                 id: currentTemplate?.id,
                 name: currentTemplate?.name,
                 originalWidth: currentTemplate?.metadata?.originalWidth,
                 originalHeight: currentTemplate?.metadata?.originalHeight,
                 aspectRatio: currentTemplate?.aspectRatio
             });
+            console.log('🔍 customizationSettings.currentTemplate:', customizationSettings.currentTemplate);
+            console.log('🔍 customizationSettings.templateDimensions:', customizationSettings.templateDimensions);
             
-            console.log('📐 customizationSettings.templateDimensions:', customizationSettings.templateDimensions);
+            if (customizationSettings.slideshow?.enabled) {
+                console.log('🎬 customizationSettings.slideshow.templateDimensions:', customizationSettings.slideshow.templateDimensions);
+            }
+            console.log('═══════════════════════════════════════════════════════════');
+            console.log('');
+            
+            // 🚨 VERIFICAÇÃO CRÍTICA: currentTemplate e customizationSettings.currentTemplate devem coincidir
+            if (currentTemplate && customizationSettings.currentTemplate) {
+                if (currentTemplate.id !== customizationSettings.currentTemplate.id) {
+                    console.error('❌❌❌ ERRO CRÍTICO: currentTemplate e customizationSettings.currentTemplate DIFERENTES!');
+                    console.error('  - currentTemplate.id:', currentTemplate.id);
+                    console.error('  - customizationSettings.currentTemplate.id:', customizationSettings.currentTemplate.id);
+                    console.error('🔧 CORREÇÃO: Usando customizationSettings.currentTemplate como fonte da verdade');
+                    
+                    // CORREÇÃO: Encontrar o template correto no array templates
+                    const correctTemplate = templates.find(t => t.id === customizationSettings.currentTemplate.id);
+                    if (correctTemplate) {
+                        currentTemplate = correctTemplate;
+                        console.log('✅ currentTemplate corrigido para:', currentTemplate.name);
+                    } else {
+                        console.error('❌ Template correto não encontrado!');
+                    }
+                }
+            }
             
             // CORREÇÃO CRÍTICA: SEMPRE atualizar templateDimensions antes de salvar
             console.log('🔄 Forçando atualização de templateDimensions...');
@@ -7460,50 +7418,30 @@
             };
             console.log('✅ templateDimensions FORÇADO:', customizationSettings.templateDimensions);
             
+            // VERIFICAÇÃO FINAL: Garantir que currentTemplate e templateDimensions estão sincronizados
+            if (customizationSettings.currentTemplate) {
+                if (customizationSettings.currentTemplate.originalWidth !== customizationSettings.templateDimensions.originalWidth ||
+                    customizationSettings.currentTemplate.originalHeight !== customizationSettings.templateDimensions.originalHeight) {
+                    console.error('⚠️ AVISO: currentTemplate e templateDimensions estão DESSINCRONIZADOS!');
+                    console.error('  - currentTemplate:', customizationSettings.currentTemplate);
+                    console.error('  - templateDimensions:', customizationSettings.templateDimensions);
+                    console.log('🔧 Corrigindo currentTemplate para corresponder ao templateDimensions...');
+                    customizationSettings.currentTemplate.originalWidth = customizationSettings.templateDimensions.originalWidth;
+                    customizationSettings.currentTemplate.originalHeight = customizationSettings.templateDimensions.originalHeight;
+                }
+            }
+            console.log('✅ VERIFICAÇÃO FINAL - Template consistente:', {
+                currentTemplate: customizationSettings.currentTemplate,
+                templateDimensions: customizationSettings.templateDimensions
+            });
+            
             // CORREÇÃO: Salvar template no FormData para verificação
             formData.append('template', currentTemplate.name || 'Custom');
             
             try {
-                // VERIFICAR SE HÁ SLIDESHOW (original OU editado)
-                const hasSlideshow = customizationSettings.slideshow && 
-                                   customizationSettings.slideshow.enabled && 
-                                   ((customizationSettings.slideshow.images && customizationSettings.slideshow.images.length === 4) ||
-                                    (customizationSettings.slideshow.savedImages && customizationSettings.slideshow.savedImages.length === 4));
-                
-                console.log('🔍 SLIDESHOW CHECK:', {
-                    hasSlideshow,
-                    enabled: customizationSettings.slideshow?.enabled,
-                    imagesCount: customizationSettings.slideshow?.images?.length,
-                    savedImagesCount: customizationSettings.slideshow?.savedImages?.length
-                });
-                
-                if (hasSlideshow) {
-                    // CORREÇÃO: Se estiver editando e não tiver imagens originais, carregar das savedImages
-                    if (!customizationSettings.slideshow.images || customizationSettings.slideshow.images.length === 0) {
-                        if (customizationSettings.slideshow.savedImages && customizationSettings.slideshow.savedImages.length === 4) {
-                            console.log('🔄 Editando: Carregando imagens das URLs salvas para re-renderizar...');
-                            customizationSettings.slideshow.images = customizationSettings.slideshow.savedImages;
-                        }
-                    }
-                    
-                    // Renderizar as 4 imagens do slideshow
-                    const slideshowCanvases = await renderSlideshowCanvases(titleForCanvas, contentForCanvas);
-                    
-                    // Converter cada canvas para Blob e adicionar ao FormData
-                    for (let i = 0; i < slideshowCanvases.length; i++) {
-                        const dataURL = slideshowCanvases[i];
-                        const byteString = atob(dataURL.split(',')[1]);
-                        const mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
-                        const ab = new ArrayBuffer(byteString.length);
-                        const ia = new Uint8Array(ab);
-                        for (let j = 0; j < byteString.length; j++) {
-                            ia[j] = byteString.charCodeAt(j);
-                        }
-                        const blob = new Blob([ab], { type: mimeString });
-                        formData.append(`slideshow_${i + 1}`, blob, `slideshow-${i + 1}.png`);
-                    }
-                } else {
-                    // Post normal (sem slideshow) - renderizar 1 imagem apenas
+                // 🗑️ SLIDESHOW REMOVIDO - Apenas posts com imagem única
+                {
+                    // Post normal - renderizar 1 imagem apenas
                     console.log('🎨 Iniciando renderização do canvas final...');
                     console.log('🎨 Template atual antes de renderizar:', {
                         id: currentTemplate?.id,
@@ -7545,36 +7483,43 @@
                     }
                     const blob = new Blob([ab], { type: mimeString });
                     
-                    // Adicionar como arquivo ao FormData
-                    formData.append('finalCanvas', blob, 'final-canvas.png');
+                    // 🎯 DOWNLOAD AUTOMÁTICO para o usuário
+                    const downloadUrl = URL.createObjectURL(blob);
+                    const downloadLink = document.createElement('a');
                     
-                    console.log('✅✅✅ Canvas final renderizado com sucesso - dimensões corretas aplicadas');
-                    console.log('📤📤📤 ENVIANDO finalCanvas para servidor como Blob - Tamanho:', blob.size, 'bytes');
-                    console.log('📤 Tipo do blob:', blob.type);
-                    console.log('📤 Template usado:', currentTemplate?.name, '(ID:', currentTemplate?.id, ')');
+                    // Nome do arquivo baseado no template e título
+                    const postTitle = document.getElementById('postTitle').value || 'post';
+                    const sanitizedTitle = postTitle.replace(/[^a-z0-9]/gi, '-').toLowerCase();
+                    const templateName = currentTemplate.name.replace(/\s+/g, '-').toLowerCase();
+                    const fileName = `${templateName}-${sanitizedTitle}-${Date.now()}.png`;
                     
-                    // CORREÇÃO: Obter dimensões do template atual em vez de usar variáveis não definidas
-                    const templateDims = CoordinateSystem.getOriginalDimensions();
-                    let expectedWidth = templateDims.width;
-                    let expectedHeight = templateDims.height;
+                    // 🎯 SIMPLES: Obter dimensões do currentTemplate (ANTES de usar!)
+                    let expectedWidth, expectedHeight;
                     
-                    // Aplicar dimensões fixas para templates específicos
                     if (currentTemplate?.id === 'twitter-header') {
                         expectedWidth = 1500;
                         expectedHeight = 500;
                     } else if (currentTemplate?.id === 'youtube-thumbnail') {
                         expectedWidth = 1280;
                         expectedHeight = 720;
-                    }
-                    
-                    console.log('📤 Dimensões esperadas do canvas:', expectedWidth, 'x', expectedHeight);
-                    
-                    // CORREÇÃO: Verificar se o blob foi adicionado corretamente ao FormData
-                    if (formData.has('finalCanvas')) {
-                        console.log('✅ finalCanvas adicionado ao FormData com sucesso');
                     } else {
-                        console.error('❌ ERRO: finalCanvas NÃO foi adicionado ao FormData!');
+                        expectedWidth = currentTemplate.metadata.originalWidth;
+                        expectedHeight = currentTemplate.metadata.originalHeight;
                     }
+                    
+                    downloadLink.href = downloadUrl;
+                    downloadLink.download = fileName;
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    document.body.removeChild(downloadLink);
+                    URL.revokeObjectURL(downloadUrl);
+                    
+                    console.log('📥 DOWNLOAD AUTOMÁTICO iniciado:', fileName);
+                    console.log('✅ Imagem renderizada no tamanho correto:', expectedWidth, 'x', expectedHeight);
+                    console.log('💾 Salvando apenas metadados no servidor (imagem já baixada)');
+                    console.log('📤 Tipo do blob:', blob.type);
+                    console.log('📤 Template usado:', currentTemplate?.name, '(ID:', currentTemplate?.id, ')');
+                    console.log('📤 Dimensões esperadas:', expectedWidth, 'x', expectedHeight);
                 }
             } catch (error) {
                 console.error('❌❌❌ Erro ao renderizar canvas final:', error);
@@ -7595,7 +7540,21 @@
                             ia[i] = byteString.charCodeAt(i);
                         }
                         const blob = new Blob([ab], { type: mimeString });
-                        formData.append('finalCanvas', blob, 'final-canvas.png');
+                        
+                        // 🎯 DOWNLOAD AUTOMÁTICO (segunda tentativa)
+                        const downloadUrl = URL.createObjectURL(blob);
+                        const downloadLink = document.createElement('a');
+                        const postTitle = document.getElementById('postTitle').value || 'post';
+                        const sanitizedTitle = postTitle.replace(/[^a-z0-9]/gi, '-').toLowerCase();
+                        const templateName = currentTemplate.name.replace(/\s+/g, '-').toLowerCase();
+                        const fileName = `${templateName}-${sanitizedTitle}-${Date.now()}.png`;
+                        downloadLink.href = downloadUrl;
+                        downloadLink.download = fileName;
+                        document.body.appendChild(downloadLink);
+                        downloadLink.click();
+                        document.body.removeChild(downloadLink);
+                        URL.revokeObjectURL(downloadUrl);
+                        console.log('📥 DOWNLOAD AUTOMÁTICO iniciado (retry):', fileName);
                         console.log('✅ Canvas renderizado com sucesso na segunda tentativa');
                     } catch (retryError) {
                         console.error('❌❌❌ Erro também na segunda tentativa:', retryError);
@@ -7647,6 +7606,24 @@
             } else {
                 console.log('❌ SLIDESHOW NÃO DETECTADO!');
             }
+            
+            // 🚨 LOG FINAL ANTES DE SALVAR
+            console.log('');
+            console.log('═══════════════════════════════════════════════════════════');
+            console.log('🚨🚨🚨 DADOS FINAIS QUE SERÃO SALVOS:');
+            console.log('═══════════════════════════════════════════════════════════');
+            console.log('📝 TÍTULO:', title || '(vazio)');
+            console.log('📝 CONTEÚDO:', content || '(vazio)');
+            console.log('📝 HASHTAGS:', hashtags || '(vazio)');
+            console.log('📐 Template ID:', customizationSettings.currentTemplate?.id);
+            console.log('📐 Template Name:', customizationSettings.currentTemplate?.name);
+            console.log('📐 Dimensões:', `${customizationSettings.currentTemplate?.originalWidth}x${customizationSettings.currentTemplate?.originalHeight}`);
+            console.log('📐 templateDimensions:', customizationSettings.templateDimensions);
+            if (customizationSettings.slideshow?.enabled) {
+                console.log('🎠 Carrossel com', customizationSettings.slideshow.images?.length, 'imagens');
+            }
+            console.log('═══════════════════════════════════════════════════════════');
+            console.log('');
             
             formData.append('customization', JSON.stringify(customizationSettings));
             
@@ -7739,6 +7716,15 @@
                 console.log('?? Debug - EditId detectado:', editId);
                 console.log('?? Debug - Modo de edi��o:', editId ? '✅ SIM' : '❌ N�O');
                 
+                // 🚨 LOG CRÍTICO: Verificar FormData antes de enviar
+                console.log('');
+                console.log('🚨🚨🚨 VERIFICAÇÃO FINAL DO FORMDATA:');
+                console.log('📝 Title no FormData:', formData.get('title'));
+                console.log('📝 Content no FormData:', formData.get('content'));
+                console.log('📝 Hashtags no FormData:', formData.get('hashtags'));
+                console.log('📐 Template no FormData:', formData.get('template'));
+                console.log('');
+                
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 segundos
                 
@@ -7764,17 +7750,11 @@
                 console.log('🖼️ postId:', data.postId || data.post?.id);
                 
                 if (editId) {
-                    console.log('? Post atualizado com sucesso! ID:', editId);
-                    alert('Post atualizado com sucesso!');
+                    console.log('✅ Post atualizado com sucesso! ID:', editId);
+                    alert('✅ Post atualizado com sucesso!\n📥 Imagem baixada automaticamente!');
                 } else {
                     console.log('✅ Post criado com sucesso!');
-                    console.log('🔍 Verificando se finalCanvas foi salvo...');
-                    if (data.post && data.post.image_url) {
-                        console.log('✅✅✅ FINALCANVAS SALVO COM SUCESSO! URL:', data.post.image_url);
-                    } else {
-                        console.error('❌❌❌ FINALCANVAS NÃO FOI SALVO! Verifique logs do servidor');
-                    }
-                    alert('Post criado com sucesso!');
+                    alert('✅ Post salvo com sucesso!\n📥 Imagem baixada automaticamente!\n\nVerifique sua pasta de Downloads.');
                 }
                 
                 window.location.href = '/posts';
@@ -7812,11 +7792,77 @@
         
         // Abrir modal de slideshow (escopo global para onclick)
         window.openSlideshowModal = function() {
+            console.log('');
+            console.log('═══════════════════════════════════════════════════════════');
+            console.log('🎬 ABRINDO MODAL DE SLIDESHOW');
+            console.log('═══════════════════════════════════════════════════════════');
+            console.log('📐 currentTemplate ANTES:', currentTemplate?.name);
+            console.log('📐 customizationSettings.currentTemplate:', customizationSettings.currentTemplate);
+            
+            // 🚨 CORREÇÃO DEFINITIVA: Sincronizar currentTemplate com customizationSettings
+            if (customizationSettings.currentTemplate && customizationSettings.currentTemplate.id) {
+                const correctTemplate = templates.find(t => t.id === customizationSettings.currentTemplate.id);
+                if (correctTemplate) {
+                    if (currentTemplate.id !== correctTemplate.id) {
+                        console.warn('⚠️ currentTemplate DESSINCRONIZADO! Corrigindo...');
+                        console.warn('   De:', currentTemplate.name, '→ Para:', correctTemplate.name);
+                        currentTemplate = correctTemplate;
+                    }
+                }
+            }
+            
+            console.log('📐 currentTemplate DEPOIS:', currentTemplate?.name);
+            console.log('📐 Dimensões finais:', currentTemplate?.metadata?.originalWidth, 'x', currentTemplate?.metadata?.originalHeight);
+            console.log('═══════════════════════════════════════════════════════════');
+            console.log('');
+            
             document.getElementById('slideshowModal').style.display = 'flex';
             resetSlideshowData();
         }
         
         // Fechar modal de slideshow
+        // Atualizar ajuste de imagem no preview do slideshow
+        function updateSlideshowPreviewFit() {
+            const imageFit = document.getElementById('slideshowImageFit')?.value || 'cover';
+            const previewImage = document.getElementById('slideshowActiveImage');
+            
+            if (previewImage) {
+                // Mapear background-size para object-fit
+                const objectFitMap = {
+                    'cover': 'cover',
+                    'contain': 'contain',
+                    'fill': 'fill',
+                    'scale-down': 'scale-down'
+                };
+                
+                previewImage.style.objectFit = objectFitMap[imageFit] || 'cover';
+                console.log('✅ [PREVIEW] Ajuste de imagem atualizado:', imageFit);
+            }
+        }
+        
+        // Atualizar ajuste de imagem do slideshow (na edição)
+        function updateSlideshowImageFit(newFit) {
+            console.log('✅ [EDIT] Alterando imageFit para:', newFit);
+            
+            // Atualizar nas configurações
+            if (customizationSettings.slideshow) {
+                customizationSettings.slideshow.imageFit = newFit;
+            }
+            
+            // Aplicar ao canvas imediatamente
+            const canvas = document.getElementById('canvas');
+            if (canvas) {
+                canvas.style.backgroundSize = newFit;
+                console.log('✅ [EDIT] Canvas atualizado com novo fit:', newFit);
+            }
+            
+            // Sincronizar com o dropdown do modal se existir
+            const modalSelect = document.getElementById('slideshowImageFit');
+            if (modalSelect) {
+                modalSelect.value = newFit;
+            }
+        }
+        
         function closeSlideshowModal() {
             document.getElementById('slideshowModal').style.display = 'none';
             stopSlideshowPreview();
@@ -7941,6 +7987,10 @@
             const activeImage = document.getElementById('slideshowActiveImage');
             const dots = document.querySelectorAll('.slideshow-dot');
             
+            // Aplicar ajuste de imagem selecionado
+            const imageFit = document.getElementById('slideshowImageFit')?.value || 'cover';
+            activeImage.style.objectFit = imageFit;
+            
             // Fade out suave (500ms)
             activeImage.style.transition = 'opacity 0.5s ease-in-out';
             activeImage.style.opacity = '0';
@@ -7991,26 +8041,33 @@
             }
             
             // Salvar no customizationSettings com dimensões do template
-            const templateDims = CoordinateSystem.getOriginalDimensions();
+            const imageFit = document.getElementById('slideshowImageFit')?.value || 'cover';
+            
+            console.log('🎠 APLICANDO CARROSSEL:');
+            console.log('  - Template:', currentTemplate.name);
+            console.log('  - Dimensões:', currentTemplate.metadata.originalWidth, 'x', currentTemplate.metadata.originalHeight);
+            
+            // 🎯 SIMPLES: Apenas salvar as 4 imagens
             customizationSettings.slideshow = {
                 enabled: true,
                 images: slideshowImages,
-                interval: 4000, // 4 segundos
-                templateDimensions: {
-                    width: templateDims.width,
-                    height: templateDims.height,
-                    templateName: currentTemplate?.name,
-                    templateId: currentTemplate?.id
-                }
+                interval: 4000,
+                imageFit: imageFit
             };
             
-            console.log('📐 Slideshow salvo com dimensões do template:', {
-                template: currentTemplate?.name,
-                dimensions: `${templateDims.width}×${templateDims.height}`
-            });
+            console.log('✅ Carrossel configurado:', slideshowImages.length, 'imagens');
             
             // Aplicar ao canvas de preview
             applySlideshowToCanvas();
+            
+            // Mostrar controle de ajuste de imagem
+            const fitControl = document.getElementById('slideshowImageFitControl');
+            const fitSelect = document.getElementById('slideshowImageFitEdit');
+            if (fitControl && fitSelect) {
+                fitControl.style.display = 'block';
+                fitSelect.value = imageFit;
+                console.log('✅ [CREATE] Controle de ajuste de imagem exibido');
+            }
             
             // Fechar modal
             closeSlideshowModal();
@@ -8040,6 +8097,7 @@
                 if (!customizationSettings.slideshow || !customizationSettings.slideshow.enabled) return;
                 
                 const images = customizationSettings.slideshow.images;
+                const imageFit = customizationSettings.slideshow.imageFit || 'cover';
                 
                 // Fade out suave
                 canvas.style.opacity = '0';
@@ -8048,7 +8106,7 @@
                 // Aguardar fade out completar antes de trocar imagem
                 setTimeout(() => {
                     canvas.style.backgroundImage = `url(${images[currentIndex]})`;
-                    canvas.style.backgroundSize = 'cover';
+                    canvas.style.backgroundSize = imageFit; // Usar ajuste salvo
                     canvas.style.backgroundPosition = 'center';
                     
                     // Fade in suave
@@ -8188,17 +8246,12 @@
                 console.log('✅ Conteúdo preenchido:', modalContent.value);
             }
             
-            // 3. Verificar se tem título e conteúdo (EXCETO slideshows)
-            const hasSlideshow = customizationSettings.slideshow && customizationSettings.slideshow.enabled;
-            if (!hasSlideshow && (!formTitle.value || !formContent.value)) {
+            // 3. Verificar se tem título e conteúdo
+            if (!formTitle.value || !formContent.value) {
                 alert('⚠️ Por favor, preencha o Título e Conteúdo no modal CONTEÚDO antes de salvar!');
                 // Abrir o modal de conteúdo para o usuário preencher
                 openModal('conteudoModal');
                 return;
-            }
-            
-            if (hasSlideshow) {
-                console.log('✅ [SLIDESHOW] Validação de texto ignorada');
             }
             
             // 4. Submeter o formulário (isso vai chamar o event listener de submit que já existe)
