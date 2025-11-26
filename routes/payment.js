@@ -2,26 +2,36 @@ const express = require('express');
 const router = express.Router();
 
 // Configuração do Stripe (usar chaves de teste por enquanto)
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY || 'sk_test_51234567890abcdef');
+const stripeSecret = process.env.STRIPE_SECRET_KEY;
+const stripe = stripeSecret ? require('stripe')(stripeSecret) : null;
 
 // Planos disponíveis
 const PLANS = {
     basic: {
         name: 'Básico',
-        price: 29.90,
-        features: ['10 posts por mês', 'Templates básicos', 'Customização de cores', 'Suporte por email']
+        price: 0,
+        features: ['6 posts por mês', 'Templates básicos', 'Customização de cores', 'Suporte por email']
     },
     premium: {
         name: 'Premium',
-        price: 59.90,
+        price: 39.50,
         features: ['50 posts por mês', 'Todos os templates', 'Text-to-Speech', 'Vídeos com narração', 'Suporte prioritário']
     }
 };
 
+// Config Stripe: publicar chave pública para o frontend
+router.get('/config', (req, res) => {
+    const publishableKey = process.env.STRIPE_PUBLISHABLE_KEY;
+    if (!publishableKey) {
+        return res.status(500).json({ error: 'STRIPE_PUBLISHABLE_KEY ausente' });
+    }
+    res.json({ publishableKey });
+});
+
 // Criar Assinatura Recorrente
 router.post('/create-subscription', async (req, res) => {
     try {
-        const { plan, billingName, billingEmail, paymentMethodId } = req.body;
+        const { plan, billingName, billingEmail, paymentMethodId, customerId } = req.body;
         
         console.log('💳 Criando Assinatura:', { plan, billingName, billingEmail });
         
@@ -31,32 +41,49 @@ router.post('/create-subscription', async (req, res) => {
         }
         
         // IDs dos produtos no Stripe (obtenha no dashboard do Stripe)
+        if (!stripe) {
+            return res.status(500).json({ error: 'Stripe não configurado' });
+        }
         const STRIPE_PRODUCTS = {
-            basic: process.env.STRIPE_BASIC_PRICE_ID || 'price_basic_poststudio', // Substitua pelo ID real
-            premium: process.env.STRIPE_PREMIUM_PRICE_ID || 'price_premium_poststudio' // Substitua pelo ID real
+            basic: process.env.STRIPE_BASIC_PRICE_ID,
+            premium: process.env.STRIPE_PREMIUM_PRICE_ID
         };
+        if (!STRIPE_PRODUCTS[plan]) {
+            return res.status(500).json({ error: 'PRICE_ID ausente para o plano' });
+        }
         
-        // Criar Customer no Stripe
-        const customer = await stripe.customers.create({
-            email: billingEmail,
-            name: billingName,
-            metadata: {
-                userId: req.session.userId || 'demo',
-                plan: plan
-            }
+        // Usar customer existente se fornecido, senão criar
+        let customer;
+        if (customerId) {
+            customer = await stripe.customers.retrieve(customerId);
+            // atualizar dados (opcional)
+            await stripe.customers.update(customerId, {
+                email: billingEmail,
+                name: billingName,
+                metadata: { userId: req.session.userId || 'demo', plan }
+            });
+        } else {
+            customer = await stripe.customers.create({
+                email: billingEmail,
+                name: billingName,
+                metadata: {
+                    userId: req.session.userId || 'demo',
+                    plan: plan
+                }
+            });
+        }
+        
+        // Anexar método de pagamento ao cliente
+        await stripe.paymentMethods.attach(paymentMethodId, { customer: customer.id });
+        await stripe.customers.update(customer.id, {
+            invoice_settings: { default_payment_method: paymentMethodId }
         });
-        
+
         // Criar Assinatura
         const subscription = await stripe.subscriptions.create({
             customer: customer.id,
-            items: [{
-                price: STRIPE_PRODUCTS[plan], // Use o price_id do produto
-            }],
-            default_payment_method: paymentMethodId,
-            metadata: {
-                plan: plan,
-                userId: req.session.userId || 'demo'
-            },
+            items: [{ price: STRIPE_PRODUCTS[plan] }],
+            metadata: { plan, userId: req.session.userId || 'demo' },
             expand: ['latest_invoice.payment_intent']
         });
         
@@ -70,7 +97,7 @@ router.post('/create-subscription', async (req, res) => {
         
     } catch (error) {
         console.error('❌ Erro ao criar assinatura:', error);
-        res.status(500).json({ error: 'Erro interno do servidor' });
+        res.status(500).json({ error: error.message || 'Erro interno do servidor' });
     }
 });
 
@@ -244,3 +271,23 @@ router.post('/create-portal-session', async (req, res) => {
 });
 
 module.exports = router;
+// Ativar plano gratuito (Básico)
+router.post('/activate-free-plan', async (req, res) => {
+    try {
+        const { name, email } = req.body || {};
+        const userId = req.session.userId || 'demo';
+        console.log('🆓 Ativando plano gratuito para usuário:', { userId, name, email });
+
+        // Marcar na sessão
+        req.session.plan = 'basic';
+        req.session.subscription_status = 'active';
+
+        // Opcional: persistir em banco (exemplo comentado)
+        // await pool.execute('UPDATE users SET plan = ?, subscription_status = ? WHERE id = ?', ['basic', 'active', userId]);
+
+        return res.json({ success: true, plan: 'basic', status: 'active' });
+    } catch (error) {
+        console.error('❌ Erro ao ativar plano gratuito:', error);
+        return res.status(500).json({ error: 'Erro interno ao ativar plano gratuito' });
+    }
+});

@@ -1,3 +1,6 @@
+// Carregar variáveis de ambiente do arquivo .env
+require('dotenv').config();
+
 const express = require('express');
 const path = require('path');
 const mysql = require('mysql2/promise');
@@ -43,23 +46,23 @@ const dbConfig = {
 // Criar pool de conexões
 const pool = mysql.createPool(dbConfig);
 
-// Testar conexão com o banco
-pool.getConnection((err, connection) => {
-    if (err) {
-        console.error('❌ ERRO DE CONEXÃO COM O BANCO:', err.code);
-        console.error('❌ Mensagem:', err.message);
-        console.error('❌ Configuração atual:', {
-            host: dbConfig.host,
-            user: dbConfig.user,
-            database: dbConfig.database,
-            password: '***'
-        });
-    } else {
-        console.log('✅ Conexão com MySQL bem-sucedida!');
-        console.log('✅ Banco de dados:', dbConfig.database);
-        connection.release();
-    }
-});
+// Testar conexão com o banco (desabilitado - teste será feito em startServer)
+// pool.getConnection((err, connection) => {
+//     if (err) {
+//         console.error('❌ ERRO DE CONEXÃO COM O BANCO:', err.code);
+//         console.error('❌ Mensagem:', err.message);
+//         console.error('❌ Configuração atual:', {
+//             host: dbConfig.host,
+//             user: dbConfig.user,
+//             database: dbConfig.database,
+//             password: '***'
+//         });
+//     } else {
+//         console.log('✅ Conexão com MySQL bem-sucedida!');
+//         console.log('✅ Banco de dados:', dbConfig.database);
+//         connection.release();
+//     }
+// });
 
 // Configuração do multer para upload de arquivos
 const storage = multer.diskStorage({
